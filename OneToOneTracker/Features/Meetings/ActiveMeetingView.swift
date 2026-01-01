@@ -5,6 +5,11 @@ struct ActiveMeetingView: View {
     @StateObject private var viewModel: ActiveMeetingViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var showingEndConfirmation = false
+    @State private var showingUpgrade = false
+
+    private var canAccessWeeklyGoals: Bool {
+        AppSettings.shared.canAccessWeeklyGoals
+    }
 
     init(meeting: Meeting) {
         self._viewModel = StateObject(wrappedValue: ActiveMeetingViewModel(meeting: meeting))
@@ -19,41 +24,48 @@ struct ActiveMeetingView: View {
                 // Agenda checklist
                 AgendaChecklistSection(viewModel: viewModel)
 
-                // This Week's Goals (optional, auto-populated from previous meeting)
-                FeedbackListSection(
-                    title: "This Week's Goals",
-                    icon: "list.clipboard.fill",
-                    iconColor: .blue,
-                    items: $viewModel.thisWeekGoals,
-                    placeholder: "Add a goal for this week..."
-                )
+                // Weekly Goals & Metrics (Premium feature)
+                if canAccessWeeklyGoals {
+                    // This Week's Goals (optional, auto-populated from previous meeting)
+                    FeedbackListSection(
+                        title: "This Week's Goals",
+                        icon: "list.clipboard.fill",
+                        iconColor: .blue,
+                        items: $viewModel.thisWeekGoals,
+                        placeholder: "Add a goal for this week..."
+                    )
 
-                // Progress Updates (optional)
-                FeedbackListSection(
-                    title: "Progress Updates",
-                    icon: "chart.bar.fill",
-                    iconColor: .purple,
-                    items: $viewModel.thisWeekProgress,
-                    placeholder: "Add a progress update..."
-                )
+                    // Progress Updates (optional)
+                    FeedbackListSection(
+                        title: "Progress Updates",
+                        icon: "chart.bar.fill",
+                        iconColor: .purple,
+                        items: $viewModel.thisWeekProgress,
+                        placeholder: "Add a progress update..."
+                    )
 
-                // Key Metrics (optional, carries over between meetings)
-                FeedbackListSection(
-                    title: "Key Metrics",
-                    icon: "chart.line.uptrend.xyaxis",
-                    iconColor: .orange,
-                    items: $viewModel.keyMetrics,
-                    placeholder: "Add a metric you're tracking..."
-                )
+                    // Key Metrics (optional, carries over between meetings)
+                    FeedbackListSection(
+                        title: "Key Metrics",
+                        icon: "chart.line.uptrend.xyaxis",
+                        iconColor: .orange,
+                        items: $viewModel.keyMetrics,
+                        placeholder: "Add a metric you're tracking..."
+                    )
 
-                // Next Week's Goals (optional, carries to next meeting)
-                FeedbackListSection(
-                    title: "Next Week's Goals",
-                    icon: "arrow.right.circle.fill",
-                    iconColor: .teal,
-                    items: $viewModel.nextWeekGoals,
-                    placeholder: "Add a goal for next week..."
-                )
+                    // Next Week's Goals (optional, carries to next meeting)
+                    FeedbackListSection(
+                        title: "Next Week's Goals",
+                        icon: "arrow.right.circle.fill",
+                        iconColor: .teal,
+                        items: $viewModel.nextWeekGoals,
+                        placeholder: "Add a goal for next week..."
+                    )
+                } else {
+                    PremiumLockedSection(feature: .weeklyGoalsMetrics) {
+                        showingUpgrade = true
+                    }
+                }
 
                 // Notes
                 NotesSection(notes: $viewModel.notes)
@@ -138,6 +150,9 @@ struct ActiveMeetingView: View {
         }
         .task {
             await viewModel.loadData()
+        }
+        .sheet(isPresented: $showingUpgrade) {
+            UpgradeView()
         }
     }
 }

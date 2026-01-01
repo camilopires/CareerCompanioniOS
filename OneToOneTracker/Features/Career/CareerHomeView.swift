@@ -6,6 +6,8 @@ struct CareerHomeView: View {
     @State private var showingAddGoal = false
     @State private var showingAddAchievement = false
     @State private var showingReportBuilder = false
+    @State private var showingUpgrade = false
+    @State private var upgradeFeature: PremiumFeature = .unlimitedGoals
 
     var body: some View {
         NavigationStack {
@@ -15,16 +17,36 @@ struct CareerHomeView: View {
                     OverallProgressCard(viewModel: viewModel)
 
                     // Goals section
-                    GoalsSummarySection(viewModel: viewModel, onAddGoal: { showingAddGoal = true })
+                    GoalsSummarySection(viewModel: viewModel, onAddGoal: {
+                        if AppSettings.shared.canAddMoreGoals {
+                            showingAddGoal = true
+                        } else {
+                            upgradeFeature = .unlimitedGoals
+                            showingUpgrade = true
+                        }
+                    })
 
                     // Achievements section
-                    AchievementsSummarySection(viewModel: viewModel, onAddAchievement: { showingAddAchievement = true })
+                    AchievementsSummarySection(viewModel: viewModel, onAddAchievement: {
+                        if AppSettings.shared.canAddMoreAchievements {
+                            showingAddAchievement = true
+                        } else {
+                            upgradeFeature = .unlimitedAchievements
+                            showingUpgrade = true
+                        }
+                    })
 
-                    // Generate Report button
-                    Button(action: { showingReportBuilder = true }) {
-                        Label("Generate Performance Report", systemImage: "doc.text.fill")
+                    // Generate Report button (Premium feature)
+                    if AppSettings.shared.canAccessReports {
+                        Button(action: { showingReportBuilder = true }) {
+                            Label("Generate Performance Report", systemImage: "doc.text.fill")
+                        }
+                        .buttonStyle(SecondaryButtonStyle())
+                    } else {
+                        PremiumLockedSection(feature: .performanceReports) {
+                            showingUpgrade = true
+                        }
                     }
-                    .buttonStyle(SecondaryButtonStyle())
                 }
                 .padding(.horizontal, Spacing.screenPadding)
                 .padding(.bottom, Spacing.xxl)
@@ -46,6 +68,9 @@ struct CareerHomeView: View {
             }
             .sheet(isPresented: $showingReportBuilder) {
                 ReportBuilderView(goals: viewModel.goals, achievements: viewModel.achievements)
+            }
+            .sheet(isPresented: $showingUpgrade) {
+                UpgradeView()
             }
             .task {
                 await viewModel.loadData()

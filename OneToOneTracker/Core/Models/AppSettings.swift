@@ -89,6 +89,105 @@ final class AppSettings {
         set { UserDefaults.standard.set(newValue, forKey: "selectedCalendarID") }
     }
 
+    // MARK: - Premium Trial (v2.4)
+
+    /// Date when the free trial started (nil = never started)
+    var trialStartDate: Date? {
+        get { UserDefaults.standard.object(forKey: "trialStartDate") as? Date }
+        set { UserDefaults.standard.set(newValue, forKey: "trialStartDate") }
+    }
+
+    // MARK: - Cached Entity Counts (for limit checking)
+
+    /// Cached count of people (managers/reports)
+    var cachedPeopleCount: Int {
+        get { UserDefaults.standard.integer(forKey: "cachedPeopleCount") }
+        set { UserDefaults.standard.set(newValue, forKey: "cachedPeopleCount") }
+    }
+
+    /// Cached count of active action items
+    var cachedActionItemCount: Int {
+        get { UserDefaults.standard.integer(forKey: "cachedActionItemCount") }
+        set { UserDefaults.standard.set(newValue, forKey: "cachedActionItemCount") }
+    }
+
+    /// Cached count of active career goals
+    var cachedGoalCount: Int {
+        get { UserDefaults.standard.integer(forKey: "cachedGoalCount") }
+        set { UserDefaults.standard.set(newValue, forKey: "cachedGoalCount") }
+    }
+
+    /// Cached count of achievements
+    var cachedAchievementCount: Int {
+        get { UserDefaults.standard.integer(forKey: "cachedAchievementCount") }
+        set { UserDefaults.standard.set(newValue, forKey: "cachedAchievementCount") }
+    }
+
+    // MARK: - Cached Premium Status (updated by SubscriptionManager)
+
+    /// Cached premium access status (updated by SubscriptionManager to avoid main actor issues)
+    var cachedHasPremiumAccess: Bool {
+        get { UserDefaults.standard.bool(forKey: "cachedHasPremiumAccess") }
+        set { UserDefaults.standard.set(newValue, forKey: "cachedHasPremiumAccess") }
+    }
+
+    // MARK: - Feature Access
+
+    /// Whether user can add more people (premium or under limit)
+    var canAddMorePeople: Bool {
+        cachedHasPremiumAccess || cachedPeopleCount < PremiumFeatures.maxFreePeople
+    }
+
+    /// Whether user can add more action items (premium or under limit)
+    var canAddMoreActionItems: Bool {
+        cachedHasPremiumAccess || cachedActionItemCount < PremiumFeatures.maxFreeActionItems
+    }
+
+    /// Whether user can add more career goals (premium or under limit)
+    var canAddMoreGoals: Bool {
+        cachedHasPremiumAccess || cachedGoalCount < PremiumFeatures.maxFreeGoals
+    }
+
+    /// Whether user can add more achievements (premium or under limit)
+    var canAddMoreAchievements: Bool {
+        cachedHasPremiumAccess || cachedAchievementCount < PremiumFeatures.maxFreeAchievements
+    }
+
+    /// Whether user can access weekly goals and metrics sections
+    var canAccessWeeklyGoals: Bool {
+        cachedHasPremiumAccess
+    }
+
+    /// Whether user can access performance reports
+    var canAccessReports: Bool {
+        cachedHasPremiumAccess
+    }
+
+    /// Whether user can access Apple Watch app
+    var canAccessWatch: Bool {
+        cachedHasPremiumAccess
+    }
+
+    /// Whether user can sync to calendar
+    var canAccessCalendarSync: Bool {
+        cachedHasPremiumAccess
+    }
+
+    /// Whether user can export/import data
+    var canExportData: Bool {
+        cachedHasPremiumAccess
+    }
+
+    /// Whether user can create custom types
+    var canUseCustomTypes: Bool {
+        cachedHasPremiumAccess
+    }
+
+    /// Whether user can access AI suggestions
+    var canAccessAI: Bool {
+        cachedHasPremiumAccess
+    }
+
     // MARK: - Custom Types (v2.2)
 
     /// User-created relationship types (stored in UserDefaults)
@@ -161,5 +260,10 @@ final class AppSettings {
         selectedCalendarID = nil
         customRelationshipTypes = []
         customMeetingTypes = []
+        // Note: trialStartDate is NOT reset to preserve trial state
+        cachedPeopleCount = 0
+        cachedActionItemCount = 0
+        cachedGoalCount = 0
+        cachedAchievementCount = 0
     }
 }

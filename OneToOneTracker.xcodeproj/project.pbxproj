@@ -83,6 +83,11 @@
 		A100011006 /* AppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011006 /* AppIntents.swift */; };
 		A100011007 /* ShortcutsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011007 /* ShortcutsManager.swift */; };
 		A100011008 /* ManageTypesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011008 /* ManageTypesView.swift */; };
+		A100012001 /* PremiumFeatures.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200012001 /* PremiumFeatures.swift */; };
+		A100012002 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200012002 /* SubscriptionManager.swift */; };
+		A100012003 /* UpgradeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200012003 /* UpgradeView.swift */; };
+		A100012004 /* UpgradePromptSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200012004 /* UpgradePromptSheet.swift */; };
+		A100012005 /* PremiumSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200012005 /* PremiumSettingsSection.swift */; };
 
 		/* Watch App Build Files */
 		W1000001001 /* OneToOneTrackerWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001001; };
@@ -201,6 +206,11 @@
 		A200011006 /* AppIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIntents.swift; sourceTree = "<group>"; };
 		A200011007 /* ShortcutsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutsManager.swift; sourceTree = "<group>"; };
 		A200011008 /* ManageTypesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTypesView.swift; sourceTree = "<group>"; };
+		A200012001 /* PremiumFeatures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumFeatures.swift; sourceTree = "<group>"; };
+		A200012002 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
+		A200012003 /* UpgradeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeView.swift; sourceTree = "<group>"; };
+		A200012004 /* UpgradePromptSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradePromptSheet.swift; sourceTree = "<group>"; };
+		A200012005 /* PremiumSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumSettingsSection.swift; sourceTree = "<group>"; };
 
 		/* Watch App Files */
 		W2000001001 /* OneToOneTrackerWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneToOneTrackerWatchApp.swift; sourceTree = "<group>"; };
@@ -309,6 +319,7 @@
 				A200011001 /* ExportImportService.swift */,
 				A200011004 /* CalendarManager.swift */,
 				A200011005 /* AIManager.swift */,
+				A200012002 /* SubscriptionManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -342,8 +353,18 @@
 				C200000200C /* Career */,
 				C200000200D /* Settings */,
 				C200000200E /* Onboarding */,
+				C2000002011 /* Premium */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		C2000002011 /* Premium */ = {
+			isa = PBXGroup;
+			children = (
+				A200012003 /* UpgradeView.swift */,
+				A200012004 /* UpgradePromptSheet.swift */,
+			);
+			path = Premium;
 			sourceTree = "<group>";
 		};
 		C2000002005 /* Resources */ = {
@@ -374,6 +395,7 @@
 				A2000003006 /* CareerGoal.swift */,
 				A2000003007 /* Achievement.swift */,
 				A2000003008 /* AppSettings.swift */,
+				A200012001 /* PremiumFeatures.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -451,6 +473,7 @@
 				A200011002 /* ExportView.swift */,
 				A200011003 /* ImportView.swift */,
 				A200011008 /* ManageTypesView.swift */,
+				A200012005 /* PremiumSettingsSection.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -673,6 +696,11 @@
 				A100011006 /* AppIntents.swift in Sources */,
 				A100011007 /* ShortcutsManager.swift in Sources */,
 				A100011008 /* ManageTypesView.swift in Sources */,
+				A100012001 /* PremiumFeatures.swift in Sources */,
+				A100012002 /* SubscriptionManager.swift in Sources */,
+				A100012003 /* UpgradeView.swift in Sources */,
+				A100012004 /* UpgradePromptSheet.swift in Sources */,
+				A100012005 /* PremiumSettingsSection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

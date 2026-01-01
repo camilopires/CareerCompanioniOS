@@ -106,6 +106,7 @@ final class HomeViewModel: ObservableObject {
             let otherPersonIDs = Set(otherPeople.map { $0.id })
             upcomingOtherMeetings = Array(upcomingMeetings.filter { otherPersonIDs.contains($0.managerID) }.prefix(3))
 
+            updateCachedCounts()
             isLoading = false
             return
         }
@@ -138,11 +139,19 @@ final class HomeViewModel: ObservableObject {
             let otherPersonIDs = Set(otherPeople.map { $0.id })
             upcomingOtherMeetings = Array(allUpcomingMeetings.filter { otherPersonIDs.contains($0.managerID) }.prefix(3))
 
+            updateCachedCounts()
         } catch {
             self.error = error
         }
 
         isLoading = false
+    }
+
+    private func updateCachedCounts() {
+        // Cache counts for premium limit checking
+        AppSettings.shared.cachedPeopleCount = allManagers.count
+        AppSettings.shared.cachedActionItemCount = actionItems.filter { $0.status != .completed }.count
+        AppSettings.shared.cachedGoalCount = activeGoals.filter { $0.isActive }.count
     }
 
     func refresh() async {
@@ -170,6 +179,7 @@ final class HomeViewModel: ObservableObject {
             if let index = actionItems.firstIndex(where: { $0.id == item.id }) {
                 actionItems[index] = updatedItem
             }
+            updateCachedCounts()
             Theme.successHaptic()
             return
         }
@@ -179,6 +189,7 @@ final class HomeViewModel: ObservableObject {
             if let index = actionItems.firstIndex(where: { $0.id == saved.id }) {
                 actionItems[index] = saved
             }
+            updateCachedCounts()
             Theme.successHaptic()
         } catch {
             self.error = error

@@ -4,6 +4,7 @@ import SwiftUI
 struct GoalsListView: View {
     @StateObject private var viewModel = GoalsViewModel()
     @State private var showingAddGoal = false
+    @State private var showingUpgrade = false
     @State private var selectedFilter: GoalFilter = .active
 
     var body: some View {
@@ -19,7 +20,13 @@ struct GoalsListView: View {
 
             // List
             if viewModel.filteredGoals(for: selectedFilter).isEmpty {
-                EmptyStateForGoalFilter(filter: selectedFilter, onAdd: { showingAddGoal = true })
+                EmptyStateForGoalFilter(filter: selectedFilter, onAdd: {
+                    if AppSettings.shared.canAddMoreGoals {
+                        showingAddGoal = true
+                    } else {
+                        showingUpgrade = true
+                    }
+                })
             } else {
                 List {
                     ForEach(viewModel.filteredGoals(for: selectedFilter)) { goal in
@@ -37,7 +44,13 @@ struct GoalsListView: View {
         .navigationTitle("Career Goals")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: { showingAddGoal = true }) {
+                Button(action: {
+                    if AppSettings.shared.canAddMoreGoals {
+                        showingAddGoal = true
+                    } else {
+                        showingUpgrade = true
+                    }
+                }) {
                     Image(systemName: "plus")
                 }
             }
@@ -46,6 +59,9 @@ struct GoalsListView: View {
             AddGoalView { goal in
                 Task { await viewModel.addGoal(goal) }
             }
+        }
+        .sheet(isPresented: $showingUpgrade) {
+            UpgradeView()
         }
         .task {
             await viewModel.loadGoals()
@@ -159,6 +175,7 @@ final class GoalsViewModel: ObservableObject {
         // Use demo data if in demo mode
         if AppSettings.shared.isDemoMode {
             goals = DemoDataProvider.careerGoals
+            updateCachedCount()
             isLoading = false
             return
         }
@@ -167,6 +184,7 @@ final class GoalsViewModel: ObservableObject {
             goals = try await CloudKitManager.shared.fetch(
                 sortDescriptors: [NSSortDescriptor(key: "updatedAt", ascending: false)]
             )
+            updateCachedCount()
         } catch {
             // Show empty state on error
             goals = []
@@ -174,16 +192,23 @@ final class GoalsViewModel: ObservableObject {
         isLoading = false
     }
 
+    private func updateCachedCount() {
+        // Cache active goal count for premium limit checking
+        AppSettings.shared.cachedGoalCount = goals.filter { $0.isActive }.count
+    }
+
     func addGoal(_ goal: CareerGoal) async {
         // In demo mode, only update in-memory
         if AppSettings.shared.isDemoMode {
             goals.insert(goal, at: 0)
+            updateCachedCount()
             return
         }
 
         do {
             let saved = try await CloudKitManager.shared.save(goal)
             goals.insert(saved, at: 0)
+            updateCachedCount()
         } catch {}
     }
 
@@ -203,6 +228,7 @@ final class GoalsViewModel: ObservableObject {
                 goals.removeAll { $0.id == goal.id }
             } catch {}
         }
+        updateCachedCount()
     }
 }
 

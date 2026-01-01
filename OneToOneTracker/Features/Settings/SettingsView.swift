@@ -16,6 +16,9 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            // Premium section (at top)
+            PremiumSettingsSection()
+
             // App Mode section
             Section {
                 Picker("I am a", selection: $userRole) {

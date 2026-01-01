@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>1:1 Tracker</string>
+	<string>Career Companion</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -47,6 +47,6 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>OneToOne Tracker syncs your 1:1 meetings to your calendar for reminders and to keep your schedule organized.</string>
+	<string>Career Companion syncs your 1:1 meetings to your calendar for reminders and to keep your schedule organized.</string>
 </dict>
 </plist>

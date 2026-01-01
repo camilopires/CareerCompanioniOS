@@ -1,4 +1,4 @@
-# OneToOne Tracker
+# Career Companion
 
 A native iOS app for tracking 1:1 meetings with managers and career goals. Built with SwiftUI and CloudKit for secure, private data storage in your personal iCloud account.
 
@@ -13,7 +13,7 @@ A native iOS app for tracking 1:1 meetings with managers and career goals. Built
 
 ## Overview
 
-OneToOne Tracker helps employees prepare for, conduct, and follow up on 1:1 meetings with their managers while tracking career goals and achievements for performance reviews. Your data is stored securely in your personal iCloud account and is never shared with anyone.
+Career Companion helps employees prepare for, conduct, and follow up on 1:1 meetings with their managers while tracking career goals and achievements for performance reviews. Your data is stored securely in your personal iCloud account and is never shared with anyone.
 
 ### Key Features
 

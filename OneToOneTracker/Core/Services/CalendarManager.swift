@@ -158,7 +158,7 @@ final class CalendarManager: ObservableObject {
             notes.append("\nBlockers:\n" + meeting.blockers.map { "• \($0)" }.joined(separator: "\n"))
         }
 
-        return notes.isEmpty ? "1:1 Meeting - OneToOne Tracker" : notes.joined(separator: "\n")
+        return notes.isEmpty ? "1:1 Meeting - Career Companion" : notes.joined(separator: "\n")
     }
 }
 

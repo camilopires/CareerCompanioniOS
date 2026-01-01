@@ -97,7 +97,7 @@ struct ExportView: View {
                         description: "Export includes all synced data from your iCloud account.")
 
                 InfoRow(icon: "doc.badge.plus", title: "Import Later",
-                        description: "JSON exports can be imported back into OneToOne Tracker.")
+                        description: "JSON exports can be imported back into Career Companion.")
             } header: {
                 Text("About Export")
             }

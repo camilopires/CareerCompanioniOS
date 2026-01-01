@@ -1,4 +1,4 @@
-# OneToOne Tracker iOS App - Requirements Document
+# Career Companion iOS App - Requirements Document
 
 ## Overview
 

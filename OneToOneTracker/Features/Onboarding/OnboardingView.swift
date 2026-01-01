@@ -11,7 +11,7 @@ struct OnboardingView: View {
     private let pages: [OnboardingPage] = [
         OnboardingPage(
             icon: "person.2.circle.fill",
-            title: "Welcome to OneToOne Tracker",
+            title: "Welcome to Career Companion",
             description: "Prepare for your 1:1 meetings, capture action items, and track your career growth.",
             color: .accentColor
         ),

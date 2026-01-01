@@ -1,8 +1,8 @@
-# OneToOne Tracker - Monetization Strategy
+# Career Companion - Monetization Strategy
 
 ## Overview
 
-This document outlines the monetization strategy for OneToOne Tracker iOS app.
+This document outlines the monetization strategy for Career Companion iOS app.
 
 ---
 

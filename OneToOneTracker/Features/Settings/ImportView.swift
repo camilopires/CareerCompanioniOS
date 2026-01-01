@@ -50,7 +50,7 @@ struct ImportView: View {
             } header: {
                 Text("Import File")
             } footer: {
-                Text("Select a JSON file previously exported from OneToOne Tracker.")
+                Text("Select a JSON file previously exported from Career Companion.")
             }
 
             // Preview section

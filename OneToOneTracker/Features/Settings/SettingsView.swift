@@ -310,7 +310,7 @@ struct AboutView: View {
                         .font(.system(size: 80))
                         .foregroundStyle(Color.accentColor)
 
-                    Text("OneToOne Tracker")
+                    Text("Career Companion")
                         .font(Typography.title1)
                         .fontWeight(.bold)
 

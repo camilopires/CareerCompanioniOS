@@ -541,16 +541,21 @@ Two main entry points displayed prominently:
 ### Data Model
 
 ```
-Manager
+Manager (Person)
 ├── id: UUID
 ├── name: String
 ├── email: String (optional)
+├── relationshipType: String (My Manager, Direct Report, Mentor, Peer, custom...)
+├── tags: [String] (optional filtering tags)
+├── createdAt: Date
 └── meetings: [Meeting]
 
 Meeting
 ├── id: UUID
 ├── date: Date
 ├── status: MeetingStatus (scheduled, completed, cancelled)
+├── perspective: MeetingPerspective (asEmployee, asManager)
+├── meetingType: String (1:1, Career Development, Project Sync, custom...)
 ├── agendaItems: [AgendaItem]
 ├── notes: String
 ├── wentWell: [String]
@@ -559,6 +564,7 @@ Meeting
 ├── escalations: [String]
 ├── weekSentiment: Int (1-5)
 ├── meetingSentiment: Int (1-5)
+├── calendarEventID: String (optional, for calendar sync)
 └── actionItems: [ActionItem]
 
 AgendaItem
@@ -711,6 +717,33 @@ PerformanceReport
   - Meeting cadence tracking
   - Quick schedule per team member
 
+## v2.2 Features (Completed)
+
+- [x] **Flexible Relationship Types** - Track 1:1s beyond just manager/report
+  - User-defined relationship types: My Manager, Direct Report, Mentor, Peer, Stakeholder, etc.
+  - Custom relationship types can be added/removed in Settings
+  - "My Manager" and "Direct Report" are special types that drive IC/Manager modes
+  - Tags field for additional filtering (optional)
+- [x] **User-Defined Meeting Types** - Categorize different kinds of 1:1s
+  - Default types: 1:1, Career Development, Project Sync, Feedback Session, Mentorship, Coffee Chat
+  - Custom meeting types can be added/removed in Settings
+  - Meeting type displayed as badge on meeting cards
+- [x] **Manage Types Settings** - ManageTypesView for custom types
+  - Two sections: Relationship Types and Meeting Types
+  - Default types are non-deletable, custom types can be removed
+  - Add new custom types via alert dialog
+- [x] **Other 1:1s Dashboard Section** - Show meetings beyond manager/report
+  - IC Dashboard: "With My Manager" + "Other 1:1s" sections
+  - Manager Dashboard: Team section + "Other 1:1s" section
+  - Relationship type badges on person cards
+- [x] **Relationship Type Filter** - Filter meetings by relationship category
+  - Segmented picker: All, My Managers, Direct Reports, Others
+  - Secondary person filter within selected category
+- [x] **Meeting Type Display** - Visual meeting type indicators
+  - Meeting type badge on MeetingRowView
+  - Meeting type picker in AddMeetingView
+  - Meeting type shown in meeting details
+
 ## Future Enhancements (v3.0+)
 
 - [ ] Integration APIs (Slack, Teams, Notion)
@@ -766,6 +799,7 @@ OneToOneTrackeriOS/
 │       ├── Career/
 │       ├── Settings/
 │       │   ├── SettingsView.swift
+│       │   ├── ManageTypesView.swift
 │       │   ├── ExportView.swift
 │       │   └── ImportView.swift
 │       └── Onboarding/

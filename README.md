@@ -18,8 +18,10 @@ OneToOne Tracker helps employees prepare for, conduct, and follow up on 1:1 meet
 ### Key Features
 
 - **1:1 Meeting Management** - Prepare agendas, capture notes, track action items
+- **Flexible Relationships** - Track 1:1s with managers, mentors, peers, stakeholders, or any custom relationship type
+- **User-Defined Types** - Create custom relationship types and meeting types to fit your workflow
 - **IC & Manager Modes** - Switch between tracking meetings with your manager or your direct reports
-- **Multiple Managers/Reports** - Track 1:1s with multiple people, filter by manager
+- **Multiple Managers/Reports** - Track 1:1s with multiple people, filter by relationship type
 - **Demo Mode** - Explore the app with sample data before starting fresh
 - **Career Goals Tracking** - Set goals, track progress, record achievements
 - **Performance Reports** - Generate reports for performance reviews
@@ -175,6 +177,7 @@ OneToOneTracker/
 │   ├── Career/
 │   ├── Settings/
 │   │   ├── SettingsView.swift
+│   │   ├── ManageTypesView.swift
 │   │   ├── ExportView.swift
 │   │   └── ImportView.swift
 │   └── Onboarding/
@@ -195,12 +198,15 @@ OneToOneTracker/
 ### Data Models
 
 ```
-Manager
+Manager (Person)
 ├── id, name, email
+├── relationshipType (My Manager, Direct Report, Mentor, Peer, custom...)
+├── tags (optional filtering tags)
 └── createdAt
 
 Meeting
-├── id, date, status
+├── id, date, status, perspective
+├── meetingType (1:1, Career Development, Project Sync, custom...)
 ├── agendaItems, notes
 ├── wentWell, didntGoWell, blockers, escalations
 ├── weekSentiment, meetingSentiment
@@ -408,7 +414,7 @@ Uses San Francisco (system font) with Dynamic Type:
 - [x] IC/Manager mode switching
 - [x] Multiple people support (managers or direct reports)
 
-### v2.1 (Current)
+### v2.1
 - [x] Multiple managers filtering
 - [x] Calendar integration (EventKit)
 - [x] Siri Shortcuts (App Intents)
@@ -416,6 +422,14 @@ Uses San Francisco (system font) with Dynamic Type:
 - [x] AI-powered suggestions (iOS 18+)
 - [x] Data export/import (JSON/CSV)
 - [x] Enhanced team view for managers
+
+### v2.2 (Current)
+- [x] Flexible relationship types (My Manager, Direct Report, Mentor, Peer, Stakeholder, custom)
+- [x] User-defined meeting types (1:1, Career Development, Project Sync, custom)
+- [x] Manage Types settings screen for custom types
+- [x] "Other 1:1s" section on dashboards for non-manager/report meetings
+- [x] Relationship type filter in meetings list
+- [x] Meeting type badges on meeting cards
 
 ### Future
 - [ ] Integration APIs (Slack, Teams, Notion)

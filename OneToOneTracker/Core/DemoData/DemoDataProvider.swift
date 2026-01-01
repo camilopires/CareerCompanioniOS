@@ -4,32 +4,47 @@ import Foundation
 /// Data is NEVER saved to CloudKit - it exists only in memory
 struct DemoDataProvider {
 
+    // MARK: - Static Manager IDs (for consistent relationships)
+
+    private static let manager1ID = UUID()
+    private static let manager2ID = UUID()
+
     // MARK: - Demo Data
 
     /// Sample managers for demo mode
     static var managers: [Manager] {
         [
-            Manager(name: "Sarah Johnson", email: "sarah.johnson@company.com"),
-            Manager(name: "Michael Chen", email: "michael.chen@company.com")
+            Manager(
+                id: manager1ID,
+                name: "Sarah Johnson",
+                email: "sarah.johnson@company.com",
+                relationship: .myManager
+            ),
+            Manager(
+                id: manager2ID,
+                name: "Michael Chen",
+                email: "michael.chen@company.com",
+                relationship: .myManager
+            )
         ]
     }
 
-    /// Sample meetings for demo mode
+    /// Sample meetings for demo mode (with multiple managers)
     static var meetings: [Meeting] {
         let now = Date()
         let calendar = Calendar.current
-        let manager = managers.first!
 
         return [
+            // Sarah Johnson's meetings
             // Upcoming meeting - next week
             Meeting(
-                managerID: manager.id,
+                managerID: manager1ID,
                 date: calendar.date(byAdding: .day, value: 7, to: now)!,
                 status: .scheduled
             ),
             // Completed meeting - last week
             Meeting(
-                managerID: manager.id,
+                managerID: manager1ID,
                 date: calendar.date(byAdding: .day, value: -7, to: now)!,
                 status: .completed,
                 notes: "Great discussion about Q4 priorities and team structure.",
@@ -51,7 +66,7 @@ struct DemoDataProvider {
             ),
             // Completed meeting - two weeks ago
             Meeting(
-                managerID: manager.id,
+                managerID: manager1ID,
                 date: calendar.date(byAdding: .day, value: -14, to: now)!,
                 status: .completed,
                 notes: "Sprint retrospective and planning for the next quarter.",
@@ -62,6 +77,30 @@ struct DemoDataProvider {
                     "Some technical debt accumulated"
                 ],
                 weekSentiment: 3,
+                meetingSentiment: 4
+            ),
+
+            // Michael Chen's meetings
+            // Upcoming meeting - in 3 days
+            Meeting(
+                managerID: manager2ID,
+                date: calendar.date(byAdding: .day, value: 3, to: now)!,
+                status: .scheduled
+            ),
+            // Completed meeting - 5 days ago
+            Meeting(
+                managerID: manager2ID,
+                date: calendar.date(byAdding: .day, value: -5, to: now)!,
+                status: .completed,
+                notes: "Discussed career growth and upcoming project assignments.",
+                wentWell: [
+                    "Got assigned to lead the new mobile initiative",
+                    "Positive feedback on mentoring efforts"
+                ],
+                didntGoWell: [
+                    "Need to improve time estimation skills"
+                ],
+                weekSentiment: 5,
                 meetingSentiment: 4
             )
         ]

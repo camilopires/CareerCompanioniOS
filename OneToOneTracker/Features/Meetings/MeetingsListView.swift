@@ -25,7 +25,7 @@ struct MeetingsListView: View {
             }
         }
         .sheet(isPresented: $showingNewMeeting) {
-            NewMeetingView { meeting in
+            AddMeetingView(managers: viewModel.managers) { meeting in
                 Task {
                     await viewModel.createMeeting(meeting)
                 }
@@ -47,12 +47,25 @@ private struct MeetingsList: View {
 
     var body: some View {
         List {
+            // Manager filter picker
+            if viewModel.managers.count > 1 {
+                Section {
+                    ManagerFilterPicker(
+                        managers: viewModel.managers,
+                        selectedManagerID: $viewModel.selectedManagerID
+                    )
+                }
+            }
+
             // Upcoming meetings
             if !viewModel.upcomingMeetings.isEmpty {
                 Section {
                     ForEach(viewModel.upcomingMeetings) { meeting in
                         NavigationLink(destination: MeetingDetailView(meeting: meeting)) {
-                            MeetingRowView(meeting: meeting)
+                            MeetingRowView(
+                                meeting: meeting,
+                                managerName: viewModel.managerName(for: meeting.managerID)
+                            )
                         }
                     }
                     .onDelete { indexSet in
@@ -70,7 +83,10 @@ private struct MeetingsList: View {
                 Section {
                     ForEach(viewModel.pastMeetings) { meeting in
                         NavigationLink(destination: MeetingDetailView(meeting: meeting)) {
-                            MeetingRowView(meeting: meeting)
+                            MeetingRowView(
+                                meeting: meeting,
+                                managerName: viewModel.managerName(for: meeting.managerID)
+                            )
                         }
                     }
                     .onDelete { indexSet in
@@ -87,10 +103,31 @@ private struct MeetingsList: View {
     }
 }
 
+// MARK: - Manager Filter Picker
+
+private struct ManagerFilterPicker: View {
+    let managers: [Manager]
+    @Binding var selectedManagerID: UUID?
+
+    var body: some View {
+        Picker("Filter by", selection: $selectedManagerID) {
+            Text("All Meetings")
+                .tag(nil as UUID?)
+
+            ForEach(managers) { manager in
+                Text(manager.name)
+                    .tag(manager.id as UUID?)
+            }
+        }
+        .pickerStyle(.menu)
+    }
+}
+
 // MARK: - Meeting Row
 
 struct MeetingRowView: View {
     let meeting: Meeting
+    var managerName: String = ""
 
     var body: some View {
         HStack(spacing: Spacing.md) {
@@ -102,9 +139,17 @@ struct MeetingRowView: View {
 
             // Content
             VStack(alignment: .leading, spacing: Spacing.xxs) {
-                Text(meeting.formattedDate)
-                    .font(Typography.body)
-                    .foregroundStyle(Colors.textPrimary)
+                HStack {
+                    Text(meeting.formattedDate)
+                        .font(Typography.body)
+                        .foregroundStyle(Colors.textPrimary)
+
+                    if !managerName.isEmpty {
+                        Text("with \(managerName)")
+                            .font(Typography.caption1)
+                            .foregroundStyle(Colors.textSecondary)
+                    }
+                }
 
                 HStack(spacing: Spacing.sm) {
                     Label(meeting.status.displayName, systemImage: meeting.status.icon)
@@ -124,7 +169,7 @@ struct MeetingRowView: View {
         }
         .padding(.vertical, Spacing.xxs)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(meeting.formattedDate), \(meeting.status.displayName)")
+        .accessibilityLabel("\(meeting.formattedDate)\(managerName.isEmpty ? "" : " with \(managerName)"), \(meeting.status.displayName)")
     }
 }
 
@@ -138,7 +183,7 @@ private struct EmptyMeetingsView: View {
             EmptyState(
                 icon: "person.2",
                 title: "No 1:1 Meetings",
-                message: "Schedule your first 1:1 meeting to start tracking your conversations with your manager.",
+                message: "Schedule your first 1:1 meeting to start tracking your conversations.",
                 actionTitle: "Schedule Meeting",
                 action: onAddMeeting
             )
@@ -154,12 +199,14 @@ private struct LoadingView: View {
     }
 }
 
-// MARK: - New Meeting View
+// MARK: - Add Meeting View
 
-struct NewMeetingView: View {
+struct AddMeetingView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var date = Date().addingTimeInterval(86400 * 7) // Default to 1 week from now
-    @State private var managerName = ""
+    @State private var selectedManagerID: UUID?
+
+    let managers: [Manager]
     let onCreate: (Meeting) -> Void
 
     var body: some View {
@@ -169,8 +216,33 @@ struct NewMeetingView: View {
                     DatePicker("Date & Time", selection: $date)
                 }
 
-                Section("Manager") {
-                    TextField("Manager Name", text: $managerName)
+                Section {
+                    if managers.isEmpty {
+                        Text("No managers found. Add a manager in Settings first.")
+                            .foregroundStyle(Colors.textSecondary)
+                    } else {
+                        Picker("With", selection: $selectedManagerID) {
+                            Text("Select a person")
+                                .tag(nil as UUID?)
+
+                            ForEach(managers) { manager in
+                                HStack {
+                                    Text(manager.name)
+                                    if let email = manager.email {
+                                        Text("(\(email))")
+                                            .foregroundStyle(Colors.textSecondary)
+                                    }
+                                }
+                                .tag(manager.id as UUID?)
+                            }
+                        }
+                    }
+                } header: {
+                    Text(AppSettings.shared.userRole == .individualContributor ? "Manager" : "Team Member")
+                } footer: {
+                    if managers.isEmpty {
+                        Text("Go to Settings > \(AppSettings.shared.userRole == .individualContributor ? "Managers" : "Team Members") to add someone.")
+                    }
                 }
             }
             .navigationTitle("New Meeting")
@@ -184,14 +256,25 @@ struct NewMeetingView: View {
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
+                        guard let managerID = selectedManagerID else { return }
+                        let perspective: MeetingPerspective = AppSettings.shared.userRole == .individualContributor
+                            ? .asEmployee
+                            : .asManager
                         let meeting = Meeting(
-                            managerID: UUID(), // Would link to actual manager
-                            date: date
+                            managerID: managerID,
+                            date: date,
+                            perspective: perspective
                         )
                         onCreate(meeting)
                         dismiss()
                     }
-                    .disabled(managerName.isEmpty)
+                    .disabled(selectedManagerID == nil)
+                }
+            }
+            .onAppear {
+                // Pre-select first manager if only one exists
+                if managers.count == 1 {
+                    selectedManagerID = managers.first?.id
                 }
             }
         }
@@ -217,7 +300,16 @@ struct NewMeetingView: View {
         status: .completed
     )
     return List {
-        MeetingRowView(meeting: scheduledMeeting)
-        MeetingRowView(meeting: completedMeeting)
+        MeetingRowView(meeting: scheduledMeeting, managerName: "Sarah Johnson")
+        MeetingRowView(meeting: completedMeeting, managerName: "Michael Chen")
     }
+}
+
+#Preview("Add Meeting") {
+    AddMeetingView(
+        managers: [
+            Manager(name: "Sarah Johnson", email: "sarah@company.com"),
+            Manager(name: "Michael Chen", email: "michael@company.com")
+        ]
+    ) { _ in }
 }

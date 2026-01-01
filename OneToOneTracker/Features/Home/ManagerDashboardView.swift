@@ -11,14 +11,17 @@ struct ManagerDashboardView: View {
                 // Team Quick Stats
                 TeamQuickStatsSection(viewModel: viewModel)
 
+                // Team Health Card
+                TeamHealthSection(viewModel: viewModel)
+
                 // Upcoming 1:1s with Team
                 TeamMeetingsSection(viewModel: viewModel)
 
                 // Team Action Items
                 TeamActionItemsSection(viewModel: viewModel)
 
-                // Team Members
-                TeamMembersSection(viewModel: viewModel)
+                // Team Members Grid
+                TeamMembersGridSection(viewModel: viewModel)
             }
             .padding(.horizontal, Spacing.screenPadding)
             .padding(.bottom, Spacing.xxl)
@@ -41,7 +44,7 @@ final class ManagerDashboardViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published var teamMembers: [Manager] = []
-    @Published var upcomingMeetings: [Meeting] = []
+    @Published var allMeetings: [Meeting] = []
     @Published var teamActionItems: [ActionItem] = []
     @Published var isLoading = false
     @Published var error: Error?
@@ -52,8 +55,12 @@ final class ManagerDashboardViewModel: ObservableObject {
         teamMembers.count
     }
 
+    var upcomingMeetings: [Meeting] {
+        allMeetings.filter { $0.isUpcoming }.sorted { $0.date < $1.date }
+    }
+
     var upcomingMeetingCount: Int {
-        upcomingMeetings.filter { $0.isUpcoming }.count
+        upcomingMeetings.count
     }
 
     var overdueActionItemsCount: Int {
@@ -65,18 +72,72 @@ final class ManagerDashboardViewModel: ObservableObject {
     }
 
     var nextMeeting: Meeting? {
-        upcomingMeetings
-            .filter { $0.isUpcoming }
-            .sorted { $0.date < $1.date }
-            .first
+        upcomingMeetings.first
     }
 
     var recentMeetings: [Meeting] {
-        upcomingMeetings
-            .filter { $0.isUpcoming }
+        Array(upcomingMeetings.prefix(3))
+    }
+
+    // MARK: - Team Health Metrics
+
+    var completedMeetingsThisMonth: Int {
+        let calendar = Calendar.current
+        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: Date()))!
+        return allMeetings.filter { meeting in
+            meeting.status == .completed && meeting.date >= startOfMonth
+        }.count
+    }
+
+    var averageMeetingCadenceDescription: String {
+        guard teamMemberCount > 0, completedMeetingsThisMonth > 0 else {
+            return "No data"
+        }
+        let meetingsPerPerson = Double(completedMeetingsThisMonth) / Double(teamMemberCount)
+        if meetingsPerPerson >= 4 {
+            return "Weekly"
+        } else if meetingsPerPerson >= 2 {
+            return "Bi-weekly"
+        } else if meetingsPerPerson >= 1 {
+            return "Monthly"
+        } else {
+            return "Infrequent"
+        }
+    }
+
+    var actionItemCompletionRate: Int {
+        let total = teamActionItems.count
+        guard total > 0 else { return 100 }
+        let completed = teamActionItems.filter { $0.status == .completed }.count
+        return Int((Double(completed) / Double(total)) * 100)
+    }
+
+    var teamMembersNeedingAttention: [Manager] {
+        let twoWeeksAgo = Date().addingTimeInterval(-14 * 24 * 60 * 60)
+        return teamMembers.filter { member in
+            let lastMeeting = lastMeetingDate(for: member)
+            return lastMeeting == nil || lastMeeting! < twoWeeksAgo
+        }
+    }
+
+    // MARK: - Per-Member Stats
+
+    func lastMeetingDate(for member: Manager) -> Date? {
+        allMeetings
+            .filter { $0.managerID == member.id && $0.status == .completed }
+            .sorted { $0.date > $1.date }
+            .first?.date
+    }
+
+    func nextMeetingDate(for member: Manager) -> Date? {
+        allMeetings
+            .filter { $0.managerID == member.id && $0.isUpcoming }
             .sorted { $0.date < $1.date }
-            .prefix(3)
-            .map { $0 }
+            .first?.date
+    }
+
+    func meetingCount(for member: Manager) -> Int {
+        allMeetings.filter { $0.managerID == member.id }.count
     }
 
     // MARK: - Data Loading
@@ -85,18 +146,25 @@ final class ManagerDashboardViewModel: ObservableObject {
         isLoading = true
         error = nil
 
+        // Use demo data if in demo mode
+        if AppSettings.shared.isDemoMode {
+            teamMembers = DemoDataProvider.managers.filter { $0.relationship == .directReport }
+            allMeetings = DemoDataProvider.meetings.filter { $0.perspective == .asManager }
+            teamActionItems = DemoDataProvider.actionItems.filter { $0.owner == .manager }
+            isLoading = false
+            return
+        }
+
         do {
             // Fetch team members (direct reports)
             async let fetchedTeamMembers: [Manager] = CloudKitManager.shared.fetch(
                 predicate: NSPredicate(format: "relationship == %@", ManagerRelationship.directReport.rawValue)
             )
 
-            // Fetch upcoming meetings (as manager)
+            // Fetch all meetings (as manager)
             async let fetchedMeetings: [Meeting] = CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "perspective == %@ AND status == %@",
-                    MeetingPerspective.asManager.rawValue,
-                    MeetingStatus.scheduled.rawValue),
-                sortDescriptors: [NSSortDescriptor(key: "date", ascending: true)]
+                predicate: NSPredicate(format: "perspective == %@", MeetingPerspective.asManager.rawValue),
+                sortDescriptors: [NSSortDescriptor(key: "date", ascending: false)]
             )
 
             // Fetch action items assigned to manager
@@ -105,7 +173,7 @@ final class ManagerDashboardViewModel: ObservableObject {
             )
 
             teamMembers = try await fetchedTeamMembers
-            upcomingMeetings = try await fetchedMeetings
+            allMeetings = try await fetchedMeetings
             teamActionItems = try await fetchedActionItems
 
         } catch {
@@ -164,6 +232,73 @@ private struct TeamQuickStatsSection: View {
                 color: viewModel.overdueActionItemsCount > 0 ? Colors.error : Colors.textTertiary
             )
         }
+    }
+}
+
+// MARK: - Team Health Section
+
+private struct TeamHealthSection: View {
+    @ObservedObject var viewModel: ManagerDashboardViewModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            Text("Team Health")
+                .font(Typography.headline)
+
+            HStack(spacing: Spacing.md) {
+                // Meeting Cadence
+                HealthMetricCard(
+                    icon: "calendar.badge.clock",
+                    title: "Avg. Cadence",
+                    value: viewModel.averageMeetingCadenceDescription,
+                    color: .accentColor
+                )
+
+                // Completion Rate
+                HealthMetricCard(
+                    icon: "checkmark.circle",
+                    title: "Completion",
+                    value: "\(viewModel.actionItemCompletionRate)%",
+                    color: viewModel.actionItemCompletionRate >= 80 ? Colors.success :
+                           viewModel.actionItemCompletionRate >= 50 ? .orange : Colors.error
+                )
+
+                // Needs Attention
+                HealthMetricCard(
+                    icon: "exclamationmark.triangle",
+                    title: "Need 1:1",
+                    value: "\(viewModel.teamMembersNeedingAttention.count)",
+                    color: viewModel.teamMembersNeedingAttention.isEmpty ? Colors.success : Colors.warning
+                )
+            }
+        }
+    }
+}
+
+private struct HealthMetricCard: View {
+    let icon: String
+    let title: String
+    let value: String
+    let color: Color
+
+    var body: some View {
+        VStack(spacing: Spacing.xs) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundStyle(color)
+
+            Text(value)
+                .font(Typography.headline)
+                .foregroundStyle(Colors.textPrimary)
+
+            Text(title)
+                .font(Typography.caption2)
+                .foregroundStyle(Colors.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(Spacing.md)
+        .background(Colors.backgroundSecondary)
+        .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusMedium))
     }
 }
 
@@ -343,10 +478,12 @@ private struct ManagerActionItemRow: View {
     }
 }
 
-// MARK: - Team Members Section
+// MARK: - Team Members Grid Section
 
-private struct TeamMembersSection: View {
+private struct TeamMembersGridSection: View {
     @ObservedObject var viewModel: ManagerDashboardViewModel
+    @State private var showingNewMeeting = false
+    @State private var selectedMember: Manager?
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
@@ -376,38 +513,174 @@ private struct TeamMembersSection: View {
                     GridItem(.flexible())
                 ], spacing: Spacing.sm) {
                     ForEach(viewModel.teamMembers) { member in
-                        TeamMemberCard(member: member)
+                        EnhancedTeamMemberCard(
+                            member: member,
+                            lastMeeting: viewModel.lastMeetingDate(for: member),
+                            nextMeeting: viewModel.nextMeetingDate(for: member),
+                            meetingCount: viewModel.meetingCount(for: member),
+                            needsAttention: viewModel.teamMembersNeedingAttention.contains { $0.id == member.id },
+                            onScheduleTapped: {
+                                selectedMember = member
+                                showingNewMeeting = true
+                            }
+                        )
                     }
                 }
+            }
+        }
+        .sheet(isPresented: $showingNewMeeting) {
+            if let member = selectedMember {
+                QuickScheduleMeetingView(member: member)
             }
         }
     }
 }
 
-private struct TeamMemberCard: View {
+private struct EnhancedTeamMemberCard: View {
     let member: Manager
+    let lastMeeting: Date?
+    let nextMeeting: Date?
+    let meetingCount: Int
+    let needsAttention: Bool
+    let onScheduleTapped: () -> Void
 
     var body: some View {
         VStack(spacing: Spacing.sm) {
-            Circle()
-                .fill(Color.accentColor.opacity(0.2))
-                .frame(width: 48, height: 48)
-                .overlay {
-                    Text(member.name.prefix(1).uppercased())
-                        .font(Typography.title3)
-                        .fontWeight(.medium)
-                        .foregroundStyle(Color.accentColor)
+            // Avatar with badge
+            ZStack(alignment: .topTrailing) {
+                Circle()
+                    .fill(Color.accentColor.opacity(0.2))
+                    .frame(width: 48, height: 48)
+                    .overlay {
+                        Text(member.name.prefix(1).uppercased())
+                            .font(Typography.title3)
+                            .fontWeight(.medium)
+                            .foregroundStyle(Color.accentColor)
+                    }
+
+                if needsAttention {
+                    Circle()
+                        .fill(Colors.warning)
+                        .frame(width: 12, height: 12)
+                        .overlay {
+                            Image(systemName: "exclamationmark")
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundStyle(.white)
+                        }
+                        .offset(x: 4, y: -4)
                 }
+            }
 
             Text(member.name)
                 .font(Typography.callout)
                 .foregroundStyle(Colors.textPrimary)
                 .lineLimit(1)
+
+            // Meeting info
+            if let next = nextMeeting {
+                Text("Next: \(next.formatted(.dateTime.month().day()))")
+                    .font(Typography.caption2)
+                    .foregroundStyle(Colors.success)
+            } else if let last = lastMeeting {
+                Text("Last: \(last.formatted(.relative(presentation: .named)))")
+                    .font(Typography.caption2)
+                    .foregroundStyle(needsAttention ? Colors.warning : Colors.textSecondary)
+            } else {
+                Text("No meetings yet")
+                    .font(Typography.caption2)
+                    .foregroundStyle(Colors.textTertiary)
+            }
+
+            // Quick action button
+            Button(action: onScheduleTapped) {
+                Label("Schedule", systemImage: "calendar.badge.plus")
+                    .font(Typography.caption1)
+                    .foregroundStyle(Color.accentColor)
+            }
+            .buttonStyle(.plain)
+            .padding(.top, Spacing.xxs)
         }
         .frame(maxWidth: .infinity)
         .padding(Spacing.md)
         .background(Colors.backgroundSecondary)
         .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusMedium))
+        .overlay {
+            if needsAttention {
+                RoundedRectangle(cornerRadius: Spacing.cornerRadiusMedium)
+                    .stroke(Colors.warning, lineWidth: 1)
+            }
+        }
+    }
+}
+
+// MARK: - Quick Schedule Meeting View
+
+struct QuickScheduleMeetingView: View {
+    @Environment(\.dismiss) private var dismiss
+    let member: Manager
+    @State private var date = Date().addingTimeInterval(86400 * 7) // Default to 1 week from now
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    HStack {
+                        Circle()
+                            .fill(Color.accentColor.opacity(0.2))
+                            .frame(width: 40, height: 40)
+                            .overlay {
+                                Text(member.name.prefix(1).uppercased())
+                                    .font(Typography.headline)
+                                    .foregroundStyle(Color.accentColor)
+                            }
+
+                        Text(member.name)
+                            .font(Typography.body)
+                    }
+                } header: {
+                    Text("Team Member")
+                }
+
+                Section {
+                    DatePicker("Date & Time", selection: $date)
+                } header: {
+                    Text("Meeting Details")
+                }
+            }
+            .navigationTitle("Schedule 1:1")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Create") {
+                        createMeeting()
+                    }
+                }
+            }
+        }
+    }
+
+    private func createMeeting() {
+        let meeting = Meeting(
+            managerID: member.id,
+            date: date,
+            perspective: .asManager
+        )
+
+        Task {
+            if AppSettings.shared.isDemoMode {
+                dismiss()
+                return
+            }
+
+            _ = try? await CloudKitManager.shared.save(meeting)
+            dismiss()
+        }
     }
 }
 

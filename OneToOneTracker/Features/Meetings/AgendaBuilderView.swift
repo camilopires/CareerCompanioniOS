@@ -5,9 +5,12 @@ struct AgendaBuilderView: View {
     let meeting: Meeting
 
     @StateObject private var viewModel: AgendaBuilderViewModel
+    @StateObject private var aiManager = AIManager.shared
     @State private var showingShareSheet = false
     @State private var showingAddItem = false
     @State private var newItemTitle = ""
+    @State private var aiSuggestions: [String] = []
+    @State private var isLoadingAI = false
     @FocusState private var isNewItemFocused: Bool
 
     init(meeting: Meeting) {
@@ -17,6 +20,22 @@ struct AgendaBuilderView: View {
 
     var body: some View {
         List {
+            // AI Suggestions section
+            if aiManager.isAvailable && aiManager.isEnabled {
+                AISuggestionsSection(
+                    suggestions: aiSuggestions,
+                    isLoading: isLoadingAI,
+                    onRefresh: loadAISuggestions,
+                    onAdd: { suggestion in
+                        Task {
+                            await viewModel.addItem(title: suggestion)
+                            // Remove used suggestion
+                            aiSuggestions.removeAll { $0 == suggestion }
+                        }
+                    }
+                )
+            }
+
             // Carried over action items
             if !viewModel.carriedOverItems.isEmpty {
                 Section {
@@ -107,6 +126,9 @@ struct AgendaBuilderView: View {
         }
         .task {
             await viewModel.loadData()
+            if aiManager.isAvailable && aiManager.isEnabled {
+                await loadAISuggestions()
+            }
         }
     }
 
@@ -115,6 +137,120 @@ struct AgendaBuilderView: View {
         Task {
             await viewModel.addItem(title: newItemTitle)
             newItemTitle = ""
+        }
+    }
+
+    private func loadAISuggestions() async {
+        isLoadingAI = true
+
+        // Fetch previous meetings and action items for context
+        var previousMeetings: [Meeting] = []
+        var openActionItems: [ActionItem] = []
+
+        if AppSettings.shared.isDemoMode {
+            previousMeetings = DemoDataProvider.meetings.filter { $0.status == .completed }
+            openActionItems = DemoDataProvider.actionItems.filter { $0.status != .completed }
+        } else {
+            previousMeetings = (try? await CloudKitManager.shared.fetch(
+                predicate: NSPredicate(format: "managerID == %@ AND status == %@",
+                                       meeting.managerID.uuidString,
+                                       MeetingStatus.completed.rawValue),
+                sortDescriptors: [NSSortDescriptor(key: "date", ascending: false)]
+            )) ?? []
+
+            openActionItems = (try? await CloudKitManager.shared.fetch(
+                predicate: NSPredicate(format: "status != %@", ActionItemStatus.completed.rawValue)
+            )) ?? []
+        }
+
+        aiSuggestions = await aiManager.suggestAgendaItems(
+            previousMeetings: previousMeetings,
+            openActionItems: openActionItems,
+            managerName: "" // We could fetch manager name here
+        )
+
+        isLoadingAI = false
+    }
+}
+
+// MARK: - AI Suggestions Section
+
+private struct AISuggestionsSection: View {
+    let suggestions: [String]
+    let isLoading: Bool
+    let onRefresh: () async -> Void
+    let onAdd: (String) -> Void
+
+    var body: some View {
+        Section {
+            if isLoading {
+                HStack {
+                    ProgressView()
+                        .padding(.trailing, Spacing.sm)
+                    Text("Getting suggestions...")
+                        .font(Typography.callout)
+                        .foregroundStyle(Colors.textSecondary)
+                }
+            } else if suggestions.isEmpty {
+                HStack {
+                    Image(systemName: "sparkles")
+                        .foregroundStyle(Colors.textTertiary)
+                    Text("No suggestions available")
+                        .font(Typography.callout)
+                        .foregroundStyle(Colors.textSecondary)
+
+                    Spacer()
+
+                    Button {
+                        Task {
+                            await onRefresh()
+                        }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .foregroundStyle(Color.accentColor)
+                    }
+                }
+            } else {
+                ForEach(suggestions, id: \.self) { suggestion in
+                    HStack {
+                        Image(systemName: "sparkles")
+                            .foregroundStyle(Color.accentColor)
+                            .font(.caption)
+
+                        Text(suggestion)
+                            .font(Typography.body)
+
+                        Spacer()
+
+                        Button {
+                            onAdd(suggestion)
+                        } label: {
+                            Image(systemName: "plus.circle")
+                                .foregroundStyle(Color.accentColor)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(.vertical, Spacing.xxs)
+                }
+            }
+        } header: {
+            HStack {
+                Label("AI Suggestions", systemImage: "sparkles")
+                Spacer()
+                if !isLoading && !suggestions.isEmpty {
+                    Button {
+                        Task {
+                            await onRefresh()
+                        }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.caption)
+                            .foregroundStyle(Color.accentColor)
+                    }
+                }
+            }
+        } footer: {
+            Text("Suggestions based on your previous meetings and open action items")
         }
     }
 }

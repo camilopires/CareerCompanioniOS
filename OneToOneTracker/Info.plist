@@ -46,5 +46,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>OneToOne Tracker syncs your 1:1 meetings to your calendar for reminders and to keep your schedule organized.</string>
 </dict>
 </plist>

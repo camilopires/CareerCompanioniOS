@@ -86,14 +86,24 @@ struct SettingsView: View {
                 Text("Get reminded before your 1:1 meetings and to prepare your agenda.")
             }
 
+            // Calendar section
+            CalendarSettingsSection()
+
+            // AI Suggestions section
+            AISettingsSection()
+
             // Data section
             Section {
                 NavigationLink(destination: DataPrivacyView()) {
                     Label("Data & Privacy", systemImage: "lock.shield")
                 }
 
-                Button(action: exportAllData) {
-                    Label("Export All Data", systemImage: "square.and.arrow.up")
+                NavigationLink(destination: ExportView()) {
+                    Label("Export Data", systemImage: "square.and.arrow.up")
+                }
+
+                NavigationLink(destination: ImportView()) {
+                    Label("Import Data", systemImage: "square.and.arrow.down")
                 }
             } header: {
                 Text("Your Data")
@@ -147,10 +157,6 @@ struct SettingsView: View {
         .sheet(isPresented: $showingAddPerson) {
             AddPersonView()
         }
-    }
-
-    private func exportAllData() {
-        // TODO: Implement data export via ExportImportService
     }
 }
 
@@ -514,5 +520,122 @@ struct AddPersonView: View {
 #Preview("People List") {
     NavigationStack {
         PeopleListView()
+    }
+}
+
+// MARK: - Calendar Settings Section
+
+struct CalendarSettingsSection: View {
+    @StateObject private var calendarManager = CalendarManager.shared
+    @State private var syncEnabled: Bool = AppSettings.shared.syncMeetingsToCalendar
+    @State private var selectedCalendarID: String? = AppSettings.shared.selectedCalendarID
+
+    var body: some View {
+        Section {
+            Toggle("Sync to Calendar", isOn: $syncEnabled)
+                .onChange(of: syncEnabled) { _, newValue in
+                    handleSyncToggle(newValue)
+                }
+
+            if syncEnabled && calendarManager.canCreateEvents {
+                Picker("Calendar", selection: $selectedCalendarID) {
+                    Text("Default Calendar")
+                        .tag(nil as String?)
+
+                    ForEach(calendarManager.availableCalendars, id: \.calendarIdentifier) { calendar in
+                        Text(calendar.title)
+                            .tag(calendar.calendarIdentifier as String?)
+                    }
+                }
+                .onChange(of: selectedCalendarID) { _, newValue in
+                    AppSettings.shared.selectedCalendarID = newValue
+                }
+            }
+
+            if syncEnabled && !calendarManager.canCreateEvents {
+                Button {
+                    Task {
+                        _ = await calendarManager.requestAccess()
+                    }
+                } label: {
+                    Label("Grant Calendar Access", systemImage: "calendar.badge.plus")
+                }
+            }
+        } header: {
+            Text("Calendar")
+        } footer: {
+            if syncEnabled {
+                if calendarManager.canCreateEvents {
+                    Text("New meetings will be added to your selected calendar with reminders.")
+                } else {
+                    Text("Calendar access is required to sync meetings. Tap above to grant access.")
+                }
+            } else {
+                Text("Automatically add your 1:1 meetings to your calendar.")
+            }
+        }
+    }
+
+    private func handleSyncToggle(_ enabled: Bool) {
+        AppSettings.shared.syncMeetingsToCalendar = enabled
+
+        if enabled && !calendarManager.canCreateEvents {
+            Task {
+                _ = await calendarManager.requestAccess()
+            }
+        }
+    }
+}
+
+#Preview("Calendar Settings") {
+    Form {
+        CalendarSettingsSection()
+    }
+}
+
+// MARK: - AI Settings Section
+
+struct AISettingsSection: View {
+    @StateObject private var aiManager = AIManager.shared
+    @State private var isEnabled: Bool = AIManager.shared.isEnabled
+
+    var body: some View {
+        Section {
+            if aiManager.isAvailable {
+                Toggle("AI Suggestions", isOn: $isEnabled)
+                    .onChange(of: isEnabled) { _, newValue in
+                        aiManager.isEnabled = newValue
+                    }
+            } else {
+                HStack {
+                    Label("AI Suggestions", systemImage: "sparkles")
+                    Spacer()
+                    Text("iOS 18+")
+                        .font(Typography.caption1)
+                        .foregroundStyle(Colors.textTertiary)
+                }
+            }
+        } header: {
+            HStack {
+                Text("AI Features")
+                if aiManager.isAvailable {
+                    Image(systemName: "sparkles")
+                        .font(.caption)
+                        .foregroundStyle(Color.accentColor)
+                }
+            }
+        } footer: {
+            if aiManager.isAvailable {
+                Text("Get intelligent suggestions for agenda items, achievement descriptions, and meeting summaries. All processing happens on-device for privacy.")
+            } else {
+                Text("AI features require iOS 18 or later with Apple Intelligence support.")
+            }
+        }
+    }
+}
+
+#Preview("AI Settings") {
+    Form {
+        AISettingsSection()
     }
 }

@@ -142,8 +142,8 @@ All data is stored in CloudKit's **private database**, which means:
 ### Project Structure
 
 ```
-OneToOneTracker/
-├── OneToOneTrackerApp.swift          # App entry point
+CareerCompanion/
+├── CareerCompanionApp.swift          # App entry point
 ├── Core/
 │   ├── CloudKit/
 │   │   ├── CloudKitManager.swift     # CloudKit operations
@@ -197,13 +197,13 @@ OneToOneTracker/
 │   │   ├── ExportView.swift
 │   │   └── ImportView.swift
 │   └── Onboarding/
-├── OneToOneTrackerWidget/
+├── CareerCompanionWidget/
 │   ├── ActionItemsWidget.swift
 │   ├── NextMeetingWidget.swift
 │   ├── CareerGoalsWidget.swift
 │   └── WidgetBundle.swift
-└── OneToOneTrackerWatch/             # Apple Watch App
-    ├── OneToOneTrackerWatchApp.swift
+└── CareerCompanionWatch/             # Apple Watch App
+    ├── CareerCompanionWatchApp.swift
     ├── WatchHomeView.swift
     ├── WatchHomeViewModel.swift
     ├── WatchMeetingDetailView.swift
@@ -266,27 +266,27 @@ Achievement
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/camilopires/OneToOneTrackeriOS.git
-   cd OneToOneTrackeriOS
+   git clone https://github.com/camilopires/CareerCompanioniOS.git
+   cd CareerCompanioniOS
    ```
 
 2. **Open in Xcode**
    ```bash
-   open OneToOneTracker.xcodeproj
+   open CareerCompanion.xcodeproj
    ```
 
 3. **Configure Signing**
    - Select the project in the navigator
    - Go to Signing & Capabilities
    - Select your Development Team for all targets:
-     - `OneToOneTracker`
-     - `OneToOneTrackerWidgetExtension`
-     - `OneToOneTrackerWatch`
+     - `CareerCompanion`
+     - `CareerCompanionWidgetExtension`
+     - `CareerCompanionWatch`
 
 4. **Update Bundle Identifiers** (optional)
-   - Default: `com.onetoonetracker.app`
-   - Widget: `com.onetoonetracker.app.widget`
-   - Watch: `com.onetoonetracker.app.watch`
+   - Default: `com.careercompanion.app`
+   - Widget: `com.careercompanion.app.widget`
+   - Watch: `com.careercompanion.app.watch`
 
 5. **Build and Run**
    - Select your target device/simulator
@@ -294,7 +294,7 @@ Achievement
 
 ### Demo Mode
 
-OneToOne Tracker includes a Demo Mode that lets you explore the app with sample data before committing to your own data:
+Career Companion includes a Demo Mode that lets you explore the app with sample data before committing to your own data:
 
 1. **During Onboarding**: After the welcome slides, demo mode activates automatically
 2. **Explore with Sample Data**: Navigate through meetings, action items, and career goals
@@ -389,7 +389,7 @@ Uses San Francisco (system font) with Dynamic Type:
 
 1. Long press on home screen
 2. Tap the `+` button
-3. Search for "1:1 Tracker"
+3. Search for "Career Companion"
 4. Choose widget size and add
 
 ### Available Widgets
@@ -508,5 +508,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/camilopires/OneToOneTrackeriOS/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/camilopires/OneToOneTrackeriOS/discussions)
+- **Issues**: [GitHub Issues](https://github.com/camilopires/CareerCompanioniOS/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/camilopires/CareerCompanioniOS/discussions)

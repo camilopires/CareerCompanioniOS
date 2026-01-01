@@ -523,12 +523,14 @@ Two main entry points displayed prominently:
 ## Technical Requirements
 
 ### Platform & Framework
-- iOS 17+ (minimum deployment target)
+- iOS 18+ (minimum deployment target)
+- watchOS 10+ (Watch companion app)
 - Swift 5.9+
 - SwiftUI for UI
-- SwiftData for persistence
+- CloudKit for persistence and sync
 - WidgetKit for widgets
-- CloudKit for sync (optional)
+- EventKit for calendar integration
+- App Intents for Siri Shortcuts
 
 ### Architecture
 - MVVM architecture pattern
@@ -676,16 +678,46 @@ PerformanceReport
   - People list in Settings
   - Add/remove managers or direct reports
 
-## Future Enhancements (v2.1+)
+## v2.1 Features (Completed)
 
-- [ ] Calendar integration (sync with iOS Calendar)
-- [ ] Siri Shortcuts
-- [ ] Apple Watch companion app
-- [ ] AI-powered suggestions for agenda items
-- [ ] AI-assisted achievement writing
+- [x] **Multiple Managers Filtering** - Filter meetings by manager/report
+  - Manager picker in meetings list
+  - Per-manager meeting history
+- [x] **Calendar Integration** - Sync meetings with iOS Calendar
+  - EventKit integration via CalendarManager
+  - Auto-sync on meeting create/update/delete
+  - Calendar selection in Settings
+- [x] **Siri Shortcuts** - Voice commands via App Intents
+  - "When is my next 1:1?"
+  - "Check my action items"
+  - "Add action item [title]"
+  - "Log achievement [title]"
+  - "Start my 1:1"
+- [x] **Apple Watch App** - Companion watchOS app
+  - View upcoming meetings
+  - Complete action items
+  - Log week sentiment
+  - Shares data via CloudKit
+- [x] **AI Suggestions** - Smart suggestions (iOS 18+)
+  - Agenda item suggestions based on history
+  - Achievement description improvement
+  - Impact statement templates
+- [x] **Data Export/Import** - Full data backup
+  - Export to JSON or CSV
+  - Import from JSON backup
+  - Conflict resolution options
+- [x] **Enhanced Team View** - Manager dashboard improvements
+  - Team health metrics
+  - Meeting cadence tracking
+  - Quick schedule per team member
+
+## Future Enhancements (v3.0+)
+
 - [ ] Integration APIs (Slack, Teams, Notion)
 - [ ] Competency framework templates
 - [ ] Goal templates library
+- [ ] Watch complications
+- [ ] Shared team goals
 
 ---
 
@@ -693,88 +725,62 @@ PerformanceReport
 
 ```
 OneToOneTrackeriOS/
-├── App/
+├── OneToOneTracker/
 │   ├── OneToOneTrackerApp.swift
-│   └── AppDelegate.swift
-├── Models/
-│   ├── Manager.swift
-│   ├── Meeting.swift
-│   ├── AgendaItem.swift
-│   ├── ActionItem.swift
-│   ├── CareerGoal.swift
-│   ├── Achievement.swift
-│   ├── PerformanceReport.swift
-│   └── Comment.swift
-├── Views/
-│   ├── Home/
-│   │   ├── HomeView.swift
-│   │   ├── ActionItemsListView.swift
-│   │   ├── UpcomingMeetingCard.swift
-│   │   └── CareerProgressCard.swift
-│   ├── Preparation/
-│   │   ├── AgendaBuilderView.swift
-│   │   └── ShareAgendaView.swift
-│   ├── Meeting/
-│   │   ├── MeetingView.swift
-│   │   ├── NotesSection.swift
-│   │   ├── FeedbackSections.swift
-│   │   └── SentimentPicker.swift
-│   ├── ActionItems/
-│   │   ├── ActionItemDetailView.swift
-│   │   ├── ActionItemRow.swift
-│   │   └── AddActionItemView.swift
-│   ├── Career/
-│   │   ├── CareerHomeView.swift
-│   │   ├── GoalsListView.swift
-│   │   ├── GoalDetailView.swift
-│   │   ├── AddGoalView.swift
-│   │   ├── AchievementsListView.swift
-│   │   ├── AchievementDetailView.swift
-│   │   ├── AddAchievementView.swift
-│   │   ├── ReportBuilderView.swift
-│   │   └── ReportPreviewView.swift
-│   ├── History/
-│   │   ├── MeetingHistoryView.swift
-│   │   └── MeetingDetailView.swift
-│   ├── Settings/
-│   │   └── SettingsView.swift
-│   └── Components/
-│       ├── ProgressRing.swift
-│       ├── SentimentPicker.swift
-│       ├── TagsView.swift
-│       └── EmptyStateView.swift
-├── ViewModels/
-│   ├── HomeViewModel.swift
-│   ├── MeetingViewModel.swift
-│   ├── ActionItemViewModel.swift
-│   ├── CareerGoalsViewModel.swift
-│   ├── AchievementsViewModel.swift
-│   └── ReportViewModel.swift
-├── Services/
-│   ├── DataService.swift
-│   ├── NotificationService.swift
-│   ├── ExportService.swift
-│   └── ReportGeneratorService.swift
-├── Widgets/
+│   ├── Core/
+│   │   ├── CloudKit/
+│   │   │   ├── CloudKitManager.swift
+│   │   │   └── CloudKitRecordable.swift
+│   │   ├── DemoData/
+│   │   │   └── DemoDataProvider.swift
+│   │   ├── Intents/
+│   │   │   ├── AppIntents.swift
+│   │   │   └── ShortcutsManager.swift
+│   │   ├── Models/
+│   │   │   ├── AppSettings.swift
+│   │   │   ├── Enums.swift
+│   │   │   ├── Manager.swift
+│   │   │   ├── Meeting.swift
+│   │   │   ├── AgendaItem.swift
+│   │   │   ├── ActionItem.swift
+│   │   │   ├── CareerGoal.swift
+│   │   │   └── Achievement.swift
+│   │   └── Services/
+│   │       ├── AIManager.swift
+│   │       ├── CalendarManager.swift
+│   │       └── ExportImportService.swift
+│   ├── Design/
+│   │   ├── Colors.swift
+│   │   ├── Typography.swift
+│   │   ├── Spacing.swift
+│   │   ├── Theme.swift
+│   │   └── Components/
+│   │       ├── Card.swift
+│   │       ├── EmptyState.swift
+│   │       ├── ProgressRing.swift
+│   │       └── SentimentPicker.swift
+│   └── Features/
+│       ├── Home/
+│       ├── Meetings/
+│       ├── ActionItems/
+│       ├── Career/
+│       ├── Settings/
+│       │   ├── SettingsView.swift
+│       │   ├── ExportView.swift
+│       │   └── ImportView.swift
+│       └── Onboarding/
+├── OneToOneTrackerWidget/
 │   ├── ActionItemsWidget.swift
 │   ├── NextMeetingWidget.swift
 │   ├── CareerGoalsWidget.swift
 │   └── WidgetBundle.swift
-├── Design/
-│   ├── Theme.swift
-│   ├── Colors.swift
-│   ├── Typography.swift
-│   └── Spacing.swift
-├── Accessibility/
-│   ├── AccessibilityModifiers.swift
-│   └── AccessibilityIdentifiers.swift
-├── Extensions/
-│   ├── Date+Extensions.swift
-│   ├── View+Accessibility.swift
-│   └── Color+Contrast.swift
-├── Resources/
-│   ├── Assets.xcassets
-│   └── Localizable.strings
+├── OneToOneTrackerWatch/
+│   ├── OneToOneTrackerWatchApp.swift
+│   ├── WatchHomeView.swift
+│   ├── WatchHomeViewModel.swift
+│   ├── WatchMeetingDetailView.swift
+│   ├── WatchActionItemsView.swift
+│   └── WatchQuickLogView.swift
 └── Tests/
     ├── UnitTests/
     ├── UITests/

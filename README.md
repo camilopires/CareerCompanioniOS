@@ -2,10 +2,11 @@
 
 A native iOS app for tracking 1:1 meetings with managers and career goals. Built with SwiftUI and CloudKit for secure, private data storage in your personal iCloud account.
 
-![iOS 17+](https://img.shields.io/badge/iOS-17%2B-blue)
+![iOS 18+](https://img.shields.io/badge/iOS-18%2B-blue)
 ![Swift 5.9](https://img.shields.io/badge/Swift-5.9-orange)
 ![SwiftUI](https://img.shields.io/badge/UI-SwiftUI-purple)
 ![CloudKit](https://img.shields.io/badge/Storage-CloudKit-green)
+![watchOS 10+](https://img.shields.io/badge/watchOS-10%2B-red)
 ![WCAG AA](https://img.shields.io/badge/Accessibility-WCAG%20AA-brightgreen)
 
 ---
@@ -18,9 +19,15 @@ OneToOne Tracker helps employees prepare for, conduct, and follow up on 1:1 meet
 
 - **1:1 Meeting Management** - Prepare agendas, capture notes, track action items
 - **IC & Manager Modes** - Switch between tracking meetings with your manager or your direct reports
+- **Multiple Managers/Reports** - Track 1:1s with multiple people, filter by manager
 - **Demo Mode** - Explore the app with sample data before starting fresh
 - **Career Goals Tracking** - Set goals, track progress, record achievements
 - **Performance Reports** - Generate reports for performance reviews
+- **Calendar Integration** - Sync meetings to your iOS calendar via EventKit
+- **Siri Shortcuts** - "When is my next 1:1?", "Add action item", and more
+- **Apple Watch App** - View meetings, complete action items, log sentiment from your wrist
+- **AI Suggestions** - Smart agenda suggestions based on meeting history (iOS 18+)
+- **Data Export/Import** - Full backup to JSON/CSV, restore from backup
 - **iOS Widgets** - Quick access to action items and upcoming meetings
 - **Export & Share** - Copy agendas to Slack, Teams, or email
 
@@ -106,10 +113,13 @@ OneToOne Tracker helps employees prepare for, conduct, and follow up on 1:1 meet
 
 ### Tech Stack
 
-- **iOS 17+** minimum deployment target
+- **iOS 18+** minimum deployment target
+- **watchOS 10+** for Apple Watch companion app
 - **Swift 5.9+**
 - **SwiftUI** for all UI components
 - **CloudKit** for secure iCloud storage
+- **EventKit** for calendar integration
+- **App Intents** for Siri Shortcuts
 - **WidgetKit** for home screen widgets
 - **MVVM** architecture pattern
 
@@ -132,15 +142,22 @@ OneToOneTracker/
 │   │   └── CloudKitRecordable.swift  # Protocol for models
 │   ├── DemoData/
 │   │   └── DemoDataProvider.swift    # In-memory demo data
-│   └── Models/
-│       ├── AppSettings.swift         # App settings (demo mode, user role)
-│       ├── Enums.swift               # Status, Priority, etc.
-│       ├── Manager.swift
-│       ├── Meeting.swift
-│       ├── AgendaItem.swift
-│       ├── ActionItem.swift
-│       ├── CareerGoal.swift
-│       └── Achievement.swift
+│   ├── Intents/
+│   │   ├── AppIntents.swift          # Siri Shortcuts definitions
+│   │   └── ShortcutsManager.swift    # Shortcut donations
+│   ├── Models/
+│   │   ├── AppSettings.swift         # App settings (demo mode, user role)
+│   │   ├── Enums.swift               # Status, Priority, etc.
+│   │   ├── Manager.swift
+│   │   ├── Meeting.swift
+│   │   ├── AgendaItem.swift
+│   │   ├── ActionItem.swift
+│   │   ├── CareerGoal.swift
+│   │   └── Achievement.swift
+│   └── Services/
+│       ├── AIManager.swift           # AI suggestions (iOS 18+)
+│       ├── CalendarManager.swift     # EventKit integration
+│       └── ExportImportService.swift # Data export/import
 ├── Design/
 │   ├── Colors.swift                  # WCAG AA color palette
 │   ├── Typography.swift              # Dynamic Type support
@@ -157,12 +174,22 @@ OneToOneTracker/
 │   ├── ActionItems/
 │   ├── Career/
 │   ├── Settings/
+│   │   ├── SettingsView.swift
+│   │   ├── ExportView.swift
+│   │   └── ImportView.swift
 │   └── Onboarding/
-└── OneToOneTrackerWidget/
-    ├── ActionItemsWidget.swift
-    ├── NextMeetingWidget.swift
-    ├── CareerGoalsWidget.swift
-    └── WidgetBundle.swift
+├── OneToOneTrackerWidget/
+│   ├── ActionItemsWidget.swift
+│   ├── NextMeetingWidget.swift
+│   ├── CareerGoalsWidget.swift
+│   └── WidgetBundle.swift
+└── OneToOneTrackerWatch/             # Apple Watch App
+    ├── OneToOneTrackerWatchApp.swift
+    ├── WatchHomeView.swift
+    ├── WatchHomeViewModel.swift
+    ├── WatchMeetingDetailView.swift
+    ├── WatchActionItemsView.swift
+    └── WatchQuickLogView.swift
 ```
 
 ### Data Models
@@ -207,7 +234,8 @@ Achievement
 ### Prerequisites
 
 - Xcode 15.0 or later
-- iOS 17.0+ device or simulator
+- iOS 18.0+ device or simulator
+- watchOS 10.0+ simulator (for Watch app testing)
 - Apple Developer account (for CloudKit)
 - iCloud account signed in on device
 
@@ -227,13 +255,15 @@ Achievement
 3. **Configure Signing**
    - Select the project in the navigator
    - Go to Signing & Capabilities
-   - Select your Development Team for both targets:
+   - Select your Development Team for all targets:
      - `OneToOneTracker`
      - `OneToOneTrackerWidgetExtension`
+     - `OneToOneTrackerWatch`
 
 4. **Update Bundle Identifiers** (optional)
    - Default: `com.onetoonetracker.app`
    - Widget: `com.onetoonetracker.app.widget`
+   - Watch: `com.onetoonetracker.app.watch`
 
 5. **Build and Run**
    - Select your target device/simulator
@@ -365,7 +395,7 @@ Uses San Francisco (system font) with Dynamic Type:
 
 ## Roadmap
 
-### v1.0 (Current)
+### v1.0
 - [x] 1:1 Meeting management
 - [x] Action items tracking
 - [x] Career goals and achievements
@@ -373,14 +403,25 @@ Uses San Francisco (system font) with Dynamic Type:
 - [x] iOS widgets
 - [x] Export to Slack/Teams
 
-### v2.0 (Current)
+### v2.0
 - [x] Demo Mode for onboarding exploration
 - [x] IC/Manager mode switching
 - [x] Multiple people support (managers or direct reports)
-- [ ] Calendar integration
-- [ ] Siri Shortcuts
-- [ ] Apple Watch companion app
-- [ ] AI-powered suggestions
+
+### v2.1 (Current)
+- [x] Multiple managers filtering
+- [x] Calendar integration (EventKit)
+- [x] Siri Shortcuts (App Intents)
+- [x] Apple Watch companion app
+- [x] AI-powered suggestions (iOS 18+)
+- [x] Data export/import (JSON/CSV)
+- [x] Enhanced team view for managers
+
+### Future
+- [ ] Integration APIs (Slack, Teams, Notion)
+- [ ] Competency framework templates
+- [ ] Goal templates library
+- [ ] Watch complications
 
 ---
 

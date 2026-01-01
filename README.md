@@ -186,6 +186,10 @@ OneToOneTracker/
 │   ├── Premium/
 │   │   ├── UpgradeView.swift         # Full upgrade screen
 │   │   └── UpgradePromptSheet.swift  # Contextual upgrade prompts
+│   ├── People/
+│   │   ├── PeopleListView.swift      # Standalone people list
+│   │   ├── AddPersonView.swift       # Add person form with callback
+│   │   └── PersonRow.swift           # Reusable person row component
 │   ├── Settings/
 │   │   ├── SettingsView.swift
 │   │   ├── PremiumSettingsSection.swift
@@ -451,7 +455,7 @@ Uses San Francisco (system font) with Dynamic Type:
 - [x] Next week's goals that carry forward automatically
 - [x] All new sections are optional - use what's relevant
 
-### v2.4 (Current)
+### v2.4
 - [x] **Premium Monetization** - Freemium model with StoreKit 2
   - Free tier: 1 person, 10 action items, 3 goals, 5 achievements
   - Premium (£19.99 lifetime): Unlimited everything + power features
@@ -469,6 +473,16 @@ Uses San Francisco (system font) with Dynamic Type:
   - Full upgrade view with feature showcase
   - Restore purchases support
   - Premium status in Settings
+
+### v2.5 (Current)
+- [x] **People Quick Access** - Manage people directly from dashboards
+  - "Add Your First Person" button when no people exist (no more "Go to Settings")
+  - "Add a new person" option at top of person picker when scheduling meetings
+  - Auto-select newly added person in meeting creation flow
+  - Standalone People views extracted for reuse across the app
+- [x] **Improved UX Flow**
+  - Tappable empty states that open AddPersonView directly
+  - Seamless person creation during meeting scheduling
 
 ### Future
 - [ ] Integration APIs (Slack, Teams, Notion)

@@ -71,6 +71,9 @@
 		A100012003 /* UpgradeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200012003 /* UpgradeView.swift */; };
 		A100012004 /* UpgradePromptSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200012004 /* UpgradePromptSheet.swift */; };
 		A100012005 /* PremiumSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200012005 /* PremiumSettingsSection.swift */; };
+		A100013001 /* PersonRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200013001 /* PersonRow.swift */; };
+		A100013002 /* AddPersonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200013002 /* AddPersonView.swift */; };
+		A100013003 /* PeopleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200013003 /* PeopleListView.swift */; };
 		B1000001001 /* WidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001001 /* WidgetBundle.swift */; };
 		B1000001002 /* ActionItemsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001002 /* ActionItemsWidget.swift */; };
 		B1000001003 /* NextMeetingWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001003 /* NextMeetingWidget.swift */; };
@@ -191,6 +194,9 @@
 		A200012003 /* UpgradeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeView.swift; sourceTree = "<group>"; };
 		A200012004 /* UpgradePromptSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradePromptSheet.swift; sourceTree = "<group>"; };
 		A200012005 /* PremiumSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumSettingsSection.swift; sourceTree = "<group>"; };
+		A200013001 /* PersonRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonRow.swift; sourceTree = "<group>"; };
+		A200013002 /* AddPersonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPersonView.swift; sourceTree = "<group>"; };
+		A200013003 /* PeopleListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleListView.swift; sourceTree = "<group>"; };
 		A3000001001 /* OneToOneTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneToOneTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2000001001 /* WidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBundle.swift; sourceTree = "<group>"; };
 		B2000001002 /* ActionItemsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionItemsWidget.swift; sourceTree = "<group>"; };
@@ -301,6 +307,7 @@
 				C200000200D /* Settings */,
 				C200000200E /* Onboarding */,
 				C2000002011 /* Premium */,
+				C2000002012 /* People */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -452,6 +459,16 @@
 				A200012004 /* UpgradePromptSheet.swift */,
 			);
 			path = Premium;
+			sourceTree = "<group>";
+		};
+		C2000002012 /* People */ = {
+			isa = PBXGroup;
+			children = (
+				A200013001 /* PersonRow.swift */,
+				A200013002 /* AddPersonView.swift */,
+				A200013003 /* PeopleListView.swift */,
+			);
+			path = People;
 			sourceTree = "<group>";
 		};
 		C2000003001 /* OneToOneTrackerWidget */ = {
@@ -683,6 +700,9 @@
 				A100012003 /* UpgradeView.swift in Sources */,
 				A100012004 /* UpgradePromptSheet.swift in Sources */,
 				A100012005 /* PremiumSettingsSection.swift in Sources */,
+				A100013001 /* PersonRow.swift in Sources */,
+				A100013002 /* AddPersonView.swift in Sources */,
+				A100013003 /* PeopleListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

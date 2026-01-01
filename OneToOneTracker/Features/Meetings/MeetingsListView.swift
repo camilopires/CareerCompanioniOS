@@ -232,9 +232,15 @@ struct AddMeetingView: View {
     @State private var meetingType: String = "1:1"
     @State private var showingAddMeetingType = false
     @State private var newMeetingTypeName = ""
+    @State private var showingAddPerson = false
+    @State private var localManagers: [Manager]
 
-    let managers: [Manager]
     let onCreate: (Meeting) -> Void
+
+    init(managers: [Manager], onCreate: @escaping (Meeting) -> Void) {
+        self._localManagers = State(initialValue: managers)
+        self.onCreate = onCreate
+    }
 
     var body: some View {
         NavigationStack {
@@ -258,15 +264,28 @@ struct AddMeetingView: View {
                 }
 
                 Section {
-                    if managers.isEmpty {
-                        Text("No people found. Add someone in Settings first.")
-                            .foregroundStyle(Colors.textSecondary)
+                    if localManagers.isEmpty {
+                        // Empty state: Add Your First Person button
+                        Button {
+                            showingAddPerson = true
+                        } label: {
+                            Label("Add Your First Person", systemImage: "person.badge.plus")
+                        }
                     } else {
+                        // Add a new person button at the top
+                        Button {
+                            showingAddPerson = true
+                        } label: {
+                            Label("Add a new person", systemImage: "plus.circle")
+                                .foregroundColor(.accentColor)
+                        }
+
+                        // Person picker
                         Picker("With", selection: $selectedManagerID) {
                             Text("Select a person")
                                 .tag(nil as UUID?)
 
-                            ForEach(managers) { manager in
+                            ForEach(localManagers) { manager in
                                 HStack {
                                     Text(manager.name)
                                     Text("(\(manager.relationshipType))")
@@ -278,10 +297,6 @@ struct AddMeetingView: View {
                     }
                 } header: {
                     Text("Person")
-                } footer: {
-                    if managers.isEmpty {
-                        Text("Go to Settings > People to add someone.")
-                    }
                 }
             }
             .navigationTitle("New Meeting")
@@ -313,8 +328,15 @@ struct AddMeetingView: View {
             }
             .onAppear {
                 // Pre-select first manager if only one exists
-                if managers.count == 1 {
-                    selectedManagerID = managers.first?.id
+                if localManagers.count == 1 {
+                    selectedManagerID = localManagers.first?.id
+                }
+            }
+            .sheet(isPresented: $showingAddPerson) {
+                AddPersonView { newPerson in
+                    // Add new person to local list and auto-select
+                    localManagers.append(newPerson)
+                    selectedManagerID = newPerson.id
                 }
             }
             .alert("Add Meeting Type", isPresented: $showingAddMeetingType) {

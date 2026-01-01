@@ -516,6 +516,7 @@ private struct ManagerActionItemRow: View {
 private struct TeamMembersGridSection: View {
     @ObservedObject var viewModel: ManagerDashboardViewModel
     @State private var showingNewMeeting = false
+    @State private var showingAddPerson = false
     @State private var selectedMember: Manager?
 
     var body: some View {
@@ -534,12 +535,17 @@ private struct TeamMembersGridSection: View {
             }
 
             if viewModel.teamMembers.isEmpty {
-                CompactEmptyState(
-                    icon: "person.badge.plus",
-                    message: "Add team members in Settings"
-                )
-                .background(Colors.backgroundSecondary)
-                .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusMedium))
+                Button {
+                    showingAddPerson = true
+                } label: {
+                    CompactEmptyState(
+                        icon: "person.badge.plus",
+                        message: "Add Your First Team Member"
+                    )
+                    .background(Colors.backgroundSecondary)
+                    .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusMedium))
+                }
+                .buttonStyle(.plain)
             } else {
                 LazyVGrid(columns: [
                     GridItem(.flexible()),
@@ -564,6 +570,11 @@ private struct TeamMembersGridSection: View {
         .sheet(isPresented: $showingNewMeeting) {
             if let member = selectedMember {
                 QuickScheduleMeetingView(member: member)
+            }
+        }
+        .sheet(isPresented: $showingAddPerson) {
+            AddPersonView { _ in
+                // Refresh will happen automatically via CloudKit sync
             }
         }
     }

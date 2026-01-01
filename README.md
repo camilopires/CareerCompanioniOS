@@ -64,6 +64,11 @@ OneToOne Tracker helps employees prepare for, conduct, and follow up on 1:1 meet
 #### During Meeting
 - Interactive agenda with checkboxes
 - Meeting timer
+- Weekly planning sections (optional):
+  - This Week's Goals (auto-populated from previous meeting)
+  - Progress Updates
+  - Key Metrics (carries over between meetings)
+  - Next Week's Goals (carries to next meeting)
 - Structured feedback sections:
   - What Went Well
   - What Didn't Go Well
@@ -208,6 +213,7 @@ Meeting
 ├── id, date, status, perspective
 ├── meetingType (1:1, Career Development, Project Sync, custom...)
 ├── agendaItems, notes
+├── thisWeekGoals, thisWeekProgress, keyMetrics, nextWeekGoals
 ├── wentWell, didntGoWell, blockers, escalations
 ├── weekSentiment, meetingSentiment
 └── actionItems
@@ -423,13 +429,20 @@ Uses San Francisco (system font) with Dynamic Type:
 - [x] Data export/import (JSON/CSV)
 - [x] Enhanced team view for managers
 
-### v2.2 (Current)
+### v2.2
 - [x] Flexible relationship types (My Manager, Direct Report, Mentor, Peer, Stakeholder, custom)
 - [x] User-defined meeting types (1:1, Career Development, Project Sync, custom)
 - [x] Manage Types settings screen for custom types
 - [x] "Other 1:1s" section on dashboards for non-manager/report meetings
 - [x] Relationship type filter in meetings list
 - [x] Meeting type badges on meeting cards
+
+### v2.3 (Current)
+- [x] Weekly goals tracking with auto-carry-over from previous meeting
+- [x] Progress updates section for ongoing work
+- [x] Key metrics tracking that persists across meetings
+- [x] Next week's goals that carry forward automatically
+- [x] All new sections are optional - use what's relevant
 
 ### Future
 - [ ] Integration APIs (Slack, Teams, Notion)

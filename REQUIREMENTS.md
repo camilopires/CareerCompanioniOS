@@ -82,7 +82,31 @@ Two main entry points displayed prominently:
 - Link to specific agenda item
 - Priority level (low, medium, high)
 
-#### 3.4 Structured Feedback Sections
+#### 3.4 Weekly Planning Sections (Optional)
+
+All sections are optional - users can use what's relevant and skip the rest.
+
+**This Week's Goals**
+- What were the priorities for this week?
+- What was accomplished?
+- Auto-populated from previous meeting's "Next Week's Goals"
+
+**Progress Updates**
+- Review status of ongoing tasks/projects
+- Track what's in progress vs completed
+- Surface blockers early
+
+**Key Metrics**
+- Metrics the person is monitoring or driving
+- Carries over between meetings with the same person
+- Examples: "Sprint velocity", "Customer NPS", "Bug count", "Revenue target"
+
+**Next Week's Goals**
+- Set priorities/goals for the upcoming week
+- Align on expectations
+- Carries over to next meeting's "This Week's Goals"
+
+#### 3.5 Structured Feedback Sections
 
 **What Went Well**
 - Bullet point list
@@ -104,7 +128,7 @@ Two main entry points displayed prominently:
 - Decisions needing approval
 - Support requests
 
-#### 3.5 Sentiment Tracking
+#### 3.6 Sentiment Tracking
 
 **Week Sentiment**
 - How was your week overall? (1-5 scale or emoji)
@@ -558,6 +582,10 @@ Meeting
 ├── meetingType: String (1:1, Career Development, Project Sync, custom...)
 ├── agendaItems: [AgendaItem]
 ├── notes: String
+├── thisWeekGoals: [String] (optional, auto-populated from previous nextWeekGoals)
+├── thisWeekProgress: [String] (optional)
+├── keyMetrics: [String] (optional, carries over between meetings)
+├── nextWeekGoals: [String] (optional, carries to next meeting)
 ├── wentWell: [String]
 ├── didntGoWell: [String]
 ├── blockers: [String]
@@ -743,6 +771,29 @@ PerformanceReport
   - Meeting type badge on MeetingRowView
   - Meeting type picker in AddMeetingView
   - Meeting type shown in meeting details
+
+## v2.3 Features (Completed)
+
+- [x] **Weekly Goals Tracking** - Track priorities and accomplishments
+  - This Week's Goals: What were the priorities for this week?
+  - Auto-populated from previous meeting's "Next Week's Goals"
+  - All sections are optional - use what's relevant
+- [x] **Progress Updates** - Track ongoing work status
+  - Review status of ongoing tasks/projects
+  - Track what's in progress vs completed
+  - Surface blockers early
+- [x] **Key Metrics** - Persistent metric tracking
+  - Metrics the person is monitoring or driving
+  - Carries over between meetings with the same person
+  - Examples: "Sprint velocity", "Customer NPS", "Bug count"
+- [x] **Next Week's Goals** - Plan ahead
+  - Set priorities/goals for the upcoming week
+  - Align on expectations
+  - Automatically carries to next meeting's "This Week's Goals"
+- [x] **Carry-Over Logic** - Smart data persistence
+  - nextWeekGoals → thisWeekGoals (next meeting)
+  - keyMetrics persist across all meetings with same person
+  - Works for all meeting types (managers, mentors, peers, etc.)
 
 ## Future Enhancements (v3.0+)
 

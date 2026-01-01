@@ -82,6 +82,7 @@
 		A100011005 /* AIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011005 /* AIManager.swift */; };
 		A100011006 /* AppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011006 /* AppIntents.swift */; };
 		A100011007 /* ShortcutsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011007 /* ShortcutsManager.swift */; };
+		A100011008 /* ManageTypesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011008 /* ManageTypesView.swift */; };
 
 		/* Watch App Build Files */
 		W1000001001 /* OneToOneTrackerWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001001; };
@@ -199,6 +200,7 @@
 		A200011005 /* AIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIManager.swift; sourceTree = "<group>"; };
 		A200011006 /* AppIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIntents.swift; sourceTree = "<group>"; };
 		A200011007 /* ShortcutsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutsManager.swift; sourceTree = "<group>"; };
+		A200011008 /* ManageTypesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTypesView.swift; sourceTree = "<group>"; };
 
 		/* Watch App Files */
 		W2000001001 /* OneToOneTrackerWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneToOneTrackerWatchApp.swift; sourceTree = "<group>"; };
@@ -448,6 +450,7 @@
 				A2000009001 /* SettingsView.swift */,
 				A200011002 /* ExportView.swift */,
 				A200011003 /* ImportView.swift */,
+				A200011008 /* ManageTypesView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -669,6 +672,7 @@
 				A100011005 /* AIManager.swift in Sources */,
 				A100011006 /* AppIntents.swift in Sources */,
 				A100011007 /* ShortcutsManager.swift in Sources */,
+				A100011008 /* ManageTypesView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

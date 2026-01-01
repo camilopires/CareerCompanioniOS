@@ -1,6 +1,16 @@
 import Foundation
 import SwiftUI
 
+/// Filter for relationship types
+enum RelationshipFilter: String, CaseIterable, Identifiable {
+    case all = "All"
+    case myManagers = "My Managers"
+    case directReports = "Direct Reports"
+    case others = "Others"
+
+    var id: String { rawValue }
+}
+
 /// ViewModel for the meetings list
 @MainActor
 final class MeetingsViewModel: ObservableObject {
@@ -10,17 +20,42 @@ final class MeetingsViewModel: ObservableObject {
     @Published var allMeetings: [Meeting] = []
     @Published var managers: [Manager] = []
     @Published var selectedManagerID: UUID?
+    @Published var relationshipFilter: RelationshipFilter = .all
     @Published var isLoading = false
     @Published var error: Error?
 
     // MARK: - Computed Properties
 
-    /// Meetings filtered by selected manager (or all if none selected)
-    var filteredMeetings: [Meeting] {
-        guard let managerID = selectedManagerID else {
-            return allMeetings
+    /// People matching the current relationship filter
+    var filteredPeople: [Manager] {
+        switch relationshipFilter {
+        case .all:
+            return managers
+        case .myManagers:
+            return managers.filter { $0.isMyManager }
+        case .directReports:
+            return managers.filter { $0.isDirectReport }
+        case .others:
+            return managers.filter { $0.isOtherRelationship }
         }
-        return allMeetings.filter { $0.managerID == managerID }
+    }
+
+    /// Meetings filtered by selected manager or relationship type
+    var filteredMeetings: [Meeting] {
+        var meetings = allMeetings
+
+        // Apply relationship filter first
+        if relationshipFilter != .all {
+            let personIDs = Set(filteredPeople.map { $0.id })
+            meetings = meetings.filter { personIDs.contains($0.managerID) }
+        }
+
+        // Then apply specific person filter if selected
+        if let managerID = selectedManagerID {
+            meetings = meetings.filter { $0.managerID == managerID }
+        }
+
+        return meetings
     }
 
     var upcomingMeetings: [Meeting] {

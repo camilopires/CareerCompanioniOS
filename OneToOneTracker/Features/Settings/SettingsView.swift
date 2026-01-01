@@ -39,19 +39,18 @@ struct SettingsView: View {
             Section {
                 NavigationLink(destination: PeopleListView()) {
                     HStack {
-                        Label(
-                            userRole == .individualContributor ? "Managers" : "Team Members",
-                            systemImage: userRole == .individualContributor ? "person.badge.shield.checkmark" : "person.3"
-                        )
+                        Label("People", systemImage: "person.3")
                         Spacer()
                     }
                 }
+
+                NavigationLink(destination: ManageTypesView()) {
+                    Label("Manage Types", systemImage: "tag")
+                }
             } header: {
-                Text(userRole == .individualContributor ? "Your Managers" : "Your Team")
+                Text("People & 1:1s")
             } footer: {
-                Text(userRole == .individualContributor
-                    ? "Add the managers you have 1:1 meetings with."
-                    : "Add your direct reports to track your 1:1s with them.")
+                Text("Manage the people you have 1:1 meetings with and customize relationship and meeting types.")
             }
 
             // Notifications section
@@ -352,41 +351,70 @@ struct AboutView: View {
 // MARK: - People List View
 
 struct PeopleListView: View {
-    @State private var managers: [Manager] = []
+    @State private var allPeople: [Manager] = []
     @State private var isLoading = false
     @State private var showingAddPerson = false
 
-    private var userRole: UserRole { AppSettings.shared.userRole }
+    // Filtered lists by relationship type
+    private var myManagers: [Manager] {
+        allPeople.filter { $0.isMyManager }
+    }
+
+    private var directReports: [Manager] {
+        allPeople.filter { $0.isDirectReport }
+    }
+
+    private var otherPeople: [Manager] {
+        allPeople.filter { $0.isOtherRelationship }
+    }
 
     var body: some View {
         List {
-            if managers.isEmpty && !isLoading {
+            if allPeople.isEmpty && !isLoading {
                 ContentUnavailableView(
-                    userRole == .individualContributor ? "No Managers" : "No Team Members",
+                    "No People",
                     systemImage: "person.badge.plus",
-                    description: Text("Tap + to add someone.")
+                    description: Text("Tap + to add someone you have 1:1s with.")
                 )
             } else {
-                ForEach(managers) { manager in
-                    HStack {
-                        VStack(alignment: .leading, spacing: Spacing.xxs) {
-                            Text(manager.name)
-                                .font(Typography.body)
-
-                            if let email = manager.email {
-                                Text(email)
-                                    .font(Typography.caption1)
-                                    .foregroundStyle(Colors.textSecondary)
-                            }
+                // My Managers Section
+                if !myManagers.isEmpty {
+                    Section("My Managers") {
+                        ForEach(myManagers) { person in
+                            PersonRow(person: person)
                         }
-
-                        Spacer()
+                        .onDelete { offsets in
+                            deletePeople(offsets, from: myManagers)
+                        }
                     }
                 }
-                .onDelete(perform: deleteManagers)
+
+                // Direct Reports Section
+                if !directReports.isEmpty {
+                    Section("Direct Reports") {
+                        ForEach(directReports) { person in
+                            PersonRow(person: person)
+                        }
+                        .onDelete { offsets in
+                            deletePeople(offsets, from: directReports)
+                        }
+                    }
+                }
+
+                // Other People Section
+                if !otherPeople.isEmpty {
+                    Section("Other 1:1s") {
+                        ForEach(otherPeople) { person in
+                            PersonRow(person: person, showRelationshipType: true)
+                        }
+                        .onDelete { offsets in
+                            deletePeople(offsets, from: otherPeople)
+                        }
+                    }
+                }
             }
         }
-        .navigationTitle(userRole == .individualContributor ? "Managers" : "Team Members")
+        .navigationTitle("People")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -400,43 +428,93 @@ struct PeopleListView: View {
             AddPersonView()
         }
         .task {
-            await loadManagers()
+            await loadPeople()
         }
         .refreshable {
-            await loadManagers()
+            await loadPeople()
         }
     }
 
-    private func loadManagers() async {
+    private func loadPeople() async {
         isLoading = true
 
         // Use demo data if in demo mode
         if AppSettings.shared.isDemoMode {
-            managers = DemoDataProvider.managers
+            allPeople = DemoDataProvider.managers
             isLoading = false
             return
         }
 
         do {
-            managers = try await CloudKitManager.shared.fetch()
+            allPeople = try await CloudKitManager.shared.fetch()
         } catch {}
         isLoading = false
     }
 
-    private func deleteManagers(at offsets: IndexSet) {
-        let managersToDelete = offsets.map { managers[$0] }
+    private func deletePeople(_ offsets: IndexSet, from list: [Manager]) {
+        let peopleToDelete = offsets.map { list[$0] }
 
         Task {
-            for manager in managersToDelete {
+            for person in peopleToDelete {
                 // In demo mode, only update in-memory
                 if AppSettings.shared.isDemoMode {
-                    managers.removeAll { $0.id == manager.id }
+                    allPeople.removeAll { $0.id == person.id }
                     continue
                 }
 
-                try? await CloudKitManager.shared.delete(manager)
-                managers.removeAll { $0.id == manager.id }
+                try? await CloudKitManager.shared.delete(person)
+                allPeople.removeAll { $0.id == person.id }
             }
+        }
+    }
+}
+
+// MARK: - Person Row
+
+private struct PersonRow: View {
+    let person: Manager
+    var showRelationshipType: Bool = false
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
+                HStack(spacing: Spacing.xs) {
+                    Text(person.name)
+                        .font(Typography.body)
+
+                    if showRelationshipType {
+                        Text(person.relationshipType)
+                            .font(Typography.caption2)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.accentColor.opacity(0.8))
+                            .cornerRadius(4)
+                    }
+                }
+
+                if let email = person.email {
+                    Text(email)
+                        .font(Typography.caption1)
+                        .foregroundStyle(Colors.textSecondary)
+                }
+
+                if !person.tags.isEmpty {
+                    HStack(spacing: 4) {
+                        ForEach(person.tags, id: \.self) { tag in
+                            Text(tag)
+                                .font(Typography.caption2)
+                                .foregroundStyle(Colors.textSecondary)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Colors.textTertiary.opacity(0.2))
+                                .cornerRadius(4)
+                        }
+                    }
+                }
+            }
+
+            Spacer()
         }
     }
 }
@@ -447,12 +525,18 @@ struct AddPersonView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""
     @State private var email = ""
+    @State private var selectedRelationshipType = "My Manager"
+    @State private var tags: [String] = []
+    @State private var newTag = ""
+    @State private var showingAddCustomType = false
+    @State private var customTypeName = ""
 
     private var userRole: UserRole { AppSettings.shared.userRole }
 
     var body: some View {
         NavigationStack {
             Form {
+                // Basic Info Section
                 Section {
                     TextField("Name", text: $name)
                         .textContentType(.name)
@@ -461,13 +545,81 @@ struct AddPersonView: View {
                         .keyboardType(.emailAddress)
                         .textContentType(.emailAddress)
                         .autocapitalization(.none)
+                }
+
+                // Relationship Type Section
+                Section {
+                    Picker("Relationship", selection: $selectedRelationshipType) {
+                        // Special types first (drive app mode)
+                        Section {
+                            Text("My Manager").tag("My Manager")
+                            Text("Direct Report").tag("Direct Report")
+                        }
+
+                        // Other default types
+                        Section {
+                            ForEach(AppSettings.shared.allRelationshipTypes.filter {
+                                $0 != "My Manager" && $0 != "Direct Report"
+                            }, id: \.self) { type in
+                                Text(type).tag(type)
+                            }
+                        }
+                    }
+                    .pickerStyle(.menu)
+
+                    Button {
+                        customTypeName = ""
+                        showingAddCustomType = true
+                    } label: {
+                        Label("Add Custom Type", systemImage: "plus.circle")
+                            .foregroundColor(.accentColor)
+                    }
+                } header: {
+                    Text("Relationship")
                 } footer: {
-                    Text(userRole == .individualContributor
-                        ? "Add a manager you have 1:1 meetings with."
-                        : "Add a team member you manage.")
+                    if selectedRelationshipType == "My Manager" || selectedRelationshipType == "Direct Report" {
+                        Text("This person will appear in your main dashboard section.")
+                    } else {
+                        Text("This person will appear in the \"Other 1:1s\" section.")
+                    }
+                }
+
+                // Tags Section (optional)
+                Section {
+                    ForEach(tags, id: \.self) { tag in
+                        HStack {
+                            Text(tag)
+                            Spacer()
+                            Button {
+                                tags.removeAll { $0 == tag }
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.secondary)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+
+                    HStack {
+                        TextField("Add tag", text: $newTag)
+                            .textInputAutocapitalization(.never)
+                        Button {
+                            if !newTag.isEmpty && !tags.contains(newTag) {
+                                tags.append(newTag)
+                                newTag = ""
+                            }
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                        }
+                        .disabled(newTag.isEmpty)
+                    }
+                } header: {
+                    Text("Tags (optional)")
+                } footer: {
+                    Text("Tags help you filter and organize your 1:1s.")
                 }
             }
-            .navigationTitle(userRole == .individualContributor ? "Add Manager" : "Add Team Member")
+            .navigationTitle("Add Person")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -481,13 +633,33 @@ struct AddPersonView: View {
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
+            .alert("Add Custom Type", isPresented: $showingAddCustomType) {
+                TextField("Type name", text: $customTypeName)
+                Button("Cancel", role: .cancel) {}
+                Button("Add") {
+                    if !customTypeName.isEmpty {
+                        AppSettings.shared.addCustomRelationshipType(customTypeName)
+                        selectedRelationshipType = customTypeName
+                    }
+                }
+            } message: {
+                Text("Enter a name for the new relationship type.")
+            }
+            .onAppear {
+                // Pre-select based on current user role
+                if userRole == .manager {
+                    selectedRelationshipType = "Direct Report"
+                }
+            }
         }
     }
 
     private func savePerson() {
-        let manager = Manager(
+        let person = Manager(
             name: name.trimmingCharacters(in: .whitespaces),
-            email: email.isEmpty ? nil : email.trimmingCharacters(in: .whitespaces)
+            email: email.isEmpty ? nil : email.trimmingCharacters(in: .whitespaces),
+            relationshipType: selectedRelationshipType,
+            tags: tags
         )
 
         // In demo mode, just dismiss (data is in-memory only)
@@ -497,7 +669,7 @@ struct AddPersonView: View {
         }
 
         Task {
-            _ = try? await CloudKitManager.shared.save(manager)
+            _ = try? await CloudKitManager.shared.save(person)
             dismiss()
         }
     }

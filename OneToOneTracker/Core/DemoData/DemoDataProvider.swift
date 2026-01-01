@@ -4,49 +4,78 @@ import Foundation
 /// Data is NEVER saved to CloudKit - it exists only in memory
 struct DemoDataProvider {
 
-    // MARK: - Static Manager IDs (for consistent relationships)
+    // MARK: - Static Person IDs (for consistent relationships)
 
     private static let manager1ID = UUID()
     private static let manager2ID = UUID()
+    private static let mentor1ID = UUID()
+    private static let peer1ID = UUID()
+    private static let report1ID = UUID()
 
     // MARK: - Demo Data
 
-    /// Sample managers for demo mode
+    /// Sample people for demo mode (managers, reports, mentors, peers, etc.)
     static var managers: [Manager] {
         [
+            // My Managers
             Manager(
                 id: manager1ID,
                 name: "Sarah Johnson",
                 email: "sarah.johnson@company.com",
-                relationship: .myManager
+                relationshipType: "My Manager"
             ),
             Manager(
                 id: manager2ID,
                 name: "Michael Chen",
                 email: "michael.chen@company.com",
-                relationship: .myManager
+                relationshipType: "My Manager"
+            ),
+            // Mentor
+            Manager(
+                id: mentor1ID,
+                name: "Alex Rivera",
+                email: "alex.rivera@company.com",
+                relationshipType: "Mentor",
+                tags: ["Career Growth", "Technical"]
+            ),
+            // Peer
+            Manager(
+                id: peer1ID,
+                name: "Jordan Lee",
+                email: "jordan.lee@company.com",
+                relationshipType: "Peer",
+                tags: ["Project X", "Cross-Team"]
+            ),
+            // Direct Report (for manager mode)
+            Manager(
+                id: report1ID,
+                name: "Casey Martinez",
+                email: "casey.martinez@company.com",
+                relationshipType: "Direct Report"
             )
         ]
     }
 
-    /// Sample meetings for demo mode (with multiple managers)
+    /// Sample meetings for demo mode (with various people and meeting types)
     static var meetings: [Meeting] {
         let now = Date()
         let calendar = Calendar.current
 
         return [
-            // Sarah Johnson's meetings
+            // Sarah Johnson's meetings (My Manager)
             // Upcoming meeting - next week
             Meeting(
                 managerID: manager1ID,
                 date: calendar.date(byAdding: .day, value: 7, to: now)!,
-                status: .scheduled
+                status: .scheduled,
+                meetingType: "1:1"
             ),
             // Completed meeting - last week
             Meeting(
                 managerID: manager1ID,
                 date: calendar.date(byAdding: .day, value: -7, to: now)!,
                 status: .completed,
+                meetingType: "1:1",
                 notes: "Great discussion about Q4 priorities and team structure.",
                 wentWell: [
                     "Completed the API migration ahead of schedule",
@@ -69,6 +98,7 @@ struct DemoDataProvider {
                 managerID: manager1ID,
                 date: calendar.date(byAdding: .day, value: -14, to: now)!,
                 status: .completed,
+                meetingType: "Career Development",
                 notes: "Sprint retrospective and planning for the next quarter.",
                 wentWell: [
                     "Sprint velocity improved by 20%"
@@ -80,18 +110,20 @@ struct DemoDataProvider {
                 meetingSentiment: 4
             ),
 
-            // Michael Chen's meetings
+            // Michael Chen's meetings (My Manager)
             // Upcoming meeting - in 3 days
             Meeting(
                 managerID: manager2ID,
                 date: calendar.date(byAdding: .day, value: 3, to: now)!,
-                status: .scheduled
+                status: .scheduled,
+                meetingType: "1:1"
             ),
             // Completed meeting - 5 days ago
             Meeting(
                 managerID: manager2ID,
                 date: calendar.date(byAdding: .day, value: -5, to: now)!,
                 status: .completed,
+                meetingType: "Feedback Session",
                 notes: "Discussed career growth and upcoming project assignments.",
                 wentWell: [
                     "Got assigned to lead the new mobile initiative",
@@ -101,6 +133,56 @@ struct DemoDataProvider {
                     "Need to improve time estimation skills"
                 ],
                 weekSentiment: 5,
+                meetingSentiment: 4
+            ),
+
+            // Alex Rivera's meetings (Mentor)
+            Meeting(
+                managerID: mentor1ID,
+                date: calendar.date(byAdding: .day, value: 10, to: now)!,
+                status: .scheduled,
+                meetingType: "Mentorship"
+            ),
+            Meeting(
+                managerID: mentor1ID,
+                date: calendar.date(byAdding: .day, value: -10, to: now)!,
+                status: .completed,
+                meetingType: "Mentorship",
+                notes: "Discussed career path options and system design interview prep.",
+                wentWell: [
+                    "Got great advice on system design patterns"
+                ],
+                weekSentiment: 5,
+                meetingSentiment: 5
+            ),
+
+            // Jordan Lee's meetings (Peer)
+            Meeting(
+                managerID: peer1ID,
+                date: calendar.date(byAdding: .day, value: 5, to: now)!,
+                status: .scheduled,
+                meetingType: "Project Sync"
+            ),
+
+            // Casey Martinez's meetings (Direct Report - for manager mode)
+            Meeting(
+                managerID: report1ID,
+                date: calendar.date(byAdding: .day, value: 2, to: now)!,
+                status: .scheduled,
+                perspective: .asManager,
+                meetingType: "1:1"
+            ),
+            Meeting(
+                managerID: report1ID,
+                date: calendar.date(byAdding: .day, value: -8, to: now)!,
+                status: .completed,
+                perspective: .asManager,
+                meetingType: "1:1",
+                notes: "Onboarding check-in, discussed project assignments.",
+                wentWell: [
+                    "Ramping up quickly on the codebase"
+                ],
+                weekSentiment: 4,
                 meetingSentiment: 4
             )
         ]

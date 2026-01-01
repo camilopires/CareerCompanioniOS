@@ -22,6 +22,11 @@ struct ManagerDashboardView: View {
 
                 // Team Members Grid
                 TeamMembersGridSection(viewModel: viewModel)
+
+                // Other 1:1s Section (non-direct reports)
+                if !viewModel.upcomingOtherMeetings.isEmpty {
+                    ManagerOtherMeetingsSection(viewModel: viewModel)
+                }
             }
             .padding(.horizontal, Spacing.screenPadding)
             .padding(.bottom, Spacing.xxl)
@@ -44,7 +49,9 @@ final class ManagerDashboardViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published var teamMembers: [Manager] = []
+    @Published var otherPeople: [Manager] = []
     @Published var allMeetings: [Meeting] = []
+    @Published var upcomingOtherMeetings: [Meeting] = []
     @Published var teamActionItems: [ActionItem] = []
     @Published var isLoading = false
     @Published var error: Error?
@@ -148,18 +155,29 @@ final class ManagerDashboardViewModel: ObservableObject {
 
         // Use demo data if in demo mode
         if AppSettings.shared.isDemoMode {
-            teamMembers = DemoDataProvider.managers.filter { $0.relationship == .directReport }
-            allMeetings = DemoDataProvider.meetings.filter { $0.perspective == .asManager }
+            let allPeople = DemoDataProvider.managers
+            teamMembers = allPeople.filter { $0.isDirectReport }
+            otherPeople = allPeople.filter { $0.isOtherRelationship }
+
+            let allDemoMeetings = DemoDataProvider.meetings.filter { $0.perspective == .asManager }
+            allMeetings = allDemoMeetings
             teamActionItems = DemoDataProvider.actionItems.filter { $0.owner == .manager }
+
+            // Get upcoming meetings with other people
+            let otherPersonIDs = Set(otherPeople.map { $0.id })
+            upcomingOtherMeetings = allDemoMeetings
+                .filter { $0.status == .scheduled && otherPersonIDs.contains($0.managerID) }
+                .sorted { $0.date < $1.date }
+                .prefix(3)
+                .map { $0 }
+
             isLoading = false
             return
         }
 
         do {
-            // Fetch team members (direct reports)
-            async let fetchedTeamMembers: [Manager] = CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "relationship == %@", ManagerRelationship.directReport.rawValue)
-            )
+            // Fetch all people
+            async let fetchedAllPeople: [Manager] = CloudKitManager.shared.fetch()
 
             // Fetch all meetings (as manager)
             async let fetchedMeetings: [Meeting] = CloudKitManager.shared.fetch(
@@ -172,9 +190,20 @@ final class ManagerDashboardViewModel: ObservableObject {
                 predicate: NSPredicate(format: "owner == %@", Owner.manager.rawValue)
             )
 
-            teamMembers = try await fetchedTeamMembers
+            let allPeople = try await fetchedAllPeople
+            teamMembers = allPeople.filter { $0.isDirectReport }
+            otherPeople = allPeople.filter { $0.isOtherRelationship }
+
             allMeetings = try await fetchedMeetings
             teamActionItems = try await fetchedActionItems
+
+            // Get upcoming meetings with other people
+            let otherPersonIDs = Set(otherPeople.map { $0.id })
+            upcomingOtherMeetings = allMeetings
+                .filter { $0.status == .scheduled && otherPersonIDs.contains($0.managerID) }
+                .sorted { $0.date < $1.date }
+                .prefix(3)
+                .map { $0 }
 
         } catch {
             self.error = error
@@ -189,6 +218,10 @@ final class ManagerDashboardViewModel: ObservableObject {
 
     func teamMember(for meeting: Meeting) -> Manager? {
         teamMembers.first { $0.id == meeting.managerID }
+    }
+
+    func otherPerson(for meeting: Meeting) -> Manager? {
+        otherPeople.first { $0.id == meeting.managerID }
     }
 }
 
@@ -680,6 +713,104 @@ struct QuickScheduleMeetingView: View {
 
             _ = try? await CloudKitManager.shared.save(meeting)
             dismiss()
+        }
+    }
+}
+
+// MARK: - Manager Other Meetings Section
+
+private struct ManagerOtherMeetingsSection: View {
+    @ObservedObject var viewModel: ManagerDashboardViewModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            Text("Other 1:1s")
+                .font(Typography.headline)
+
+            VStack(spacing: 0) {
+                ForEach(viewModel.upcomingOtherMeetings) { meeting in
+                    if let person = viewModel.otherPerson(for: meeting) {
+                        ManagerOtherMeetingRow(meeting: meeting, person: person)
+
+                        if meeting.id != viewModel.upcomingOtherMeetings.last?.id {
+                            Divider()
+                                .padding(.leading, 56)
+                        }
+                    }
+                }
+            }
+            .background(Colors.backgroundSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusMedium))
+        }
+    }
+}
+
+private struct ManagerOtherMeetingRow: View {
+    let meeting: Meeting
+    let person: Manager
+
+    var body: some View {
+        NavigationLink(destination: MeetingDetailView(meeting: meeting)) {
+            HStack(spacing: Spacing.md) {
+                // Avatar placeholder
+                Circle()
+                    .fill(colorForRelationshipType(person.relationshipType).opacity(0.2))
+                    .frame(width: 40, height: 40)
+                    .overlay {
+                        Text(person.name.prefix(1).uppercased())
+                            .font(Typography.headline)
+                            .foregroundStyle(colorForRelationshipType(person.relationshipType))
+                    }
+
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
+                    HStack(spacing: Spacing.xs) {
+                        Text(person.name)
+                            .font(Typography.body)
+                            .foregroundStyle(Colors.textPrimary)
+
+                        Text(person.relationshipType)
+                            .font(Typography.caption2)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 2)
+                            .background(colorForRelationshipType(person.relationshipType))
+                            .cornerRadius(4)
+                    }
+
+                    HStack(spacing: Spacing.xs) {
+                        Text(meeting.meetingType)
+                            .font(Typography.caption1)
+                            .foregroundStyle(Colors.textSecondary)
+
+                        Text("•")
+                            .foregroundStyle(Colors.textTertiary)
+
+                        Text(meeting.date.formatted(.relative(presentation: .named)))
+                            .font(Typography.caption1)
+                            .foregroundStyle(Colors.textSecondary)
+                    }
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(Colors.textTertiary)
+            }
+            .padding(Spacing.md)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func colorForRelationshipType(_ type: String) -> Color {
+        switch type {
+        case "Mentor": return .purple
+        case "Peer": return .orange
+        case "Stakeholder": return .yellow
+        case "Skip-Level Manager": return .teal
+        case "Cross-Team Partner": return .indigo
+        case "External Coach": return .mint
+        default: return .gray
         }
     }
 }

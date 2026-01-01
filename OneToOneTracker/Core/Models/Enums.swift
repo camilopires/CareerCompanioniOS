@@ -378,8 +378,13 @@ enum UserRole: String, Codable, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - Manager Relationship (v2.0)
+// MARK: - Manager Relationship (DEPRECATED in v2.2)
+// This enum is deprecated. Use Manager.relationshipType (String) instead.
+// Relationship types are now user-defined strings stored in AppSettings.
+// Special values: "My Manager" (drives IC mode), "Direct Report" (drives Manager mode)
+// Kept for CloudKit migration compatibility only.
 
+@available(*, deprecated, message: "Use Manager.relationshipType (String) instead")
 enum ManagerRelationship: String, Codable, CaseIterable, Identifiable {
     case myManager
     case directReport

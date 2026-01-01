@@ -1,7 +1,7 @@
 import Foundation
 import CloudKit
 
-/// Represents a 1:1 meeting with a manager or direct report
+/// Represents a 1:1 meeting with a manager, report, mentor, peer, or other person
 struct Meeting: CloudKitRecordable, Codable {
     static let recordType = "Meeting"
 
@@ -10,6 +10,7 @@ struct Meeting: CloudKitRecordable, Codable {
     var date: Date
     var status: MeetingStatus
     var perspective: MeetingPerspective
+    var meetingType: String  // User-defined: "1:1", "Career Development", "Project Sync", etc.
     var notes: String
     var wentWell: [String]
     var didntGoWell: [String]
@@ -56,6 +57,7 @@ struct Meeting: CloudKitRecordable, Codable {
         date: Date,
         status: MeetingStatus = .scheduled,
         perspective: MeetingPerspective = .asEmployee,
+        meetingType: String = "1:1",
         notes: String = "",
         wentWell: [String] = [],
         didntGoWell: [String] = [],
@@ -72,6 +74,7 @@ struct Meeting: CloudKitRecordable, Codable {
         self.date = date
         self.status = status
         self.perspective = perspective
+        self.meetingType = meetingType
         self.notes = notes
         self.wentWell = wentWell
         self.didntGoWell = didntGoWell
@@ -123,6 +126,9 @@ struct Meeting: CloudKitRecordable, Codable {
             self.perspective = .asEmployee
         }
 
+        // Parse meeting type, defaulting to "1:1" for backwards compatibility
+        self.meetingType = record.string(for: "meetingType") ?? "1:1"
+
         self.calendarEventID = record.string(for: "calendarEventID")
         self.createdAt = createdAt
         self.updatedAt = record.date(for: "updatedAt") ?? createdAt
@@ -135,6 +141,7 @@ struct Meeting: CloudKitRecordable, Codable {
         record["date"] = date
         record["status"] = status.rawValue
         record["perspective"] = perspective.rawValue
+        record["meetingType"] = meetingType
         record["notes"] = notes
         record.setStringArray(wentWell, for: "wentWell")
         record.setStringArray(didntGoWell, for: "didntGoWell")

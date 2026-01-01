@@ -47,12 +47,23 @@ private struct MeetingsList: View {
 
     var body: some View {
         List {
-            // Manager filter picker
-            if viewModel.managers.count > 1 {
+            // Relationship type filter
+            Section {
+                Picker("Filter by", selection: $viewModel.relationshipFilter) {
+                    ForEach(RelationshipFilter.allCases) { filter in
+                        Text(filter.rawValue).tag(filter)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+            }
+
+            // Person filter picker (within selected relationship type)
+            if viewModel.filteredPeople.count > 1 {
                 Section {
-                    ManagerFilterPicker(
-                        managers: viewModel.managers,
-                        selectedManagerID: $viewModel.selectedManagerID
+                    PersonFilterPicker(
+                        people: viewModel.filteredPeople,
+                        selectedPersonID: $viewModel.selectedManagerID
                     )
                 }
             }
@@ -103,20 +114,24 @@ private struct MeetingsList: View {
     }
 }
 
-// MARK: - Manager Filter Picker
+// MARK: - Person Filter Picker
 
-private struct ManagerFilterPicker: View {
-    let managers: [Manager]
-    @Binding var selectedManagerID: UUID?
+private struct PersonFilterPicker: View {
+    let people: [Manager]
+    @Binding var selectedPersonID: UUID?
 
     var body: some View {
-        Picker("Filter by", selection: $selectedManagerID) {
-            Text("All Meetings")
+        Picker("Person", selection: $selectedPersonID) {
+            Text("All")
                 .tag(nil as UUID?)
 
-            ForEach(managers) { manager in
-                Text(manager.name)
-                    .tag(manager.id as UUID?)
+            ForEach(people) { person in
+                HStack {
+                    Text(person.name)
+                    Text("(\(person.relationshipType))")
+                        .foregroundStyle(Color.secondary)
+                }
+                .tag(person.id as UUID?)
             }
         }
         .pickerStyle(.menu)
@@ -152,6 +167,15 @@ struct MeetingRowView: View {
                 }
 
                 HStack(spacing: Spacing.sm) {
+                    // Meeting type badge
+                    Text(meeting.meetingType)
+                        .font(Typography.caption2)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.blue.opacity(0.8))
+                        .cornerRadius(4)
+
                     Label(meeting.status.displayName, systemImage: meeting.status.icon)
                         .font(Typography.caption1)
                         .foregroundStyle(meeting.status.color)
@@ -169,7 +193,7 @@ struct MeetingRowView: View {
         }
         .padding(.vertical, Spacing.xxs)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(meeting.formattedDate)\(managerName.isEmpty ? "" : " with \(managerName)"), \(meeting.status.displayName)")
+        .accessibilityLabel("\(meeting.formattedDate)\(managerName.isEmpty ? "" : " with \(managerName)"), \(meeting.meetingType), \(meeting.status.displayName)")
     }
 }
 
@@ -205,6 +229,9 @@ struct AddMeetingView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var date = Date().addingTimeInterval(86400 * 7) // Default to 1 week from now
     @State private var selectedManagerID: UUID?
+    @State private var meetingType: String = "1:1"
+    @State private var showingAddMeetingType = false
+    @State private var newMeetingTypeName = ""
 
     let managers: [Manager]
     let onCreate: (Meeting) -> Void
@@ -214,11 +241,25 @@ struct AddMeetingView: View {
             Form {
                 Section("Meeting Details") {
                     DatePicker("Date & Time", selection: $date)
+
+                    Picker("Type", selection: $meetingType) {
+                        ForEach(AppSettings.shared.allMeetingTypes, id: \.self) { type in
+                            Text(type).tag(type)
+                        }
+                    }
+
+                    Button {
+                        newMeetingTypeName = ""
+                        showingAddMeetingType = true
+                    } label: {
+                        Label("Add Custom Type", systemImage: "plus.circle")
+                            .foregroundColor(.accentColor)
+                    }
                 }
 
                 Section {
                     if managers.isEmpty {
-                        Text("No managers found. Add a manager in Settings first.")
+                        Text("No people found. Add someone in Settings first.")
                             .foregroundStyle(Colors.textSecondary)
                     } else {
                         Picker("With", selection: $selectedManagerID) {
@@ -228,20 +269,18 @@ struct AddMeetingView: View {
                             ForEach(managers) { manager in
                                 HStack {
                                     Text(manager.name)
-                                    if let email = manager.email {
-                                        Text("(\(email))")
-                                            .foregroundStyle(Colors.textSecondary)
-                                    }
+                                    Text("(\(manager.relationshipType))")
+                                        .foregroundStyle(Colors.textSecondary)
                                 }
                                 .tag(manager.id as UUID?)
                             }
                         }
                     }
                 } header: {
-                    Text(AppSettings.shared.userRole == .individualContributor ? "Manager" : "Team Member")
+                    Text("Person")
                 } footer: {
                     if managers.isEmpty {
-                        Text("Go to Settings > \(AppSettings.shared.userRole == .individualContributor ? "Managers" : "Team Members") to add someone.")
+                        Text("Go to Settings > People to add someone.")
                     }
                 }
             }
@@ -263,7 +302,8 @@ struct AddMeetingView: View {
                         let meeting = Meeting(
                             managerID: managerID,
                             date: date,
-                            perspective: perspective
+                            perspective: perspective,
+                            meetingType: meetingType
                         )
                         onCreate(meeting)
                         dismiss()
@@ -276,6 +316,18 @@ struct AddMeetingView: View {
                 if managers.count == 1 {
                     selectedManagerID = managers.first?.id
                 }
+            }
+            .alert("Add Meeting Type", isPresented: $showingAddMeetingType) {
+                TextField("Type name", text: $newMeetingTypeName)
+                Button("Cancel", role: .cancel) {}
+                Button("Add") {
+                    if !newMeetingTypeName.isEmpty {
+                        AppSettings.shared.addCustomMeetingType(newMeetingTypeName)
+                        meetingType = newMeetingTypeName
+                    }
+                }
+            } message: {
+                Text("Enter a name for the new meeting type.")
             }
         }
     }
@@ -308,8 +360,8 @@ struct AddMeetingView: View {
 #Preview("Add Meeting") {
     AddMeetingView(
         managers: [
-            Manager(name: "Sarah Johnson", email: "sarah@company.com"),
-            Manager(name: "Michael Chen", email: "michael@company.com")
+            Manager(name: "Sarah Johnson", email: "sarah@company.com", relationshipType: "My Manager"),
+            Manager(name: "Michael Chen", email: "michael@company.com", relationshipType: "Mentor")
         ]
     ) { _ in }
 }

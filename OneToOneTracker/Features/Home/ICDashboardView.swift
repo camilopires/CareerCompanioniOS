@@ -23,9 +23,20 @@ struct ICDashboardView: View {
                 // Action Items Section
                 ActionItemsSection(viewModel: viewModel)
 
-                // Upcoming 1:1 Card
+                // Upcoming 1:1 with Manager
                 if let nextMeeting = viewModel.nextMeeting {
-                    UpcomingMeetingCard(meeting: nextMeeting, manager: viewModel.manager)
+                    VStack(alignment: .leading, spacing: Spacing.sm) {
+                        Text("With My Manager")
+                            .font(Typography.headline)
+                            .foregroundStyle(Colors.textPrimary)
+
+                        UpcomingMeetingCard(meeting: nextMeeting, manager: viewModel.manager)
+                    }
+                }
+
+                // Other 1:1s Section
+                if !viewModel.upcomingOtherMeetings.isEmpty {
+                    OtherMeetingsSection(viewModel: viewModel)
                 }
 
                 // Career Progress
@@ -117,6 +128,90 @@ private struct ICQuickStatsSection: View {
                 icon: "star.fill",
                 color: .purple
             )
+        }
+    }
+}
+
+// MARK: - Other Meetings Section
+
+private struct OtherMeetingsSection: View {
+    @ObservedObject var viewModel: HomeViewModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            Text("Other 1:1s")
+                .font(Typography.headline)
+                .foregroundStyle(Colors.textPrimary)
+
+            VStack(spacing: Spacing.sm) {
+                ForEach(viewModel.upcomingOtherMeetings) { meeting in
+                    if let person = viewModel.person(for: meeting) {
+                        OtherMeetingCard(meeting: meeting, person: person)
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Other Meeting Card
+
+private struct OtherMeetingCard: View {
+    let meeting: Meeting
+    let person: Manager
+
+    var body: some View {
+        Card {
+            HStack(spacing: Spacing.md) {
+                // Person info
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
+                    HStack(spacing: Spacing.xs) {
+                        Text(person.name)
+                            .font(Typography.body)
+                            .fontWeight(.medium)
+                            .foregroundStyle(Colors.textPrimary)
+
+                        Text(person.relationshipType)
+                            .font(Typography.caption2)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(colorForRelationshipType(person.relationshipType))
+                            .cornerRadius(4)
+                    }
+
+                    HStack(spacing: Spacing.xs) {
+                        Text(meeting.meetingType)
+                            .font(Typography.caption1)
+                            .foregroundStyle(Colors.textSecondary)
+
+                        Text("•")
+                            .foregroundStyle(Colors.textTertiary)
+
+                        Text(meeting.date.formatted(date: .abbreviated, time: .shortened))
+                            .font(Typography.caption1)
+                            .foregroundStyle(Colors.textSecondary)
+                    }
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(Colors.textTertiary)
+            }
+        }
+    }
+
+    private func colorForRelationshipType(_ type: String) -> Color {
+        switch type {
+        case "Mentor": return .purple
+        case "Peer": return .orange
+        case "Stakeholder": return .yellow
+        case "Skip-Level Manager": return .teal
+        case "Cross-Team Partner": return .indigo
+        case "External Coach": return .mint
+        default: return .gray
         }
     }
 }

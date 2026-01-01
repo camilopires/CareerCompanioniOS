@@ -345,7 +345,8 @@ final class ExportImportService: ObservableObject {
                         id: UUID(),
                         name: manager.name,
                         email: manager.email,
-                        relationship: manager.relationship,
+                        relationshipType: manager.relationshipType,
+                        tags: manager.tags,
                         createdAt: manager.createdAt
                     )
                 }
@@ -379,6 +380,7 @@ final class ExportImportService: ObservableObject {
                         date: meeting.date,
                         status: meeting.status,
                         perspective: meeting.perspective,
+                        meetingType: meeting.meetingType,
                         notes: meeting.notes,
                         wentWell: meeting.wentWell,
                         didntGoWell: meeting.didntGoWell,

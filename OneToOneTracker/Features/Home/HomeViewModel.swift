@@ -10,10 +10,17 @@ final class HomeViewModel: ObservableObject {
     @Published var actionItems: [ActionItem] = []
     @Published var nextMeeting: Meeting?
     @Published var manager: Manager?
+    @Published var allManagers: [Manager] = []
+    @Published var upcomingOtherMeetings: [Meeting] = []
     @Published var activeGoals: [CareerGoal] = []
     @Published var isLoading = false
     @Published var error: Error?
     @Published var showPrivacyBanner: Bool
+
+    /// People with "Other" relationship types (not My Manager or Direct Report)
+    var otherPeople: [Manager] {
+        allManagers.filter { $0.isOtherRelationship }
+    }
 
     // MARK: - Computed Properties
 
@@ -82,9 +89,23 @@ final class HomeViewModel: ObservableObject {
         // Use demo data if in demo mode
         if AppSettings.shared.isDemoMode {
             actionItems = DemoDataProvider.actionItems
-            manager = DemoDataProvider.managers.first
-            nextMeeting = DemoDataProvider.meetings.first { $0.status == .scheduled }
+            allManagers = DemoDataProvider.managers
+            manager = allManagers.first { $0.isMyManager }
             activeGoals = DemoDataProvider.careerGoals.filter { $0.isActive }
+
+            // Get upcoming meetings
+            let upcomingMeetings = DemoDataProvider.meetings
+                .filter { $0.status == .scheduled }
+                .sorted { $0.date < $1.date }
+
+            // Next meeting with "My Manager"
+            let myManagerIDs = Set(allManagers.filter { $0.isMyManager }.map { $0.id })
+            nextMeeting = upcomingMeetings.first { myManagerIDs.contains($0.managerID) }
+
+            // Upcoming meetings with other people (mentors, peers, etc.)
+            let otherPersonIDs = Set(otherPeople.map { $0.id })
+            upcomingOtherMeetings = Array(upcomingMeetings.filter { otherPersonIDs.contains($0.managerID) }.prefix(3))
+
             isLoading = false
             return
         }
@@ -96,18 +117,26 @@ final class HomeViewModel: ObservableObject {
             async let fetchedManagers: [Manager] = CloudKitManager.shared.fetch()
             async let fetchedMeetings: [Meeting] = CloudKitManager.shared.fetch(
                 predicate: NSPredicate(format: "status == %@", MeetingStatus.scheduled.rawValue),
-                sortDescriptors: [NSSortDescriptor(key: "date", ascending: true)],
-                limit: 1
+                sortDescriptors: [NSSortDescriptor(key: "date", ascending: true)]
             )
             async let fetchedGoals: [CareerGoal] = CloudKitManager.shared.fetch(
                 predicate: NSPredicate(format: "status IN %@", [GoalStatus.inProgress.rawValue, GoalStatus.notStarted.rawValue])
             )
 
             actionItems = try await fetchedActionItems
-            let managers = try await fetchedManagers
-            manager = managers.first
-            nextMeeting = try await fetchedMeetings.first
+            allManagers = try await fetchedManagers
+            manager = allManagers.first { $0.isMyManager }
             activeGoals = try await fetchedGoals
+
+            let allUpcomingMeetings = try await fetchedMeetings
+
+            // Next meeting with "My Manager"
+            let myManagerIDs = Set(allManagers.filter { $0.isMyManager }.map { $0.id })
+            nextMeeting = allUpcomingMeetings.first { myManagerIDs.contains($0.managerID) }
+
+            // Upcoming meetings with other people (mentors, peers, etc.)
+            let otherPersonIDs = Set(otherPeople.map { $0.id })
+            upcomingOtherMeetings = Array(allUpcomingMeetings.filter { otherPersonIDs.contains($0.managerID) }.prefix(3))
 
         } catch {
             self.error = error
@@ -118,6 +147,11 @@ final class HomeViewModel: ObservableObject {
 
     func refresh() async {
         await loadData()
+    }
+
+    /// Get the manager/person for a given meeting
+    func person(for meeting: Meeting) -> Manager? {
+        allManagers.first { $0.id == meeting.managerID }
     }
 
     // MARK: - Actions

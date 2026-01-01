@@ -1,0 +1,819 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		/* Main App Swift Files */
+		A1000001001 /* OneToOneTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001001; };
+		A1000002001 /* CloudKitRecordable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002001; };
+		A1000002002 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002002; };
+		A1000003001 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003001; };
+		A1000003002 /* Manager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003002; };
+		A1000003003 /* Meeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003003; };
+		A1000003004 /* AgendaItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003004; };
+		A1000003005 /* ActionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003005; };
+		A1000003006 /* CareerGoal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003006; };
+		A1000003007 /* Achievement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003007; };
+		A1000004001 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004001; };
+		A1000004002 /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004002; };
+		A1000004003 /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004003; };
+		A1000004004 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004004; };
+		A1000004101 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004101; };
+		A1000004102 /* EmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004102; };
+		A1000004103 /* ProgressRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004103; };
+		A1000004104 /* SentimentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004104; };
+		A1000005001 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005001; };
+		A1000005002 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005002; };
+		A1000005003 /* ActionItemsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005003; };
+		A1000005004 /* UpcomingMeetingCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005004; };
+		A1000005005 /* CareerProgressCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000005005; };
+		A1000006001 /* MeetingsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006001; };
+		A1000006002 /* MeetingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006002; };
+		A1000006003 /* AgendaBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006003; };
+		A1000006004 /* AgendaBuilderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006004; };
+		A1000006005 /* ShareAgendaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006005; };
+		A1000006006 /* ActiveMeetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006006; };
+		A1000006007 /* ActiveMeetingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006007; };
+		A1000006008 /* MeetingDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006008; };
+		A1000007001 /* ActionItemsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000007001; };
+		A1000007002 /* ActionItemsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000007002; };
+		A1000007003 /* ActionItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000007003; };
+		A1000007004 /* AddActionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000007004; };
+		A1000008001 /* CareerHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000008001; };
+		A1000008002 /* CareerHomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000008002; };
+		A1000008003 /* GoalsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000008003; };
+		A1000008004 /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000008004; };
+		A1000008005 /* AddGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000008005; };
+		A1000008006 /* AchievementDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000008006; };
+		A1000008007 /* AddAchievementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000008007; };
+		A1000008008 /* ReportBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000008008; };
+		A1000009001 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009001; };
+		A1000009002 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009002; };
+		A100000A001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A200000A001; };
+
+		/* Widget Extension Files */
+		B1000001001 /* WidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001001; };
+		B1000001002 /* ActionItemsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001002; };
+		B1000001003 /* NextMeetingWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001003; };
+		B1000001004 /* CareerGoalsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001004; };
+
+		/* Shared files for Widget */
+		B1000002001 /* CloudKitRecordable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002001; };
+		B1000002002 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002002; };
+		B1000003001 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003001; };
+		B1000003002 /* Manager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003002; };
+		B1000003003 /* Meeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003003; };
+		B1000003005 /* ActionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003005; };
+		B1000003006 /* CareerGoal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003006; };
+
+		/* Widget embed */
+		B1000009001 /* OneToOneTrackerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B3000001001; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B4000001001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C1000001001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B3000002001;
+			remoteInfo = OneToOneTrackerWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B5000001001 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B1000009001 /* OneToOneTrackerWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		/* Main App Swift Files */
+		A2000001001 /* OneToOneTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneToOneTrackerApp.swift; sourceTree = "<group>"; };
+		A2000002001 /* CloudKitRecordable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitRecordable.swift; sourceTree = "<group>"; };
+		A2000002002 /* CloudKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitManager.swift; sourceTree = "<group>"; };
+		A2000003001 /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
+		A2000003002 /* Manager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Manager.swift; sourceTree = "<group>"; };
+		A2000003003 /* Meeting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meeting.swift; sourceTree = "<group>"; };
+		A2000003004 /* AgendaItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendaItem.swift; sourceTree = "<group>"; };
+		A2000003005 /* ActionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionItem.swift; sourceTree = "<group>"; };
+		A2000003006 /* CareerGoal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerGoal.swift; sourceTree = "<group>"; };
+		A2000003007 /* Achievement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievement.swift; sourceTree = "<group>"; };
+		A2000004001 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		A2000004002 /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
+		A2000004003 /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
+		A2000004004 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		A2000004101 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
+		A2000004102 /* EmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyState.swift; sourceTree = "<group>"; };
+		A2000004103 /* ProgressRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressRing.swift; sourceTree = "<group>"; };
+		A2000004104 /* SentimentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentimentPicker.swift; sourceTree = "<group>"; };
+		A2000005001 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		A2000005002 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		A2000005003 /* ActionItemsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionItemsSection.swift; sourceTree = "<group>"; };
+		A2000005004 /* UpcomingMeetingCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingMeetingCard.swift; sourceTree = "<group>"; };
+		A2000005005 /* CareerProgressCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerProgressCard.swift; sourceTree = "<group>"; };
+		A2000006001 /* MeetingsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingsListView.swift; sourceTree = "<group>"; };
+		A2000006002 /* MeetingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingsViewModel.swift; sourceTree = "<group>"; };
+		A2000006003 /* AgendaBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendaBuilderView.swift; sourceTree = "<group>"; };
+		A2000006004 /* AgendaBuilderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendaBuilderViewModel.swift; sourceTree = "<group>"; };
+		A2000006005 /* ShareAgendaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareAgendaView.swift; sourceTree = "<group>"; };
+		A2000006006 /* ActiveMeetingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveMeetingView.swift; sourceTree = "<group>"; };
+		A2000006007 /* ActiveMeetingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveMeetingViewModel.swift; sourceTree = "<group>"; };
+		A2000006008 /* MeetingDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingDetailView.swift; sourceTree = "<group>"; };
+		A2000007001 /* ActionItemsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionItemsListView.swift; sourceTree = "<group>"; };
+		A2000007002 /* ActionItemsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionItemsViewModel.swift; sourceTree = "<group>"; };
+		A2000007003 /* ActionItemDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionItemDetailView.swift; sourceTree = "<group>"; };
+		A2000007004 /* AddActionItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddActionItemView.swift; sourceTree = "<group>"; };
+		A2000008001 /* CareerHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerHomeView.swift; sourceTree = "<group>"; };
+		A2000008002 /* CareerHomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerHomeViewModel.swift; sourceTree = "<group>"; };
+		A2000008003 /* GoalsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsListView.swift; sourceTree = "<group>"; };
+		A2000008004 /* GoalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDetailView.swift; sourceTree = "<group>"; };
+		A2000008005 /* AddGoalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGoalView.swift; sourceTree = "<group>"; };
+		A2000008006 /* AchievementDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementDetailView.swift; sourceTree = "<group>"; };
+		A2000008007 /* AddAchievementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAchievementView.swift; sourceTree = "<group>"; };
+		A2000008008 /* ReportBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportBuilderView.swift; sourceTree = "<group>"; };
+		A2000009001 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A2000009002 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		A200000A001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A200000B001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A200000C001 /* OneToOneTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneToOneTracker.entitlements; sourceTree = "<group>"; };
+
+		/* Widget Extension Files */
+		B2000001001 /* WidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBundle.swift; sourceTree = "<group>"; };
+		B2000001002 /* ActionItemsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionItemsWidget.swift; sourceTree = "<group>"; };
+		B2000001003 /* NextMeetingWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextMeetingWidget.swift; sourceTree = "<group>"; };
+		B2000001004 /* CareerGoalsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerGoalsWidget.swift; sourceTree = "<group>"; };
+		B200000B001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B200000C001 /* OneToOneTrackerWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneToOneTrackerWidget.entitlements; sourceTree = "<group>"; };
+
+		/* Products */
+		A3000001001 /* OneToOneTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneToOneTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B3000001001 /* OneToOneTrackerWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OneToOneTrackerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A6000001001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6000001001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C2000001001 = {
+			isa = PBXGroup;
+			children = (
+				C2000002001 /* OneToOneTracker */,
+				C2000003001 /* OneToOneTrackerWidget */,
+				C2000004001 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C2000002001 /* OneToOneTracker */ = {
+			isa = PBXGroup;
+			children = (
+				A2000001001 /* OneToOneTrackerApp.swift */,
+				C2000002002 /* Core */,
+				C2000002003 /* Design */,
+				C2000002004 /* Features */,
+				C2000002005 /* Resources */,
+				A200000B001 /* Info.plist */,
+				A200000C001 /* OneToOneTracker.entitlements */,
+			);
+			path = OneToOneTracker;
+			sourceTree = "<group>";
+		};
+		C2000002002 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				C2000002006 /* CloudKit */,
+				C2000002007 /* Models */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		C2000002003 /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				A2000004001 /* Colors.swift */,
+				A2000004002 /* Typography.swift */,
+				A2000004003 /* Spacing.swift */,
+				A2000004004 /* Theme.swift */,
+				C2000002008 /* Components */,
+			);
+			path = Design;
+			sourceTree = "<group>";
+		};
+		C2000002004 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				C2000002009 /* Home */,
+				C200000200A /* Meetings */,
+				C200000200B /* ActionItems */,
+				C200000200C /* Career */,
+				C200000200D /* Settings */,
+				C200000200E /* Onboarding */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		C2000002005 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A200000A001 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		C2000002006 /* CloudKit */ = {
+			isa = PBXGroup;
+			children = (
+				A2000002001 /* CloudKitRecordable.swift */,
+				A2000002002 /* CloudKitManager.swift */,
+			);
+			path = CloudKit;
+			sourceTree = "<group>";
+		};
+		C2000002007 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A2000003001 /* Enums.swift */,
+				A2000003002 /* Manager.swift */,
+				A2000003003 /* Meeting.swift */,
+				A2000003004 /* AgendaItem.swift */,
+				A2000003005 /* ActionItem.swift */,
+				A2000003006 /* CareerGoal.swift */,
+				A2000003007 /* Achievement.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		C2000002008 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				A2000004101 /* Card.swift */,
+				A2000004102 /* EmptyState.swift */,
+				A2000004103 /* ProgressRing.swift */,
+				A2000004104 /* SentimentPicker.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		C2000002009 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				A2000005001 /* HomeView.swift */,
+				A2000005002 /* HomeViewModel.swift */,
+				A2000005003 /* ActionItemsSection.swift */,
+				A2000005004 /* UpcomingMeetingCard.swift */,
+				A2000005005 /* CareerProgressCard.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		C200000200A /* Meetings */ = {
+			isa = PBXGroup;
+			children = (
+				A2000006001 /* MeetingsListView.swift */,
+				A2000006002 /* MeetingsViewModel.swift */,
+				A2000006003 /* AgendaBuilderView.swift */,
+				A2000006004 /* AgendaBuilderViewModel.swift */,
+				A2000006005 /* ShareAgendaView.swift */,
+				A2000006006 /* ActiveMeetingView.swift */,
+				A2000006007 /* ActiveMeetingViewModel.swift */,
+				A2000006008 /* MeetingDetailView.swift */,
+			);
+			path = Meetings;
+			sourceTree = "<group>";
+		};
+		C200000200B /* ActionItems */ = {
+			isa = PBXGroup;
+			children = (
+				A2000007001 /* ActionItemsListView.swift */,
+				A2000007002 /* ActionItemsViewModel.swift */,
+				A2000007003 /* ActionItemDetailView.swift */,
+				A2000007004 /* AddActionItemView.swift */,
+			);
+			path = ActionItems;
+			sourceTree = "<group>";
+		};
+		C200000200C /* Career */ = {
+			isa = PBXGroup;
+			children = (
+				A2000008001 /* CareerHomeView.swift */,
+				A2000008002 /* CareerHomeViewModel.swift */,
+				A2000008003 /* GoalsListView.swift */,
+				A2000008004 /* GoalDetailView.swift */,
+				A2000008005 /* AddGoalView.swift */,
+				A2000008006 /* AchievementDetailView.swift */,
+				A2000008007 /* AddAchievementView.swift */,
+				A2000008008 /* ReportBuilderView.swift */,
+			);
+			path = Career;
+			sourceTree = "<group>";
+		};
+		C200000200D /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				A2000009001 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		C200000200E /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				A2000009002 /* OnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		C2000003001 /* OneToOneTrackerWidget */ = {
+			isa = PBXGroup;
+			children = (
+				B2000001001 /* WidgetBundle.swift */,
+				B2000001002 /* ActionItemsWidget.swift */,
+				B2000001003 /* NextMeetingWidget.swift */,
+				B2000001004 /* CareerGoalsWidget.swift */,
+				B200000B001 /* Info.plist */,
+				B200000C001 /* OneToOneTrackerWidget.entitlements */,
+			);
+			path = OneToOneTrackerWidget;
+			sourceTree = "<group>";
+		};
+		C2000004001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A3000001001 /* OneToOneTracker.app */,
+				B3000001001 /* OneToOneTrackerWidgetExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A3000002001 /* OneToOneTracker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D1000001001 /* Build configuration list for PBXNativeTarget "OneToOneTracker" */;
+			buildPhases = (
+				A7000001001 /* Sources */,
+				A6000001001 /* Frameworks */,
+				A8000001001 /* Resources */,
+				B5000001001 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B4000002001 /* PBXTargetDependency */,
+			);
+			name = OneToOneTracker;
+			productName = OneToOneTracker;
+			productReference = A3000001001 /* OneToOneTracker.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B3000002001 /* OneToOneTrackerWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D1000002001 /* Build configuration list for PBXNativeTarget "OneToOneTrackerWidgetExtension" */;
+			buildPhases = (
+				B7000001001 /* Sources */,
+				B6000001001 /* Frameworks */,
+				B8000001001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OneToOneTrackerWidgetExtension;
+			productName = OneToOneTrackerWidgetExtension;
+			productReference = B3000001001 /* OneToOneTrackerWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C1000001001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A3000002001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					B3000002001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = D1000003001 /* Build configuration list for PBXProject "OneToOneTracker" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C2000001001;
+			productRefGroup = C2000004001 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A3000002001 /* OneToOneTracker */,
+				B3000002001 /* OneToOneTrackerWidgetExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A8000001001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A100000A001 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B8000001001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A7000001001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000001001 /* OneToOneTrackerApp.swift in Sources */,
+				A1000002001 /* CloudKitRecordable.swift in Sources */,
+				A1000002002 /* CloudKitManager.swift in Sources */,
+				A1000003001 /* Enums.swift in Sources */,
+				A1000003002 /* Manager.swift in Sources */,
+				A1000003003 /* Meeting.swift in Sources */,
+				A1000003004 /* AgendaItem.swift in Sources */,
+				A1000003005 /* ActionItem.swift in Sources */,
+				A1000003006 /* CareerGoal.swift in Sources */,
+				A1000003007 /* Achievement.swift in Sources */,
+				A1000004001 /* Colors.swift in Sources */,
+				A1000004002 /* Typography.swift in Sources */,
+				A1000004003 /* Spacing.swift in Sources */,
+				A1000004004 /* Theme.swift in Sources */,
+				A1000004101 /* Card.swift in Sources */,
+				A1000004102 /* EmptyState.swift in Sources */,
+				A1000004103 /* ProgressRing.swift in Sources */,
+				A1000004104 /* SentimentPicker.swift in Sources */,
+				A1000005001 /* HomeView.swift in Sources */,
+				A1000005002 /* HomeViewModel.swift in Sources */,
+				A1000005003 /* ActionItemsSection.swift in Sources */,
+				A1000005004 /* UpcomingMeetingCard.swift in Sources */,
+				A1000005005 /* CareerProgressCard.swift in Sources */,
+				A1000006001 /* MeetingsListView.swift in Sources */,
+				A1000006002 /* MeetingsViewModel.swift in Sources */,
+				A1000006003 /* AgendaBuilderView.swift in Sources */,
+				A1000006004 /* AgendaBuilderViewModel.swift in Sources */,
+				A1000006005 /* ShareAgendaView.swift in Sources */,
+				A1000006006 /* ActiveMeetingView.swift in Sources */,
+				A1000006007 /* ActiveMeetingViewModel.swift in Sources */,
+				A1000006008 /* MeetingDetailView.swift in Sources */,
+				A1000007001 /* ActionItemsListView.swift in Sources */,
+				A1000007002 /* ActionItemsViewModel.swift in Sources */,
+				A1000007003 /* ActionItemDetailView.swift in Sources */,
+				A1000007004 /* AddActionItemView.swift in Sources */,
+				A1000008001 /* CareerHomeView.swift in Sources */,
+				A1000008002 /* CareerHomeViewModel.swift in Sources */,
+				A1000008003 /* GoalsListView.swift in Sources */,
+				A1000008004 /* GoalDetailView.swift in Sources */,
+				A1000008005 /* AddGoalView.swift in Sources */,
+				A1000008006 /* AchievementDetailView.swift in Sources */,
+				A1000008007 /* AddAchievementView.swift in Sources */,
+				A1000008008 /* ReportBuilderView.swift in Sources */,
+				A1000009001 /* SettingsView.swift in Sources */,
+				A1000009002 /* OnboardingView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B7000001001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B1000001001 /* WidgetBundle.swift in Sources */,
+				B1000001002 /* ActionItemsWidget.swift in Sources */,
+				B1000001003 /* NextMeetingWidget.swift in Sources */,
+				B1000001004 /* CareerGoalsWidget.swift in Sources */,
+				B1000002001 /* CloudKitRecordable.swift in Sources */,
+				B1000002002 /* CloudKitManager.swift in Sources */,
+				B1000003001 /* Enums.swift in Sources */,
+				B1000003002 /* Manager.swift in Sources */,
+				B1000003003 /* Meeting.swift in Sources */,
+				B1000003005 /* ActionItem.swift in Sources */,
+				B1000003006 /* CareerGoal.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B4000002001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B3000002001 /* OneToOneTrackerWidgetExtension */;
+			targetProxy = B4000001001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		D2000001001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		D2000002001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		D2000003001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = OneToOneTracker/OneToOneTracker.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = OneToOneTracker/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "1:1 Tracker";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onetoonetracker.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D2000004001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = OneToOneTracker/OneToOneTracker.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = OneToOneTracker/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "1:1 Tracker";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onetoonetracker.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		D2000005001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = OneToOneTrackerWidget/OneToOneTrackerWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = OneToOneTrackerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "1:1 Tracker Widget";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onetoonetracker.app.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D2000006001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = OneToOneTrackerWidget/OneToOneTrackerWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = OneToOneTrackerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "1:1 Tracker Widget";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onetoonetracker.app.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D1000001001 /* Build configuration list for PBXNativeTarget "OneToOneTracker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D2000003001 /* Debug */,
+				D2000004001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D1000002001 /* Build configuration list for PBXNativeTarget "OneToOneTrackerWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D2000005001 /* Debug */,
+				D2000006001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D1000003001 /* Build configuration list for PBXProject "OneToOneTracker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D2000001001 /* Debug */,
+				D2000002001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C1000001001 /* Project object */;
+}

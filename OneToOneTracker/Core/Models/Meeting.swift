@@ -16,6 +16,10 @@ struct Meeting: CloudKitRecordable, Codable {
     var didntGoWell: [String]
     var blockers: [String]
     var escalations: [String]
+    var thisWeekGoals: [String]      // Goals/priorities for the current week (optional)
+    var thisWeekProgress: [String]   // Progress updates on ongoing work (optional)
+    var keyMetrics: [String]         // Metrics being monitored/driven - carries over (optional)
+    var nextWeekGoals: [String]      // Goals/priorities for next week (optional)
     var weekSentiment: Int?
     var meetingSentiment: Int?
     var calendarEventID: String?
@@ -63,6 +67,10 @@ struct Meeting: CloudKitRecordable, Codable {
         didntGoWell: [String] = [],
         blockers: [String] = [],
         escalations: [String] = [],
+        thisWeekGoals: [String] = [],
+        thisWeekProgress: [String] = [],
+        keyMetrics: [String] = [],
+        nextWeekGoals: [String] = [],
         weekSentiment: Int? = nil,
         meetingSentiment: Int? = nil,
         calendarEventID: String? = nil,
@@ -80,6 +88,10 @@ struct Meeting: CloudKitRecordable, Codable {
         self.didntGoWell = didntGoWell
         self.blockers = blockers
         self.escalations = escalations
+        self.thisWeekGoals = thisWeekGoals
+        self.thisWeekProgress = thisWeekProgress
+        self.keyMetrics = keyMetrics
+        self.nextWeekGoals = nextWeekGoals
         self.weekSentiment = weekSentiment
         self.meetingSentiment = meetingSentiment
         self.calendarEventID = calendarEventID
@@ -111,6 +123,10 @@ struct Meeting: CloudKitRecordable, Codable {
         self.didntGoWell = record.stringArray(for: "didntGoWell")
         self.blockers = record.stringArray(for: "blockers")
         self.escalations = record.stringArray(for: "escalations")
+        self.thisWeekGoals = record.stringArray(for: "thisWeekGoals")
+        self.thisWeekProgress = record.stringArray(for: "thisWeekProgress")
+        self.keyMetrics = record.stringArray(for: "keyMetrics")
+        self.nextWeekGoals = record.stringArray(for: "nextWeekGoals")
 
         let weekSentimentInt = record.integer(for: "weekSentiment")
         self.weekSentiment = weekSentimentInt > 0 ? weekSentimentInt : nil
@@ -147,6 +163,10 @@ struct Meeting: CloudKitRecordable, Codable {
         record.setStringArray(didntGoWell, for: "didntGoWell")
         record.setStringArray(blockers, for: "blockers")
         record.setStringArray(escalations, for: "escalations")
+        record.setStringArray(thisWeekGoals, for: "thisWeekGoals")
+        record.setStringArray(thisWeekProgress, for: "thisWeekProgress")
+        record.setStringArray(keyMetrics, for: "keyMetrics")
+        record.setStringArray(nextWeekGoals, for: "nextWeekGoals")
         record["weekSentiment"] = weekSentiment ?? 0
         record["meetingSentiment"] = meetingSentiment ?? 0
         record["calendarEventID"] = calendarEventID

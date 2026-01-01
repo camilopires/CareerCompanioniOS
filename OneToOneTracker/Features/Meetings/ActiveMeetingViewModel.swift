@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import CloudKit
 
 /// ViewModel for the active meeting view
 @MainActor
@@ -16,6 +17,10 @@ final class ActiveMeetingViewModel: ObservableObject {
     @Published var didntGoWell: [String] = []
     @Published var blockers: [String] = []
     @Published var escalations: [String] = []
+    @Published var thisWeekGoals: [String] = []
+    @Published var thisWeekProgress: [String] = []
+    @Published var keyMetrics: [String] = []
+    @Published var nextWeekGoals: [String] = []
     @Published var newActionItems: [ActionItem] = []
     @Published var weekSentiment: Int? = nil
     @Published var meetingSentiment: Int? = nil
@@ -34,6 +39,10 @@ final class ActiveMeetingViewModel: ObservableObject {
         self.didntGoWell = meeting.didntGoWell
         self.blockers = meeting.blockers
         self.escalations = meeting.escalations
+        self.thisWeekGoals = meeting.thisWeekGoals
+        self.thisWeekProgress = meeting.thisWeekProgress
+        self.keyMetrics = meeting.keyMetrics
+        self.nextWeekGoals = meeting.nextWeekGoals
         self.weekSentiment = meeting.weekSentiment
         self.meetingSentiment = meeting.meetingSentiment
     }
@@ -53,7 +62,59 @@ final class ActiveMeetingViewModel: ObservableObject {
             self.error = error
         }
 
+        // Auto-populate goals and metrics from previous meeting if empty
+        await loadCarryOverData()
+
         isLoading = false
+    }
+
+    /// Loads data from the previous meeting with the same person for carry-over
+    private func loadCarryOverData() async {
+        // Only carry over if fields are empty (don't overwrite user edits)
+        guard thisWeekGoals.isEmpty || keyMetrics.isEmpty else { return }
+
+        if let previousMeeting = await loadPreviousMeeting() {
+            // Carry over: next week's goals → this week's goals
+            if thisWeekGoals.isEmpty && !previousMeeting.nextWeekGoals.isEmpty {
+                thisWeekGoals = previousMeeting.nextWeekGoals
+            }
+
+            // Carry over: key metrics persist across meetings
+            if keyMetrics.isEmpty && !previousMeeting.keyMetrics.isEmpty {
+                keyMetrics = previousMeeting.keyMetrics
+            }
+        }
+    }
+
+    /// Fetches the most recent completed meeting with the same person
+    private func loadPreviousMeeting() async -> Meeting? {
+        // In demo mode, find previous meeting from demo data
+        if AppSettings.shared.isDemoMode {
+            return DemoDataProvider.meetings
+                .filter { $0.managerID == meeting.managerID && $0.status == .completed && $0.date < meeting.date }
+                .sorted { $0.date > $1.date }
+                .first
+        }
+
+        // Fetch from CloudKit
+        do {
+            let managerRecordID = CKRecord.ID(recordName: meeting.managerID.uuidString)
+            let managerRef = CKRecord.Reference(recordID: managerRecordID, action: .none)
+
+            let meetings: [Meeting] = try await CloudKitManager.shared.fetch(
+                predicate: NSPredicate(
+                    format: "managerRef == %@ AND status == %@ AND date < %@",
+                    managerRef,
+                    MeetingStatus.completed.rawValue,
+                    meeting.date as NSDate
+                ),
+                sortDescriptors: [NSSortDescriptor(key: "date", ascending: false)],
+                limit: 1
+            )
+            return meetings.first
+        } catch {
+            return nil
+        }
     }
 
     // MARK: - Action Items
@@ -83,6 +144,10 @@ final class ActiveMeetingViewModel: ObservableObject {
             updatedMeeting.didntGoWell = didntGoWell
             updatedMeeting.blockers = blockers
             updatedMeeting.escalations = escalations
+            updatedMeeting.thisWeekGoals = thisWeekGoals
+            updatedMeeting.thisWeekProgress = thisWeekProgress
+            updatedMeeting.keyMetrics = keyMetrics
+            updatedMeeting.nextWeekGoals = nextWeekGoals
             updatedMeeting.weekSentiment = weekSentiment
             updatedMeeting.meetingSentiment = meetingSentiment
             updatedMeeting.updatedAt = Date()

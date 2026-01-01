@@ -90,6 +90,24 @@ struct DemoDataProvider {
                 escalations: [
                     "Need additional budget for cloud infrastructure"
                 ],
+                thisWeekGoals: [
+                    "Complete API migration",
+                    "Prepare stakeholder demo"
+                ],
+                thisWeekProgress: [
+                    "API migration at 100% - completed ahead of schedule",
+                    "Demo prep finished, presented successfully"
+                ],
+                keyMetrics: [
+                    "Sprint velocity: 42 story points",
+                    "API response time: <200ms",
+                    "Test coverage: 85%"
+                ],
+                nextWeekGoals: [
+                    "Ship API feature to production",
+                    "Start user testing phase",
+                    "Update documentation"
+                ],
                 weekSentiment: 4,
                 meetingSentiment: 5
             ),
@@ -131,6 +149,22 @@ struct DemoDataProvider {
                 ],
                 didntGoWell: [
                     "Need to improve time estimation skills"
+                ],
+                thisWeekGoals: [
+                    "Finalize mobile initiative proposal",
+                    "Review team capacity"
+                ],
+                thisWeekProgress: [
+                    "Proposal approved by leadership",
+                    "Team capacity assessed - need 1 more engineer"
+                ],
+                keyMetrics: [
+                    "Team velocity: 38 points/sprint",
+                    "Customer satisfaction: 4.2/5"
+                ],
+                nextWeekGoals: [
+                    "Kick off mobile initiative",
+                    "Interview candidates for open role"
                 ],
                 weekSentiment: 5,
                 meetingSentiment: 4

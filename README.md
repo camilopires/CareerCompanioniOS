@@ -125,6 +125,7 @@ OneToOne Tracker helps employees prepare for, conduct, and follow up on 1:1 meet
 - **Swift 5.9+**
 - **SwiftUI** for all UI components
 - **CloudKit** for secure iCloud storage
+- **StoreKit 2** for in-app purchases
 - **EventKit** for calendar integration
 - **App Intents** for Siri Shortcuts
 - **WidgetKit** for home screen widgets
@@ -153,8 +154,9 @@ OneToOneTracker/
 │   │   ├── AppIntents.swift          # Siri Shortcuts definitions
 │   │   └── ShortcutsManager.swift    # Shortcut donations
 │   ├── Models/
-│   │   ├── AppSettings.swift         # App settings (demo mode, user role)
+│   │   ├── AppSettings.swift         # App settings (demo mode, user role, premium)
 │   │   ├── Enums.swift               # Status, Priority, etc.
+│   │   ├── PremiumFeatures.swift     # Free tier limits, feature flags
 │   │   ├── Manager.swift
 │   │   ├── Meeting.swift
 │   │   ├── AgendaItem.swift
@@ -164,7 +166,8 @@ OneToOneTracker/
 │   └── Services/
 │       ├── AIManager.swift           # AI suggestions (iOS 18+)
 │       ├── CalendarManager.swift     # EventKit integration
-│       └── ExportImportService.swift # Data export/import
+│       ├── ExportImportService.swift # Data export/import
+│       └── SubscriptionManager.swift # StoreKit 2 integration
 ├── Design/
 │   ├── Colors.swift                  # WCAG AA color palette
 │   ├── Typography.swift              # Dynamic Type support
@@ -180,8 +183,12 @@ OneToOneTracker/
 │   ├── Meetings/
 │   ├── ActionItems/
 │   ├── Career/
+│   ├── Premium/
+│   │   ├── UpgradeView.swift         # Full upgrade screen
+│   │   └── UpgradePromptSheet.swift  # Contextual upgrade prompts
 │   ├── Settings/
 │   │   ├── SettingsView.swift
+│   │   ├── PremiumSettingsSection.swift
 │   │   ├── ManageTypesView.swift
 │   │   ├── ExportView.swift
 │   │   └── ImportView.swift
@@ -437,12 +444,31 @@ Uses San Francisco (system font) with Dynamic Type:
 - [x] Relationship type filter in meetings list
 - [x] Meeting type badges on meeting cards
 
-### v2.3 (Current)
+### v2.3
 - [x] Weekly goals tracking with auto-carry-over from previous meeting
 - [x] Progress updates section for ongoing work
 - [x] Key metrics tracking that persists across meetings
 - [x] Next week's goals that carry forward automatically
 - [x] All new sections are optional - use what's relevant
+
+### v2.4 (Current)
+- [x] **Premium Monetization** - Freemium model with StoreKit 2
+  - Free tier: 1 person, 10 action items, 3 goals, 5 achievements
+  - Premium (£19.99 lifetime): Unlimited everything + power features
+  - 30-day free trial for new users
+- [x] **Premium-Only Features**
+  - Weekly goals & metrics tracking
+  - Performance reports
+  - AI suggestions
+  - Calendar sync
+  - Data export/import
+  - Custom types
+  - Apple Watch app
+- [x] **Upgrade Experience**
+  - Upgrade prompts when hitting limits
+  - Full upgrade view with feature showcase
+  - Restore purchases support
+  - Premium status in Settings
 
 ### Future
 - [ ] Integration APIs (Slack, Teams, Notion)

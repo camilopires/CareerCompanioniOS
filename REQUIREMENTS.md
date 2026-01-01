@@ -552,6 +552,7 @@ All sections are optional - users can use what's relevant and skip the rest.
 - Swift 5.9+
 - SwiftUI for UI
 - CloudKit for persistence and sync
+- StoreKit 2 for in-app purchases
 - WidgetKit for widgets
 - EventKit for calendar integration
 - App Intents for Siri Shortcuts
@@ -795,6 +796,47 @@ PerformanceReport
   - keyMetrics persist across all meetings with same person
   - Works for all meeting types (managers, mentors, peers, etc.)
 
+## v2.4 Features (Completed)
+
+- [x] **Premium Monetization** - Freemium model with StoreKit 2
+  - SubscriptionManager singleton for StoreKit 2 integration
+  - Non-consumable lifetime purchase (£19.99)
+  - 30-day free trial for new users
+  - Trial start date persisted in UserDefaults
+  - Cached premium status for cross-actor access
+- [x] **Free Tier Limits** - Core features with limits
+  - 1 person (manager or report)
+  - 10 active action items
+  - 3 active career goals
+  - 5 achievements
+  - 10 meeting history items visible
+- [x] **Premium Features** - Power features unlocked
+  - Unlimited people, action items, goals, achievements
+  - Full meeting history
+  - Weekly goals & metrics tracking
+  - Performance reports
+  - AI suggestions
+  - Calendar sync
+  - Data export/import
+  - Custom relationship/meeting types
+  - Apple Watch app
+  - All widget sizes
+  - All Siri shortcuts
+- [x] **Upgrade Experience** - Smooth conversion flow
+  - UpgradeView: Full upgrade screen with feature showcase
+  - UpgradePromptSheet: Contextual prompts when hitting limits
+  - PremiumLockedSection: Placeholder for locked premium sections
+  - PremiumBadge: Small "PRO" badge indicator
+  - Restore purchases support
+- [x] **Premium Settings** - Status visibility
+  - PremiumSettingsSection at top of Settings
+  - Shows Premium Active / Trial (X days left) / Upgrade prompt
+  - Quick access to upgrade view
+- [x] **Feature Gating** - Soft and hard limits
+  - Soft limits: Show upgrade prompt when limit reached (people, items, goals)
+  - Hard limits: Feature locked with PremiumLockedSection (reports, weekly goals)
+  - AppSettings computed properties for feature access checks
+
 ## Future Enhancements (v3.0+)
 
 - [ ] Integration APIs (Slack, Teams, Notion)
@@ -823,6 +865,7 @@ OneToOneTrackeriOS/
 │   │   ├── Models/
 │   │   │   ├── AppSettings.swift
 │   │   │   ├── Enums.swift
+│   │   │   ├── PremiumFeatures.swift
 │   │   │   ├── Manager.swift
 │   │   │   ├── Meeting.swift
 │   │   │   ├── AgendaItem.swift
@@ -832,7 +875,8 @@ OneToOneTrackeriOS/
 │   │   └── Services/
 │   │       ├── AIManager.swift
 │   │       ├── CalendarManager.swift
-│   │       └── ExportImportService.swift
+│   │       ├── ExportImportService.swift
+│   │       └── SubscriptionManager.swift
 │   ├── Design/
 │   │   ├── Colors.swift
 │   │   ├── Typography.swift
@@ -848,8 +892,12 @@ OneToOneTrackeriOS/
 │       ├── Meetings/
 │       ├── ActionItems/
 │       ├── Career/
+│       ├── Premium/
+│       │   ├── UpgradeView.swift
+│       │   └── UpgradePromptSheet.swift
 │       ├── Settings/
 │       │   ├── SettingsView.swift
+│       │   ├── PremiumSettingsSection.swift
 │       │   ├── ManageTypesView.swift
 │       │   ├── ExportView.swift
 │       │   └── ImportView.swift

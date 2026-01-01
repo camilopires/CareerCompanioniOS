@@ -1,0 +1,387 @@
+# OneToOne Tracker
+
+A native iOS app for tracking 1:1 meetings with managers and career goals. Built with SwiftUI and CloudKit for secure, private data storage in your personal iCloud account.
+
+![iOS 17+](https://img.shields.io/badge/iOS-17%2B-blue)
+![Swift 5.9](https://img.shields.io/badge/Swift-5.9-orange)
+![SwiftUI](https://img.shields.io/badge/UI-SwiftUI-purple)
+![CloudKit](https://img.shields.io/badge/Storage-CloudKit-green)
+![WCAG AA](https://img.shields.io/badge/Accessibility-WCAG%20AA-brightgreen)
+
+---
+
+## Overview
+
+OneToOne Tracker helps employees prepare for, conduct, and follow up on 1:1 meetings with their managers while tracking career goals and achievements for performance reviews. Your data is stored securely in your personal iCloud account and is never shared with anyone.
+
+### Key Features
+
+- **1:1 Meeting Management** - Prepare agendas, capture notes, track action items
+- **Career Goals Tracking** - Set goals, track progress, record achievements
+- **Performance Reports** - Generate reports for performance reviews
+- **iOS Widgets** - Quick access to action items and upcoming meetings
+- **Export & Share** - Copy agendas to Slack, Teams, or email
+
+---
+
+## Screenshots
+
+| Home | Meetings | Career Goals |
+|------|----------|--------------|
+| Dashboard with action items and upcoming 1:1 | Active meeting with agenda and notes | Goals progress and achievements |
+
+---
+
+## Features
+
+### Home Dashboard
+
+- **Two Main Entry Points**: 1:1 Meetings and Career Goals
+- **Action Items Overview**: Prioritized list with quick-complete actions
+- **Upcoming 1:1 Card**: Countdown to next meeting with agenda preview
+- **Career Progress Snapshot**: Active goals and recent achievements
+- **Quick Stats**: Open items, completed this week, goals progress
+
+### 1:1 Meetings
+
+#### Pre-Meeting Preparation
+- Create and reorder agenda items with drag-and-drop
+- Auto-populate from incomplete action items
+- Export agenda to Slack, Teams, or email
+- One-tap copy to clipboard
+
+#### During Meeting
+- Interactive agenda with checkboxes
+- Meeting timer
+- Structured feedback sections:
+  - What Went Well
+  - What Didn't Go Well
+  - Blockers
+  - Escalations
+- Quick-add action items with owner and due date
+- Sentiment tracking (week and meeting ratings)
+
+#### Action Items
+- Title, description, due date, priority
+- Owner assignment (self or manager)
+- Status tracking (open, in progress, completed)
+- Links and comments
+- Automatic carry-over to next meeting
+
+### Career Goals & Achievements
+
+#### Goals Management
+- Categories: Technical, Leadership, Communication, Domain Knowledge
+- Progress tracking with visual indicators
+- Target dates and milestones
+- Success metrics and tracking methods
+- Priority ordering (primary/secondary)
+
+#### Achievements
+- Link achievements to goals
+- Impact statements with evidence
+- Import from "What Went Well" sections
+- Visibility settings (private, manager, public)
+
+#### Performance Reports
+- Select date range (quarter, half-year, year, custom)
+- Choose goals and achievements to include
+- Generate formatted reports
+- Export as PDF, Markdown, or plain text
+- Share via email, Slack, or Teams
+
+### iOS Widgets
+
+| Widget | Sizes | Features |
+|--------|-------|----------|
+| **Action Items** | Small, Medium, Large | Open items count, top items list, overdue alerts |
+| **Next Meeting** | Small, Lock Screen | Countdown, manager name, date/time |
+| **Career Goals** | Medium | Active goals with progress rings |
+
+---
+
+## Architecture
+
+### Tech Stack
+
+- **iOS 17+** minimum deployment target
+- **Swift 5.9+**
+- **SwiftUI** for all UI components
+- **CloudKit** for secure iCloud storage
+- **WidgetKit** for home screen widgets
+- **MVVM** architecture pattern
+
+### Data Privacy
+
+All data is stored in CloudKit's **private database**, which means:
+- Data is encrypted in your personal iCloud account
+- Never shared with the app developer or third parties
+- Automatically syncs across all your Apple devices
+- Persists even if the app is deleted
+
+### Project Structure
+
+```
+OneToOneTracker/
+├── OneToOneTrackerApp.swift          # App entry point
+├── Core/
+│   ├── CloudKit/
+│   │   ├── CloudKitManager.swift     # CloudKit operations
+│   │   └── CloudKitRecordable.swift  # Protocol for models
+│   └── Models/
+│       ├── Enums.swift               # Status, Priority, etc.
+│       ├── Manager.swift
+│       ├── Meeting.swift
+│       ├── AgendaItem.swift
+│       ├── ActionItem.swift
+│       ├── CareerGoal.swift
+│       └── Achievement.swift
+├── Design/
+│   ├── Colors.swift                  # WCAG AA color palette
+│   ├── Typography.swift              # Dynamic Type support
+│   ├── Spacing.swift                 # 8pt grid system
+│   ├── Theme.swift                   # Button styles, etc.
+│   └── Components/
+│       ├── Card.swift
+│       ├── EmptyState.swift
+│       ├── ProgressRing.swift
+│       └── SentimentPicker.swift
+├── Features/
+│   ├── Home/
+│   ├── Meetings/
+│   ├── ActionItems/
+│   ├── Career/
+│   ├── Settings/
+│   └── Onboarding/
+└── OneToOneTrackerWidget/
+    ├── ActionItemsWidget.swift
+    ├── NextMeetingWidget.swift
+    ├── CareerGoalsWidget.swift
+    └── WidgetBundle.swift
+```
+
+### Data Models
+
+```
+Manager
+├── id, name, email
+└── createdAt
+
+Meeting
+├── id, date, status
+├── agendaItems, notes
+├── wentWell, didntGoWell, blockers, escalations
+├── weekSentiment, meetingSentiment
+└── actionItems
+
+ActionItem
+├── id, title, description
+├── dueDate, priority, status, owner
+├── links, comments
+└── sourceMeeting
+
+CareerGoal
+├── id, title, description, category
+├── targetDate, status, priority
+├── successMetrics, trackingMethod
+├── progress (0-100%)
+└── achievements
+
+Achievement
+├── id, title, description
+├── dateAchieved, impactStatement
+├── linkedGoals, evidenceLinks
+├── tags, visibility
+└── sourceMeeting
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Xcode 15.0 or later
+- iOS 17.0+ device or simulator
+- Apple Developer account (for CloudKit)
+- iCloud account signed in on device
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/camilopires/OneToOneTrackeriOS.git
+   cd OneToOneTrackeriOS
+   ```
+
+2. **Open in Xcode**
+   ```bash
+   open OneToOneTracker.xcodeproj
+   ```
+
+3. **Configure Signing**
+   - Select the project in the navigator
+   - Go to Signing & Capabilities
+   - Select your Development Team for both targets:
+     - `OneToOneTracker`
+     - `OneToOneTrackerWidgetExtension`
+
+4. **Update Bundle Identifiers** (optional)
+   - Default: `com.onetoonetracker.app`
+   - Widget: `com.onetoonetracker.app.widget`
+
+5. **Build and Run**
+   - Select your target device/simulator
+   - Press `Cmd + R` to build and run
+
+### CloudKit Setup
+
+On first run, Xcode will automatically:
+- Create the CloudKit container in your iCloud account
+- Set up the required record types
+- Configure subscriptions for sync
+
+---
+
+## Accessibility
+
+This app is designed to meet **WCAG 2.1 AA** standards:
+
+### Visual
+- **Color Contrast**: All text meets 4.5:1 minimum ratio
+- **Dynamic Type**: Full support for all text sizes
+- **Dark Mode**: Complete dark mode support
+- **Color Independence**: Information not conveyed by color alone
+
+### Motor
+- **Touch Targets**: Minimum 44x44pt touch areas
+- **Keyboard Navigation**: Full external keyboard support
+- **Reduce Motion**: Respects system motion preferences
+
+### Screen Reader
+- **VoiceOver**: All elements have accessibility labels
+- **Accessibility Hints**: Complex interactions explained
+- **Logical Reading Order**: Content flows naturally
+- **Custom Actions**: Swipe actions have alternatives
+
+---
+
+## Design System
+
+### Colors
+
+| Color | Usage | Light | Dark |
+|-------|-------|-------|------|
+| Primary | Actions, links | Blue | Light Blue |
+| Success | Completed, positive | Green | Green |
+| Warning | Attention needed | Orange | Orange |
+| Error | Overdue, failures | Red | Red |
+
+### Typography
+
+Uses San Francisco (system font) with Dynamic Type:
+- Large Title: Navigation headers
+- Title 1-3: Section headers
+- Headline: Card titles
+- Body: Primary content
+- Caption: Metadata, timestamps
+
+### Spacing
+
+8pt grid system with consistent values:
+- `xxs`: 4pt
+- `xs`: 8pt
+- `sm`: 12pt
+- `md`: 16pt
+- `lg`: 24pt
+- `xl`: 32pt
+- `xxl`: 48pt
+
+---
+
+## Export Formats
+
+### Agenda Export
+- **Slack**: Formatted with emoji and markdown
+- **Teams**: Microsoft Teams compatible
+- **Email**: Clean plain text
+- **Markdown**: Full markdown formatting
+
+### Report Export
+- **PDF**: Formatted, printable document
+- **Markdown**: For documentation systems
+- **Plain Text**: Universal compatibility
+
+---
+
+## Widgets
+
+### Adding Widgets
+
+1. Long press on home screen
+2. Tap the `+` button
+3. Search for "1:1 Tracker"
+4. Choose widget size and add
+
+### Available Widgets
+
+| Widget | Size | Description |
+|--------|------|-------------|
+| Action Items | Small | Count of open items |
+| Action Items | Medium | Top 3 items with overdue count |
+| Action Items | Large | Full list with details |
+| Next Meeting | Small | Countdown with date |
+| Next Meeting | Circular | Days until meeting |
+| Next Meeting | Rectangular | Date and manager name |
+| Career Goals | Medium | Progress rings and goal list |
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## Roadmap
+
+### v1.0 (Current)
+- [x] 1:1 Meeting management
+- [x] Action items tracking
+- [x] Career goals and achievements
+- [x] Performance report generation
+- [x] iOS widgets
+- [x] Export to Slack/Teams
+
+### v2.0 (Planned)
+- [ ] Multiple managers support
+- [ ] Calendar integration
+- [ ] Siri Shortcuts
+- [ ] Apple Watch companion app
+- [ ] AI-powered suggestions
+- [ ] Team view for managers
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Acknowledgments
+
+- Built with SwiftUI and CloudKit
+- Icons from SF Symbols
+- Accessibility guidelines from WCAG 2.1
+
+---
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/camilopires/OneToOneTrackeriOS/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/camilopires/OneToOneTrackeriOS/discussions)

@@ -3,11 +3,10 @@ import SwiftUI
 /// Onboarding flow for new users
 struct OnboardingView: View {
     @Binding var hasCompletedOnboarding: Bool
+    @Binding var isDemoMode: Bool
     @EnvironmentObject private var cloudKitManager: CloudKitManager
 
     @State private var currentPage = 0
-    @State private var managerName = ""
-    @State private var showingSetup = false
 
     private let pages: [OnboardingPage] = [
         OnboardingPage(
@@ -63,7 +62,7 @@ struct OnboardingView: View {
             // Actions
             VStack(spacing: Spacing.md) {
                 if currentPage == pages.count - 1 {
-                    Button(action: { showingSetup = true }) {
+                    Button(action: startDemoMode) {
                         Text("Get Started")
                             .frame(maxWidth: .infinity)
                     }
@@ -75,7 +74,7 @@ struct OnboardingView: View {
                     }
                     .buttonStyle(PrimaryButtonStyle())
 
-                    Button(action: { showingSetup = true }) {
+                    Button(action: startDemoMode) {
                         Text("Skip")
                     }
                     .buttonStyle(TertiaryButtonStyle())
@@ -84,12 +83,14 @@ struct OnboardingView: View {
             .padding(.horizontal, Spacing.screenPadding)
             .padding(.bottom, Spacing.xxl)
         }
-        .sheet(isPresented: $showingSetup) {
-            SetupView(
-                hasCompletedOnboarding: $hasCompletedOnboarding,
-                managerName: $managerName
-            )
-        }
+    }
+
+    /// Starts demo mode and transitions to the main app
+    private func startDemoMode() {
+        AppSettings.shared.isDemoMode = true
+        AppSettings.shared.hasExploredDemo = true
+        isDemoMode = true
+        hasCompletedOnboarding = true
     }
 }
 
@@ -140,20 +141,28 @@ struct OnboardingPageView: View {
 struct SetupView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var hasCompletedOnboarding: Bool
-    @Binding var managerName: String
 
+    @State private var selectedRole: UserRole = .individualContributor
     @State private var notificationsEnabled = true
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("Manager's Name", text: $managerName)
-                        .textContentType(.name)
+                    Picker("I am a", selection: $selectedRole) {
+                        ForEach(UserRole.allCases) { role in
+                            Label(role.displayName, systemImage: role.icon)
+                                .tag(role)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
                 } header: {
-                    Text("Your Manager")
+                    Text("Your Role")
                 } footer: {
-                    Text("Who do you have 1:1 meetings with?")
+                    Text(selectedRole == .individualContributor
+                        ? "Track your 1:1 meetings with your manager."
+                        : "Track 1:1 meetings with your direct reports.")
                 }
 
                 Section {
@@ -181,6 +190,24 @@ struct SetupView: View {
                     }
                     .padding(.vertical, Spacing.xs)
                 }
+
+                Section {
+                    HStack(spacing: Spacing.md) {
+                        Image(systemName: "person.badge.plus")
+                            .font(.title)
+                            .foregroundStyle(Color.accentColor)
+
+                        VStack(alignment: .leading, spacing: Spacing.xxs) {
+                            Text("Add People Later")
+                                .font(Typography.headline)
+
+                            Text("You can add managers or team members anytime from Settings.")
+                                .font(Typography.caption1)
+                                .foregroundStyle(Colors.textSecondary)
+                        }
+                    }
+                    .padding(.vertical, Spacing.xs)
+                }
             }
             .navigationTitle("Quick Setup")
             .navigationBarTitleDisplayMode(.inline)
@@ -195,13 +222,8 @@ struct SetupView: View {
     }
 
     private func completeSetup() {
-        // Save manager if provided
-        if !managerName.trimmingCharacters(in: .whitespaces).isEmpty {
-            Task {
-                let manager = Manager(name: managerName.trimmingCharacters(in: .whitespaces))
-                _ = try? await CloudKitManager.shared.save(manager)
-            }
-        }
+        // Save selected role
+        AppSettings.shared.userRole = selectedRole
 
         // Request notification permissions if enabled
         if notificationsEnabled {
@@ -211,6 +233,7 @@ struct SetupView: View {
         }
 
         // Complete onboarding
+        AppSettings.shared.hasCompletedOnboarding = true
         hasCompletedOnboarding = true
         dismiss()
     }
@@ -226,13 +249,10 @@ struct SetupView: View {
 // MARK: - Preview
 
 #Preview("Onboarding") {
-    OnboardingView(hasCompletedOnboarding: .constant(false))
+    OnboardingView(hasCompletedOnboarding: .constant(false), isDemoMode: .constant(false))
         .environmentObject(CloudKitManager.shared)
 }
 
 #Preview("Setup") {
-    SetupView(
-        hasCompletedOnboarding: .constant(false),
-        managerName: .constant("")
-    )
+    SetupView(hasCompletedOnboarding: .constant(false))
 }

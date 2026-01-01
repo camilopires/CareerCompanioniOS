@@ -20,10 +20,33 @@ struct CareerGoalsWidget: Widget {
 // MARK: - Timeline Provider
 
 struct CareerGoalsProvider: TimelineProvider {
+    private var placeholderGoals: [CareerGoal] {
+        [
+            CareerGoal(
+                title: "Become Senior Engineer",
+                goalDescription: "Develop skills for promotion",
+                category: .technical,
+                status: .inProgress,
+                priority: .primary,
+                progress: 45,
+                skills: ["System Design", "Leadership"]
+            ),
+            CareerGoal(
+                title: "Improve Public Speaking",
+                goalDescription: "Present at conferences",
+                category: .communication,
+                status: .inProgress,
+                priority: .secondary,
+                progress: 30,
+                skills: ["Presentation"]
+            )
+        ]
+    }
+
     func placeholder(in context: Context) -> CareerGoalsEntry {
         CareerGoalsEntry(
             date: Date(),
-            goals: CareerGoal.samples.filter { $0.isActive },
+            goals: placeholderGoals,
             overallProgress: 0.45
         )
     }
@@ -31,7 +54,7 @@ struct CareerGoalsProvider: TimelineProvider {
     func getSnapshot(in context: Context, completion: @escaping (CareerGoalsEntry) -> Void) {
         let entry = CareerGoalsEntry(
             date: Date(),
-            goals: CareerGoal.samples.filter { $0.isActive },
+            goals: placeholderGoals,
             overallProgress: 0.45
         )
         completion(entry)
@@ -173,7 +196,26 @@ struct CareerGoalsWidgetView: View {
 } timeline: {
     CareerGoalsEntry(
         date: Date(),
-        goals: CareerGoal.samples.filter { $0.isActive },
+        goals: [
+            CareerGoal(
+                title: "Become Senior Engineer",
+                goalDescription: "Develop skills for promotion",
+                category: .technical,
+                status: .inProgress,
+                priority: .primary,
+                progress: 45,
+                skills: ["System Design", "Leadership"]
+            ),
+            CareerGoal(
+                title: "Improve Public Speaking",
+                goalDescription: "Present at conferences",
+                category: .communication,
+                status: .inProgress,
+                priority: .secondary,
+                progress: 30,
+                skills: ["Presentation"]
+            )
+        ],
         overallProgress: 0.45
     )
 }

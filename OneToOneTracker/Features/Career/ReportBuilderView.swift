@@ -322,5 +322,36 @@ struct ShareSheet: UIViewControllerRepresentable {
 // MARK: - Preview
 
 #Preview("Report Builder") {
-    ReportBuilderView(goals: CareerGoal.samples, achievements: Achievement.samples)
+    let previewGoals = [
+        CareerGoal(
+            title: "Become Senior Engineer",
+            category: .technical,
+            status: .inProgress,
+            priority: .primary,
+            progress: 45
+        ),
+        CareerGoal(
+            title: "Improve Public Speaking",
+            category: .communication,
+            status: .inProgress,
+            priority: .secondary,
+            progress: 30
+        )
+    ]
+
+    let previewAchievements = [
+        Achievement(
+            title: "Led API Migration Project",
+            dateAchieved: Date().addingTimeInterval(-86400 * 30),
+            impactStatement: "Reduced API response times by 40%",
+            tags: ["Technical Leadership"]
+        ),
+        Achievement(
+            title: "Mentored Junior Developer",
+            dateAchieved: Date().addingTimeInterval(-86400 * 14),
+            tags: ["Mentoring"]
+        )
+    ]
+
+    return ReportBuilderView(goals: previewGoals, achievements: previewAchievements)
 }

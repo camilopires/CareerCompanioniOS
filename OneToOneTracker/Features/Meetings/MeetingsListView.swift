@@ -207,8 +207,17 @@ struct NewMeetingView: View {
 }
 
 #Preview("Meeting Row") {
-    List {
-        MeetingRowView(meeting: Meeting.sample)
-        MeetingRowView(meeting: Meeting.sampleCompleted)
+    let scheduledMeeting = Meeting(
+        managerID: UUID(),
+        date: Date().addingTimeInterval(86400 * 2)
+    )
+    let completedMeeting = Meeting(
+        managerID: UUID(),
+        date: Date().addingTimeInterval(-86400 * 7),
+        status: .completed
+    )
+    return List {
+        MeetingRowView(meeting: scheduledMeeting)
+        MeetingRowView(meeting: completedMeeting)
     }
 }

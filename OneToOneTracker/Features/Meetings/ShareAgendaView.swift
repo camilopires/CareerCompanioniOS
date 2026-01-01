@@ -119,5 +119,9 @@ private struct CopiedConfirmationView: View {
 // MARK: - Preview
 
 #Preview("Share Agenda") {
-    ShareAgendaView(viewModel: AgendaBuilderViewModel(meeting: Meeting.sample))
+    let previewMeeting = Meeting(
+        managerID: UUID(),
+        date: Date().addingTimeInterval(86400 * 2)
+    )
+    return ShareAgendaView(viewModel: AgendaBuilderViewModel(meeting: previewMeeting))
 }

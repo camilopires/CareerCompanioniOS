@@ -155,17 +155,32 @@ final class GoalsViewModel: ObservableObject {
 
     func loadGoals() async {
         isLoading = true
+
+        // Use demo data if in demo mode
+        if AppSettings.shared.isDemoMode {
+            goals = DemoDataProvider.careerGoals
+            isLoading = false
+            return
+        }
+
         do {
             goals = try await CloudKitManager.shared.fetch(
                 sortDescriptors: [NSSortDescriptor(key: "updatedAt", ascending: false)]
             )
         } catch {
-            goals = CareerGoal.samples
+            // Show empty state on error
+            goals = []
         }
         isLoading = false
     }
 
     func addGoal(_ goal: CareerGoal) async {
+        // In demo mode, only update in-memory
+        if AppSettings.shared.isDemoMode {
+            goals.insert(goal, at: 0)
+            return
+        }
+
         do {
             let saved = try await CloudKitManager.shared.save(goal)
             goals.insert(saved, at: 0)
@@ -176,6 +191,13 @@ final class GoalsViewModel: ObservableObject {
         let filtered = filteredGoals(for: filter)
         for index in offsets {
             let goal = filtered[index]
+
+            // In demo mode, only update in-memory
+            if AppSettings.shared.isDemoMode {
+                goals.removeAll { $0.id == goal.id }
+                continue
+            }
+
             do {
                 try await CloudKitManager.shared.delete(goal)
                 goals.removeAll { $0.id == goal.id }

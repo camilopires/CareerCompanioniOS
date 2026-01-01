@@ -309,7 +309,13 @@ private struct LinksSection: View {
 // MARK: - Preview
 
 #Preview("Action Item Detail") {
-    NavigationStack {
-        ActionItemDetailView(item: ActionItem.sample)
+    let previewItem = ActionItem(
+        title: "Review Q4 objectives",
+        itemDescription: "Review and finalize the Q4 objectives document",
+        dueDate: Date().addingTimeInterval(86400 * 3),
+        priority: .high
+    )
+    return NavigationStack {
+        ActionItemDetailView(item: previewItem)
     }
 }

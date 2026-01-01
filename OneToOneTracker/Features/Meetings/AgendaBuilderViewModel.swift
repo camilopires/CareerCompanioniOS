@@ -41,7 +41,6 @@ final class AgendaBuilderViewModel: ObservableObject {
 
         } catch {
             self.error = error
-            loadSampleData()
         }
 
         isLoading = false
@@ -204,16 +203,5 @@ final class AgendaBuilderViewModel: ObservableObject {
         }
 
         return output
-    }
-
-    // MARK: - Sample Data
-
-    private func loadSampleData() {
-        agendaItems = AgendaItem.samples.map { item in
-            var copy = item
-            copy.meetingID = meeting.id
-            return copy
-        }
-        carriedOverItems = [ActionItem.samples[2]] // Overdue item
     }
 }

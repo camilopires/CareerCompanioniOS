@@ -5,17 +5,44 @@ import CloudKit
 struct OneToOneTrackerApp: App {
     @StateObject private var cloudKitManager = CloudKitManager.shared
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @State private var isDemoMode = AppSettings.shared.isDemoMode
+    @State private var showDemoSheet = false
+    @State private var showSetupView = false
 
     var body: some Scene {
         WindowGroup {
             if hasCompletedOnboarding {
                 MainTabView()
                     .environmentObject(cloudKitManager)
+                    .sheet(isPresented: $showDemoSheet) {
+                        DemoModeSheet(onStartFresh: startFresh)
+                    }
+                    .sheet(isPresented: $showSetupView) {
+                        SetupView(hasCompletedOnboarding: $hasCompletedOnboarding)
+                    }
+                    .onAppear {
+                        // Show demo sheet if just completed onboarding and in demo mode
+                        if isDemoMode && AppSettings.shared.hasExploredDemo {
+                            showDemoSheet = true
+                        }
+                    }
             } else {
-                OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
+                OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding, isDemoMode: $isDemoMode)
                     .environmentObject(cloudKitManager)
+                    .onChange(of: hasCompletedOnboarding) { _, completed in
+                        if completed && isDemoMode {
+                            showDemoSheet = true
+                        }
+                    }
             }
         }
+    }
+
+    private func startFresh() {
+        AppSettings.shared.isDemoMode = false
+        isDemoMode = false
+        showDemoSheet = false
+        showSetupView = true
     }
 }
 

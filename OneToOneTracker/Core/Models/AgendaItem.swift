@@ -77,17 +77,3 @@ struct AgendaItem: CloudKitRecordable, Codable {
         lhs.id == rhs.id
     }
 }
-
-// MARK: - Sample Data
-
-extension AgendaItem {
-    static let samples: [AgendaItem] = {
-        let meetingID = UUID()
-        return [
-            AgendaItem(meetingID: meetingID, title: "Review last week's action items", order: 0),
-            AgendaItem(meetingID: meetingID, title: "Discuss project roadmap", order: 1),
-            AgendaItem(meetingID: meetingID, title: "Career development update", order: 2),
-            AgendaItem(meetingID: meetingID, title: "Team feedback", order: 3)
-        ]
-    }()
-}

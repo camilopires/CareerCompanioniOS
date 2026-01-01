@@ -646,10 +646,13 @@ PerformanceReport
 ## User Experience
 
 ### Onboarding
-- Quick setup wizard
-- Add manager details
-- Set 1:1 schedule
-- Optional: Set up first career goal
+- Welcome slides introducing key features
+- **Demo Mode** - Automatically activates after slides
+  - Explore with sample data (meetings, action items, goals)
+  - Bottom sheet prompts "Start Fresh" when ready
+  - Demo data is in-memory only (never saved to iCloud)
+- Role selection (Individual Contributor or Manager)
+- Add manager/team member details
 - Permission requests (notifications)
 - Brief accessibility settings prompt
 
@@ -660,18 +663,29 @@ PerformanceReport
 
 ---
 
-## Future Enhancements (v2+)
+## v2.0 Features (Completed)
 
-- Multiple managers support
-- Calendar integration (sync with iOS Calendar)
-- Siri Shortcuts
-- Apple Watch companion app
-- AI-powered suggestions for agenda items
-- AI-assisted achievement writing
-- Team view (for managers tracking their reports)
-- Integration APIs (Slack, Teams, Notion)
-- Competency framework templates
-- Goal templates library
+- [x] **Demo Mode** - Explore app with sample data during onboarding
+  - In-memory demo data (never saved to CloudKit)
+  - Bottom sheet with "Start Fresh" option
+  - Toggle available in Settings anytime
+- [x] **IC/Manager Mode Switching** - Switch between Individual Contributor and Manager roles
+  - Track meetings with your manager (IC mode)
+  - Track meetings with your direct reports (Manager mode)
+- [x] **Multiple People Support** - Add multiple managers or team members
+  - People list in Settings
+  - Add/remove managers or direct reports
+
+## Future Enhancements (v2.1+)
+
+- [ ] Calendar integration (sync with iOS Calendar)
+- [ ] Siri Shortcuts
+- [ ] Apple Watch companion app
+- [ ] AI-powered suggestions for agenda items
+- [ ] AI-assisted achievement writing
+- [ ] Integration APIs (Slack, Teams, Notion)
+- [ ] Competency framework templates
+- [ ] Goal templates library
 
 ---
 

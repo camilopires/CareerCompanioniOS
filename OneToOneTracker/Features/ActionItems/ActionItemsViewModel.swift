@@ -54,6 +54,13 @@ final class ActionItemsViewModel: ObservableObject {
         isLoading = true
         error = nil
 
+        // Use demo data if in demo mode
+        if AppSettings.shared.isDemoMode {
+            items = DemoDataProvider.actionItems
+            isLoading = false
+            return
+        }
+
         do {
             let fetched: [ActionItem] = try await CloudKitManager.shared.fetch(
                 sortDescriptors: [NSSortDescriptor(key: "createdAt", ascending: false)]
@@ -61,7 +68,6 @@ final class ActionItemsViewModel: ObservableObject {
             items = fetched
         } catch {
             self.error = error
-            loadSampleData()
         }
 
         isLoading = false
@@ -70,6 +76,13 @@ final class ActionItemsViewModel: ObservableObject {
     // MARK: - Actions
 
     func addItem(_ item: ActionItem) async {
+        // In demo mode, only update in-memory
+        if AppSettings.shared.isDemoMode {
+            items.insert(item, at: 0)
+            Theme.successHaptic()
+            return
+        }
+
         do {
             let saved = try await CloudKitManager.shared.save(item)
             items.insert(saved, at: 0)
@@ -88,6 +101,15 @@ final class ActionItemsViewModel: ObservableObject {
             updated.markComplete()
         }
 
+        // In demo mode, only update in-memory
+        if AppSettings.shared.isDemoMode {
+            if let index = items.firstIndex(where: { $0.id == item.id }) {
+                items[index] = updated
+            }
+            Theme.successHaptic()
+            return
+        }
+
         do {
             let saved = try await CloudKitManager.shared.save(updated)
             if let index = items.firstIndex(where: { $0.id == saved.id }) {
@@ -101,6 +123,14 @@ final class ActionItemsViewModel: ObservableObject {
     }
 
     func updateItem(_ item: ActionItem) async {
+        // In demo mode, only update in-memory
+        if AppSettings.shared.isDemoMode {
+            if let index = items.firstIndex(where: { $0.id == item.id }) {
+                items[index] = item
+            }
+            return
+        }
+
         do {
             let saved = try await CloudKitManager.shared.save(item)
             if let index = items.firstIndex(where: { $0.id == saved.id }) {
@@ -116,6 +146,12 @@ final class ActionItemsViewModel: ObservableObject {
         let itemsToDelete = offsets.map { filtered[$0] }
 
         for item in itemsToDelete {
+            // In demo mode, only update in-memory
+            if AppSettings.shared.isDemoMode {
+                items.removeAll { $0.id == item.id }
+                continue
+            }
+
             do {
                 try await CloudKitManager.shared.delete(item)
                 items.removeAll { $0.id == item.id }
@@ -123,11 +159,5 @@ final class ActionItemsViewModel: ObservableObject {
                 self.error = error
             }
         }
-    }
-
-    // MARK: - Sample Data
-
-    private func loadSampleData() {
-        items = ActionItem.samples
     }
 }

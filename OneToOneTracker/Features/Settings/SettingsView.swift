@@ -8,24 +8,50 @@ struct SettingsView: View {
     @AppStorage("weeklyPrepReminderDay") private var weeklyPrepReminderDay = 1 // Monday
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = true
 
-    @State private var showingManagerEditor = false
+    @State private var userRole: UserRole = AppSettings.shared.userRole
+    @State private var isDemoMode: Bool = AppSettings.shared.isDemoMode
+    @State private var showingAddPerson = false
     @State private var showingAbout = false
     @State private var showingPrivacy = false
 
     var body: some View {
         Form {
-            // Manager section
+            // App Mode section
             Section {
-                Button(action: { showingManagerEditor = true }) {
+                Picker("I am a", selection: $userRole) {
+                    ForEach(UserRole.allCases) { role in
+                        Label(role.displayName, systemImage: role.icon)
+                            .tag(role)
+                    }
+                }
+                .onChange(of: userRole) { _, newValue in
+                    AppSettings.shared.userRole = newValue
+                }
+            } header: {
+                Text("App Mode")
+            } footer: {
+                Text(userRole == .individualContributor
+                    ? "Track your 1:1 meetings with your manager."
+                    : "Track 1:1 meetings with your direct reports.")
+            }
+
+            // People section
+            Section {
+                NavigationLink(destination: PeopleListView()) {
                     HStack {
-                        Label("Manager Details", systemImage: "person.circle")
+                        Label(
+                            userRole == .individualContributor ? "Managers" : "Team Members",
+                            systemImage: userRole == .individualContributor ? "person.badge.shield.checkmark" : "person.3"
+                        )
                         Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundStyle(Colors.textTertiary)
                     }
                 }
             } header: {
-                Text("Your Manager")
+                Text(userRole == .individualContributor ? "Your Managers" : "Your Team")
+            } footer: {
+                Text(userRole == .individualContributor
+                    ? "Add the managers you have 1:1 meetings with."
+                    : "Add your direct reports to track your 1:1s with them.")
             }
 
             // Notifications section
@@ -90,29 +116,41 @@ struct SettingsView: View {
                 }
             }
 
-            // Debug section (only in debug builds)
+            // Demo Mode section (visible to all users)
+            Section {
+                Toggle("Demo Mode", isOn: $isDemoMode)
+                    .onChange(of: isDemoMode) { _, newValue in
+                        AppSettings.shared.isDemoMode = newValue
+                    }
+            } header: {
+                Text("Demo Mode")
+            } footer: {
+                Text("View the app with sample data to see how it works. Your real data is preserved and will return when you turn this off.")
+            }
+
+            // Developer section (only in debug builds)
             #if DEBUG
             Section {
                 Button("Reset Onboarding") {
+                    AppSettings.shared.hasCompletedOnboarding = false
+                    AppSettings.shared.hasExploredDemo = false
                     hasCompletedOnboarding = false
                 }
-
-                Button("Load Sample Data") {
-                    // Load sample data for testing
-                }
             } header: {
-                Text("Debug")
+                Text("Developer")
+            } footer: {
+                Text("These options are only visible in debug builds.")
             }
             #endif
         }
         .navigationTitle("Settings")
-        .sheet(isPresented: $showingManagerEditor) {
-            ManagerEditorView()
+        .sheet(isPresented: $showingAddPerson) {
+            AddPersonView()
         }
     }
 
     private func exportAllData() {
-        // TODO: Implement data export
+        // TODO: Implement data export via ExportImportService
     }
 }
 
@@ -305,6 +343,160 @@ struct AboutView: View {
     }
 }
 
+// MARK: - People List View
+
+struct PeopleListView: View {
+    @State private var managers: [Manager] = []
+    @State private var isLoading = false
+    @State private var showingAddPerson = false
+
+    private var userRole: UserRole { AppSettings.shared.userRole }
+
+    var body: some View {
+        List {
+            if managers.isEmpty && !isLoading {
+                ContentUnavailableView(
+                    userRole == .individualContributor ? "No Managers" : "No Team Members",
+                    systemImage: "person.badge.plus",
+                    description: Text("Tap + to add someone.")
+                )
+            } else {
+                ForEach(managers) { manager in
+                    HStack {
+                        VStack(alignment: .leading, spacing: Spacing.xxs) {
+                            Text(manager.name)
+                                .font(Typography.body)
+
+                            if let email = manager.email {
+                                Text(email)
+                                    .font(Typography.caption1)
+                                    .foregroundStyle(Colors.textSecondary)
+                            }
+                        }
+
+                        Spacer()
+                    }
+                }
+                .onDelete(perform: deleteManagers)
+            }
+        }
+        .navigationTitle(userRole == .individualContributor ? "Managers" : "Team Members")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showingAddPerson = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+            }
+        }
+        .sheet(isPresented: $showingAddPerson) {
+            AddPersonView()
+        }
+        .task {
+            await loadManagers()
+        }
+        .refreshable {
+            await loadManagers()
+        }
+    }
+
+    private func loadManagers() async {
+        isLoading = true
+
+        // Use demo data if in demo mode
+        if AppSettings.shared.isDemoMode {
+            managers = DemoDataProvider.managers
+            isLoading = false
+            return
+        }
+
+        do {
+            managers = try await CloudKitManager.shared.fetch()
+        } catch {}
+        isLoading = false
+    }
+
+    private func deleteManagers(at offsets: IndexSet) {
+        let managersToDelete = offsets.map { managers[$0] }
+
+        Task {
+            for manager in managersToDelete {
+                // In demo mode, only update in-memory
+                if AppSettings.shared.isDemoMode {
+                    managers.removeAll { $0.id == manager.id }
+                    continue
+                }
+
+                try? await CloudKitManager.shared.delete(manager)
+                managers.removeAll { $0.id == manager.id }
+            }
+        }
+    }
+}
+
+// MARK: - Add Person View
+
+struct AddPersonView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var name = ""
+    @State private var email = ""
+
+    private var userRole: UserRole { AppSettings.shared.userRole }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    TextField("Name", text: $name)
+                        .textContentType(.name)
+
+                    TextField("Email (optional)", text: $email)
+                        .keyboardType(.emailAddress)
+                        .textContentType(.emailAddress)
+                        .autocapitalization(.none)
+                } footer: {
+                    Text(userRole == .individualContributor
+                        ? "Add a manager you have 1:1 meetings with."
+                        : "Add a team member you manage.")
+                }
+            }
+            .navigationTitle(userRole == .individualContributor ? "Add Manager" : "Add Team Member")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Add") {
+                        savePerson()
+                    }
+                    .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+            }
+        }
+    }
+
+    private func savePerson() {
+        let manager = Manager(
+            name: name.trimmingCharacters(in: .whitespaces),
+            email: email.isEmpty ? nil : email.trimmingCharacters(in: .whitespaces)
+        )
+
+        // In demo mode, just dismiss (data is in-memory only)
+        if AppSettings.shared.isDemoMode {
+            dismiss()
+            return
+        }
+
+        Task {
+            _ = try? await CloudKitManager.shared.save(manager)
+            dismiss()
+        }
+    }
+}
+
 // MARK: - Preview
 
 #Preview("Settings") {
@@ -316,5 +508,11 @@ struct AboutView: View {
 #Preview("Data Privacy") {
     NavigationStack {
         DataPrivacyView()
+    }
+}
+
+#Preview("People List") {
+    NavigationStack {
+        PeopleListView()
     }
 }

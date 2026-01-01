@@ -43,6 +43,14 @@ final class CareerHomeViewModel: ObservableObject {
         isLoading = true
         error = nil
 
+        // Use demo data if in demo mode
+        if AppSettings.shared.isDemoMode {
+            goals = DemoDataProvider.careerGoals
+            achievements = DemoDataProvider.achievements
+            isLoading = false
+            return
+        }
+
         do {
             async let fetchedGoals: [CareerGoal] = CloudKitManager.shared.fetch(
                 sortDescriptors: [NSSortDescriptor(key: "updatedAt", ascending: false)]
@@ -55,7 +63,6 @@ final class CareerHomeViewModel: ObservableObject {
             achievements = try await fetchedAchievements
         } catch {
             self.error = error
-            loadSampleData()
         }
 
         isLoading = false
@@ -64,6 +71,13 @@ final class CareerHomeViewModel: ObservableObject {
     // MARK: - Actions
 
     func addGoal(_ goal: CareerGoal) async {
+        // In demo mode, only update in-memory
+        if AppSettings.shared.isDemoMode {
+            goals.insert(goal, at: 0)
+            Theme.successHaptic()
+            return
+        }
+
         do {
             let saved = try await CloudKitManager.shared.save(goal)
             goals.insert(saved, at: 0)
@@ -75,6 +89,13 @@ final class CareerHomeViewModel: ObservableObject {
     }
 
     func addAchievement(_ achievement: Achievement) async {
+        // In demo mode, only update in-memory
+        if AppSettings.shared.isDemoMode {
+            achievements.insert(achievement, at: 0)
+            Theme.successHaptic()
+            return
+        }
+
         do {
             let saved = try await CloudKitManager.shared.save(achievement)
             achievements.insert(saved, at: 0)
@@ -83,12 +104,5 @@ final class CareerHomeViewModel: ObservableObject {
             self.error = error
             Theme.errorHaptic()
         }
-    }
-
-    // MARK: - Sample Data
-
-    private func loadSampleData() {
-        goals = CareerGoal.samples
-        achievements = Achievement.samples
     }
 }

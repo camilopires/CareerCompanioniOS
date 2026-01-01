@@ -169,22 +169,24 @@ struct NoUpcomingMeetingCard: View {
 // MARK: - Preview
 
 #Preview("Upcoming Meeting Card") {
-    NavigationStack {
+    let previewManager = Manager(name: "Sarah Johnson", email: "sarah@company.com")
+
+    return NavigationStack {
         VStack(spacing: Spacing.lg) {
             UpcomingMeetingCard(
                 meeting: Meeting(
-                    managerID: UUID(),
+                    managerID: previewManager.id,
                     date: Date().addingTimeInterval(86400 * 2) // 2 days
                 ),
-                manager: Manager.sample
+                manager: previewManager
             )
 
             UpcomingMeetingCard(
                 meeting: Meeting(
-                    managerID: UUID(),
+                    managerID: previewManager.id,
                     date: Date().addingTimeInterval(3600) // 1 hour
                 ),
-                manager: Manager.sample
+                manager: previewManager
             )
 
             NoUpcomingMeetingCard()

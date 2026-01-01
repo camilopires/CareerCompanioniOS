@@ -79,6 +79,16 @@ final class HomeViewModel: ObservableObject {
         isLoading = true
         error = nil
 
+        // Use demo data if in demo mode
+        if AppSettings.shared.isDemoMode {
+            actionItems = DemoDataProvider.actionItems
+            manager = DemoDataProvider.managers.first
+            nextMeeting = DemoDataProvider.meetings.first { $0.status == .scheduled }
+            activeGoals = DemoDataProvider.careerGoals.filter { $0.isActive }
+            isLoading = false
+            return
+        }
+
         do {
             async let fetchedActionItems: [ActionItem] = CloudKitManager.shared.fetch(
                 sortDescriptors: [NSSortDescriptor(key: "createdAt", ascending: false)]
@@ -101,8 +111,6 @@ final class HomeViewModel: ObservableObject {
 
         } catch {
             self.error = error
-            // Load sample data for preview/testing
-            loadSampleData()
         }
 
         isLoading = false
@@ -123,6 +131,15 @@ final class HomeViewModel: ObservableObject {
         var updatedItem = item
         updatedItem.markComplete()
 
+        // In demo mode, only update in-memory
+        if AppSettings.shared.isDemoMode {
+            if let index = actionItems.firstIndex(where: { $0.id == item.id }) {
+                actionItems[index] = updatedItem
+            }
+            Theme.successHaptic()
+            return
+        }
+
         do {
             let saved = try await CloudKitManager.shared.save(updatedItem)
             if let index = actionItems.firstIndex(where: { $0.id == saved.id }) {
@@ -133,14 +150,5 @@ final class HomeViewModel: ObservableObject {
             self.error = error
             Theme.errorHaptic()
         }
-    }
-
-    // MARK: - Sample Data
-
-    private func loadSampleData() {
-        actionItems = ActionItem.samples
-        manager = Manager.sample
-        nextMeeting = Meeting.sample
-        activeGoals = CareerGoal.samples
     }
 }

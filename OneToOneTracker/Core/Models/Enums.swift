@@ -347,3 +347,86 @@ enum ExportFormat: String, Codable, CaseIterable, Identifiable {
         }
     }
 }
+
+// MARK: - User Role (v2.0)
+
+enum UserRole: String, Codable, CaseIterable, Identifiable {
+    case individualContributor = "ic"
+    case manager = "manager"
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .individualContributor: return "Individual Contributor"
+        case .manager: return "Manager"
+        }
+    }
+
+    var shortName: String {
+        switch self {
+        case .individualContributor: return "IC"
+        case .manager: return "Mgr"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .individualContributor: return "person.fill"
+        case .manager: return "person.3.fill"
+        }
+    }
+}
+
+// MARK: - Manager Relationship (v2.0)
+
+enum ManagerRelationship: String, Codable, CaseIterable, Identifiable {
+    case myManager
+    case directReport
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .myManager: return "My Manager"
+        case .directReport: return "Direct Report"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .myManager: return "person.badge.shield.checkmark.fill"
+        case .directReport: return "person.fill"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .myManager: return "I report to this person"
+        case .directReport: return "This person reports to me"
+        }
+    }
+}
+
+// MARK: - Meeting Perspective (v2.0)
+
+enum MeetingPerspective: String, Codable, CaseIterable, Identifiable {
+    case asEmployee
+    case asManager
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .asEmployee: return "With My Manager"
+        case .asManager: return "With My Report"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .asEmployee: return "person.badge.shield.checkmark.fill"
+        case .asManager: return "person.fill"
+        }
+    }
+}

@@ -440,7 +440,11 @@ struct QuickAddActionItemView: View {
 // MARK: - Preview
 
 #Preview("Active Meeting") {
-    NavigationStack {
-        ActiveMeetingView(meeting: Meeting.sample)
+    let previewMeeting = Meeting(
+        managerID: UUID(),
+        date: Date().addingTimeInterval(86400 * 2)
+    )
+    return NavigationStack {
+        ActiveMeetingView(meeting: previewMeeting)
     }
 }

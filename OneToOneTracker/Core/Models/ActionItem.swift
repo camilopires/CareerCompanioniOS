@@ -163,39 +163,3 @@ struct ActionItem: CloudKitRecordable, Codable {
         lhs.id == rhs.id
     }
 }
-
-// MARK: - Sample Data
-
-extension ActionItem {
-    static let sample = ActionItem(
-        title: "Review Q4 objectives",
-        itemDescription: "Review and finalize the Q4 objectives document",
-        dueDate: Date().addingTimeInterval(86400 * 3),
-        priority: .high
-    )
-
-    static let samples: [ActionItem] = [
-        ActionItem(
-            title: "Review Q4 objectives",
-            itemDescription: "Review and finalize the Q4 objectives document",
-            dueDate: Date().addingTimeInterval(86400 * 3),
-            priority: .high
-        ),
-        ActionItem(
-            title: "Schedule team retrospective",
-            dueDate: Date().addingTimeInterval(86400 * 7),
-            priority: .medium
-        ),
-        ActionItem(
-            title: "Update documentation",
-            itemDescription: "Update the API documentation with new endpoints",
-            dueDate: Date().addingTimeInterval(-86400), // Overdue
-            priority: .low
-        ),
-        ActionItem(
-            title: "Follow up on budget request",
-            priority: .high,
-            owner: .manager
-        )
-    ]
-}

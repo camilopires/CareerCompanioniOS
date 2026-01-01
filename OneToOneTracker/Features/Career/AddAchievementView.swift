@@ -153,7 +153,16 @@ struct AddAchievementView: View {
 // MARK: - Preview
 
 #Preview("Add Achievement") {
-    AddAchievementView(goals: CareerGoal.samples) { achievement in
+    let previewGoals = [
+        CareerGoal(
+            title: "Become Senior Engineer",
+            category: .technical,
+            status: .inProgress,
+            priority: .primary,
+            progress: 45
+        )
+    ]
+    return AddAchievementView(goals: previewGoals) { achievement in
         print("Added: \(achievement.title)")
     }
 }

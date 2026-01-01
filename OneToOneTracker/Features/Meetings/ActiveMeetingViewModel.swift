@@ -51,7 +51,6 @@ final class ActiveMeetingViewModel: ObservableObject {
             agendaItems = items
         } catch {
             self.error = error
-            loadSampleData()
         }
 
         isLoading = false
@@ -116,15 +115,5 @@ final class ActiveMeetingViewModel: ObservableObject {
     private func createAchievementsFromWins() async {
         // Optionally prompt user to convert wins to achievements
         // For now, we'll just save them as meeting data
-    }
-
-    // MARK: - Sample Data
-
-    private func loadSampleData() {
-        agendaItems = AgendaItem.samples.map { item in
-            var copy = item
-            copy.meetingID = meeting.id
-            return copy
-        }
     }
 }

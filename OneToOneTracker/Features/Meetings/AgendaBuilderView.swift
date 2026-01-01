@@ -238,7 +238,11 @@ enum AgendaTemplate: String, CaseIterable, Identifiable {
 // MARK: - Preview
 
 #Preview("Agenda Builder") {
-    NavigationStack {
-        AgendaBuilderView(meeting: Meeting.sample)
+    let previewMeeting = Meeting(
+        managerID: UUID(),
+        date: Date().addingTimeInterval(86400 * 2)
+    )
+    return NavigationStack {
+        AgendaBuilderView(meeting: previewMeeting)
     }
 }

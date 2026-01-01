@@ -253,13 +253,27 @@ private struct FeedbackCard: View {
 // MARK: - Preview
 
 #Preview("Meeting Detail - Completed") {
-    NavigationStack {
-        MeetingDetailView(meeting: Meeting.sampleCompleted)
+    let completedMeeting = Meeting(
+        managerID: UUID(),
+        date: Date().addingTimeInterval(-86400 * 7),
+        status: .completed,
+        notes: "Great discussion about Q4 priorities.",
+        wentWell: ["Completed API migration", "Got positive feedback"],
+        didntGoWell: ["Missed documentation deadline"],
+        weekSentiment: 4,
+        meetingSentiment: 5
+    )
+    return NavigationStack {
+        MeetingDetailView(meeting: completedMeeting)
     }
 }
 
 #Preview("Meeting Detail - Scheduled") {
-    NavigationStack {
-        MeetingDetailView(meeting: Meeting.sample)
+    let scheduledMeeting = Meeting(
+        managerID: UUID(),
+        date: Date().addingTimeInterval(86400 * 2)
+    )
+    return NavigationStack {
+        MeetingDetailView(meeting: scheduledMeeting)
     }
 }

@@ -31,6 +31,13 @@ final class MeetingsViewModel: ObservableObject {
         isLoading = true
         error = nil
 
+        // Use demo data if in demo mode
+        if AppSettings.shared.isDemoMode {
+            allMeetings = DemoDataProvider.meetings
+            isLoading = false
+            return
+        }
+
         do {
             let meetings: [Meeting] = try await CloudKitManager.shared.fetch(
                 sortDescriptors: [NSSortDescriptor(key: "date", ascending: false)]
@@ -38,8 +45,6 @@ final class MeetingsViewModel: ObservableObject {
             allMeetings = meetings
         } catch {
             self.error = error
-            // Load sample data for preview
-            loadSampleData()
         }
 
         isLoading = false
@@ -48,6 +53,13 @@ final class MeetingsViewModel: ObservableObject {
     // MARK: - Actions
 
     func createMeeting(_ meeting: Meeting) async {
+        // In demo mode, only update in-memory
+        if AppSettings.shared.isDemoMode {
+            allMeetings.insert(meeting, at: 0)
+            Theme.successHaptic()
+            return
+        }
+
         do {
             let saved = try await CloudKitManager.shared.save(meeting)
             allMeetings.insert(saved, at: 0)
@@ -59,6 +71,14 @@ final class MeetingsViewModel: ObservableObject {
     }
 
     func updateMeeting(_ meeting: Meeting) async {
+        // In demo mode, only update in-memory
+        if AppSettings.shared.isDemoMode {
+            if let index = allMeetings.firstIndex(where: { $0.id == meeting.id }) {
+                allMeetings[index] = meeting
+            }
+            return
+        }
+
         do {
             let saved = try await CloudKitManager.shared.save(meeting)
             if let index = allMeetings.firstIndex(where: { $0.id == saved.id }) {
@@ -73,6 +93,12 @@ final class MeetingsViewModel: ObservableObject {
         let meetingsToDelete = offsets.map { meetings[$0] }
 
         for meeting in meetingsToDelete {
+            // In demo mode, only update in-memory
+            if AppSettings.shared.isDemoMode {
+                allMeetings.removeAll { $0.id == meeting.id }
+                continue
+            }
+
             do {
                 try await CloudKitManager.shared.delete(meeting)
                 allMeetings.removeAll { $0.id == meeting.id }
@@ -93,22 +119,5 @@ final class MeetingsViewModel: ObservableObject {
         updated.status = .completed
         updated.updatedAt = Date()
         await updateMeeting(updated)
-    }
-
-    // MARK: - Sample Data
-
-    private func loadSampleData() {
-        allMeetings = [
-            Meeting.sample,
-            Meeting.sampleCompleted,
-            Meeting(
-                managerID: UUID(),
-                date: Date().addingTimeInterval(-86400 * 14),
-                status: .completed,
-                wentWell: ["Finished the sprint early"],
-                weekSentiment: 3,
-                meetingSentiment: 4
-            )
-        ]
     }
 }

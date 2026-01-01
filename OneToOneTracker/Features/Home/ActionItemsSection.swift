@@ -174,12 +174,22 @@ struct CompactLabelStyle: LabelStyle {
 }
 
 #Preview("Action Item Row") {
-    VStack(spacing: 0) {
-        ActionItemRow(item: ActionItem.samples[0], onComplete: {})
+    let previewItems = [
+        ActionItem(title: "Review Q4 objectives", priority: .high),
+        ActionItem(
+            title: "Update documentation",
+            dueDate: Date().addingTimeInterval(-86400), // Overdue
+            priority: .medium
+        ),
+        ActionItem(title: "Follow up on budget request", priority: .high, owner: .manager)
+    ]
+
+    return VStack(spacing: 0) {
+        ActionItemRow(item: previewItems[0], onComplete: {})
         Divider()
-        ActionItemRow(item: ActionItem.samples[2], onComplete: {}) // Overdue
+        ActionItemRow(item: previewItems[1], onComplete: {})
         Divider()
-        ActionItemRow(item: ActionItem.samples[3], onComplete: {}) // Manager owned
+        ActionItemRow(item: previewItems[2], onComplete: {})
     }
     .background(Colors.backgroundSecondary)
     .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusMedium))

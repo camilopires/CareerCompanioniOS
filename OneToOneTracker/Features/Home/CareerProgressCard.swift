@@ -191,7 +191,37 @@ struct RecentAchievementsCard: View {
 // MARK: - Preview
 
 #Preview("Career Progress Card") {
-    ScrollView {
+    let previewGoals = [
+        CareerGoal(
+            title: "Become Senior Engineer",
+            category: .technical,
+            status: .inProgress,
+            priority: .primary,
+            progress: 45
+        ),
+        CareerGoal(
+            title: "Improve Public Speaking",
+            category: .communication,
+            status: .inProgress,
+            priority: .secondary,
+            progress: 30
+        )
+    ]
+
+    let previewAchievements = [
+        Achievement(
+            title: "Led API Migration Project",
+            dateAchieved: Date().addingTimeInterval(-86400 * 30),
+            tags: ["Technical Leadership"]
+        ),
+        Achievement(
+            title: "Mentored Junior Developer",
+            dateAchieved: Date().addingTimeInterval(-86400 * 14),
+            tags: ["Mentoring"]
+        )
+    ]
+
+    return ScrollView {
         VStack(spacing: Spacing.lg) {
             CareerProgressCard(viewModel: {
                 let vm = HomeViewModel()
@@ -201,7 +231,7 @@ struct RecentAchievementsCard: View {
             Divider()
 
             // With goals
-            GoalsOverviewCard(goals: CareerGoal.samples)
+            GoalsOverviewCard(goals: previewGoals)
 
             Divider()
 
@@ -211,7 +241,7 @@ struct RecentAchievementsCard: View {
             Divider()
 
             // Achievements
-            RecentAchievementsCard(achievements: Achievement.samples)
+            RecentAchievementsCard(achievements: previewAchievements)
         }
         .padding()
     }

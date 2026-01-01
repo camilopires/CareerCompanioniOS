@@ -309,7 +309,18 @@ private struct LinkedAchievementsSection: View {
 // MARK: - Preview
 
 #Preview("Goal Detail") {
-    NavigationStack {
-        GoalDetailView(goal: CareerGoal.sample)
+    let previewGoal = CareerGoal(
+        title: "Become Senior Engineer",
+        goalDescription: "Develop skills for promotion",
+        category: .technical,
+        targetDate: Date().addingTimeInterval(86400 * 180),
+        status: .inProgress,
+        priority: .primary,
+        successMetrics: "Lead 2 major projects, mentor junior developers",
+        progress: 45,
+        skills: ["System Design", "Mentoring", "Leadership"]
+    )
+    return NavigationStack {
+        GoalDetailView(goal: previewGoal)
     }
 }

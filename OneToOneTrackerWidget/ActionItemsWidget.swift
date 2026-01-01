@@ -20,10 +20,35 @@ struct ActionItemsWidget: Widget {
 // MARK: - Timeline Provider
 
 struct ActionItemsProvider: TimelineProvider {
+    private var placeholderItems: [ActionItem] {
+        [
+            ActionItem(
+                title: "Review Q4 objectives",
+                dueDate: Date().addingTimeInterval(86400 * 3),
+                priority: .high
+            ),
+            ActionItem(
+                title: "Schedule team retrospective",
+                dueDate: Date().addingTimeInterval(86400 * 7),
+                priority: .medium
+            ),
+            ActionItem(
+                title: "Update API documentation",
+                dueDate: Date().addingTimeInterval(-86400),
+                priority: .low
+            ),
+            ActionItem(
+                title: "Follow up on budget request",
+                priority: .high,
+                owner: .manager
+            )
+        ]
+    }
+
     func placeholder(in context: Context) -> ActionItemsEntry {
         ActionItemsEntry(
             date: Date(),
-            actionItems: ActionItem.samples.filter { $0.status != .completed },
+            actionItems: placeholderItems,
             openCount: 4,
             overdueCount: 1
         )
@@ -32,7 +57,7 @@ struct ActionItemsProvider: TimelineProvider {
     func getSnapshot(in context: Context, completion: @escaping (ActionItemsEntry) -> Void) {
         let entry = ActionItemsEntry(
             date: Date(),
-            actionItems: ActionItem.samples.filter { $0.status != .completed },
+            actionItems: placeholderItems,
             openCount: 4,
             overdueCount: 1
         )
@@ -298,12 +323,19 @@ struct LargeActionItemsView: View {
 
 // MARK: - Preview
 
+private let previewActionItems: [ActionItem] = [
+    ActionItem(title: "Review Q4 objectives", dueDate: Date().addingTimeInterval(86400 * 3), priority: .high),
+    ActionItem(title: "Schedule team retrospective", dueDate: Date().addingTimeInterval(86400 * 7), priority: .medium),
+    ActionItem(title: "Update API documentation", dueDate: Date().addingTimeInterval(-86400), priority: .low),
+    ActionItem(title: "Follow up on budget request", priority: .high, owner: .manager)
+]
+
 #Preview(as: .systemSmall) {
     ActionItemsWidget()
 } timeline: {
     ActionItemsEntry(
         date: Date(),
-        actionItems: ActionItem.samples,
+        actionItems: previewActionItems,
         openCount: 4,
         overdueCount: 1
     )
@@ -314,7 +346,7 @@ struct LargeActionItemsView: View {
 } timeline: {
     ActionItemsEntry(
         date: Date(),
-        actionItems: ActionItem.samples,
+        actionItems: previewActionItems,
         openCount: 4,
         overdueCount: 1
     )
@@ -325,7 +357,7 @@ struct LargeActionItemsView: View {
 } timeline: {
     ActionItemsEntry(
         date: Date(),
-        actionItems: ActionItem.samples,
+        actionItems: previewActionItems,
         openCount: 4,
         overdueCount: 1
     )

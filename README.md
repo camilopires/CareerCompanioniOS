@@ -17,6 +17,8 @@ OneToOne Tracker helps employees prepare for, conduct, and follow up on 1:1 meet
 ### Key Features
 
 - **1:1 Meeting Management** - Prepare agendas, capture notes, track action items
+- **IC & Manager Modes** - Switch between tracking meetings with your manager or your direct reports
+- **Demo Mode** - Explore the app with sample data before starting fresh
 - **Career Goals Tracking** - Set goals, track progress, record achievements
 - **Performance Reports** - Generate reports for performance reviews
 - **iOS Widgets** - Quick access to action items and upcoming meetings
@@ -128,7 +130,10 @@ OneToOneTracker/
 │   ├── CloudKit/
 │   │   ├── CloudKitManager.swift     # CloudKit operations
 │   │   └── CloudKitRecordable.swift  # Protocol for models
+│   ├── DemoData/
+│   │   └── DemoDataProvider.swift    # In-memory demo data
 │   └── Models/
+│       ├── AppSettings.swift         # App settings (demo mode, user role)
 │       ├── Enums.swift               # Status, Priority, etc.
 │       ├── Manager.swift
 │       ├── Meeting.swift
@@ -233,6 +238,17 @@ Achievement
 5. **Build and Run**
    - Select your target device/simulator
    - Press `Cmd + R` to build and run
+
+### Demo Mode
+
+OneToOne Tracker includes a Demo Mode that lets you explore the app with sample data before committing to your own data:
+
+1. **During Onboarding**: After the welcome slides, demo mode activates automatically
+2. **Explore with Sample Data**: Navigate through meetings, action items, and career goals
+3. **Start Fresh**: Tap "Start Fresh" in the bottom sheet to begin with your own data
+4. **Re-enable Anytime**: Toggle demo mode on/off in Settings
+
+Demo data is stored in-memory only and is never saved to your iCloud account.
 
 ### CloudKit Setup
 
@@ -357,13 +373,14 @@ Uses San Francisco (system font) with Dynamic Type:
 - [x] iOS widgets
 - [x] Export to Slack/Teams
 
-### v2.0 (Planned)
-- [ ] Multiple managers support
+### v2.0 (Current)
+- [x] Demo Mode for onboarding exploration
+- [x] IC/Manager mode switching
+- [x] Multiple people support (managers or direct reports)
 - [ ] Calendar integration
 - [ ] Siri Shortcuts
 - [ ] Apple Watch companion app
 - [ ] AI-powered suggestions
-- [ ] Team view for managers
 
 ---
 

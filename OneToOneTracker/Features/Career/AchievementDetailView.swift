@@ -303,7 +303,15 @@ struct FlowLayout: Layout {
 // MARK: - Preview
 
 #Preview("Achievement Detail") {
-    NavigationStack {
-        AchievementDetailView(achievement: Achievement.sample)
+    let previewAchievement = Achievement(
+        title: "Led API Migration Project",
+        achievementDescription: "Successfully led the migration of our legacy API to a new microservices architecture",
+        dateAchieved: Date().addingTimeInterval(-86400 * 30),
+        impactStatement: "Reduced API response times by 40% and improved system reliability to 99.9% uptime",
+        tags: ["Technical Leadership", "Architecture", "Performance"],
+        visibility: .manager
+    )
+    return NavigationStack {
+        AchievementDetailView(achievement: previewAchievement)
     }
 }

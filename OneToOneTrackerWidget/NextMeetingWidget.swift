@@ -20,10 +20,17 @@ struct NextMeetingWidget: Widget {
 // MARK: - Timeline Provider
 
 struct NextMeetingProvider: TimelineProvider {
+    private var placeholderMeeting: Meeting {
+        Meeting(
+            managerID: UUID(),
+            date: Date().addingTimeInterval(86400 * 2) // 2 days from now
+        )
+    }
+
     func placeholder(in context: Context) -> NextMeetingEntry {
         NextMeetingEntry(
             date: Date(),
-            meeting: Meeting.sample,
+            meeting: placeholderMeeting,
             managerName: "Sarah"
         )
     }
@@ -31,7 +38,7 @@ struct NextMeetingProvider: TimelineProvider {
     func getSnapshot(in context: Context, completion: @escaping (NextMeetingEntry) -> Void) {
         let entry = NextMeetingEntry(
             date: Date(),
-            meeting: Meeting.sample,
+            meeting: placeholderMeeting,
             managerName: "Sarah"
         )
         completion(entry)

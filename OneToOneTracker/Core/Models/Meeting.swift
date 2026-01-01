@@ -1,7 +1,7 @@
 import Foundation
 import CloudKit
 
-/// Represents a 1:1 meeting with a manager
+/// Represents a 1:1 meeting with a manager or direct report
 struct Meeting: CloudKitRecordable, Codable {
     static let recordType = "Meeting"
 
@@ -9,6 +9,7 @@ struct Meeting: CloudKitRecordable, Codable {
     var managerID: UUID
     var date: Date
     var status: MeetingStatus
+    var perspective: MeetingPerspective
     var notes: String
     var wentWell: [String]
     var didntGoWell: [String]
@@ -16,6 +17,7 @@ struct Meeting: CloudKitRecordable, Codable {
     var escalations: [String]
     var weekSentiment: Int?
     var meetingSentiment: Int?
+    var calendarEventID: String?
     let createdAt: Date
     var updatedAt: Date
 
@@ -41,6 +43,11 @@ struct Meeting: CloudKitRecordable, Codable {
         meetingSentiment.flatMap { Sentiment(rawValue: $0) }
     }
 
+    /// Whether the meeting is synced to the system calendar
+    var isSyncedToCalendar: Bool {
+        calendarEventID != nil
+    }
+
     // MARK: - Initialization
 
     init(
@@ -48,6 +55,7 @@ struct Meeting: CloudKitRecordable, Codable {
         managerID: UUID,
         date: Date,
         status: MeetingStatus = .scheduled,
+        perspective: MeetingPerspective = .asEmployee,
         notes: String = "",
         wentWell: [String] = [],
         didntGoWell: [String] = [],
@@ -55,6 +63,7 @@ struct Meeting: CloudKitRecordable, Codable {
         escalations: [String] = [],
         weekSentiment: Int? = nil,
         meetingSentiment: Int? = nil,
+        calendarEventID: String? = nil,
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
@@ -62,6 +71,7 @@ struct Meeting: CloudKitRecordable, Codable {
         self.managerID = managerID
         self.date = date
         self.status = status
+        self.perspective = perspective
         self.notes = notes
         self.wentWell = wentWell
         self.didntGoWell = didntGoWell
@@ -69,6 +79,7 @@ struct Meeting: CloudKitRecordable, Codable {
         self.escalations = escalations
         self.weekSentiment = weekSentiment
         self.meetingSentiment = meetingSentiment
+        self.calendarEventID = calendarEventID
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -104,6 +115,15 @@ struct Meeting: CloudKitRecordable, Codable {
         let meetingSentimentInt = record.integer(for: "meetingSentiment")
         self.meetingSentiment = meetingSentimentInt > 0 ? meetingSentimentInt : nil
 
+        // Parse perspective, defaulting to asEmployee for backwards compatibility
+        if let perspectiveString = record.string(for: "perspective"),
+           let perspective = MeetingPerspective(rawValue: perspectiveString) {
+            self.perspective = perspective
+        } else {
+            self.perspective = .asEmployee
+        }
+
+        self.calendarEventID = record.string(for: "calendarEventID")
         self.createdAt = createdAt
         self.updatedAt = record.date(for: "updatedAt") ?? createdAt
     }
@@ -114,6 +134,7 @@ struct Meeting: CloudKitRecordable, Codable {
         record["managerRef"] = CKRecord.Reference(recordID: managerRecordID, action: .none)
         record["date"] = date
         record["status"] = status.rawValue
+        record["perspective"] = perspective.rawValue
         record["notes"] = notes
         record.setStringArray(wentWell, for: "wentWell")
         record.setStringArray(didntGoWell, for: "didntGoWell")
@@ -121,6 +142,7 @@ struct Meeting: CloudKitRecordable, Codable {
         record.setStringArray(escalations, for: "escalations")
         record["weekSentiment"] = weekSentiment ?? 0
         record["meetingSentiment"] = meetingSentiment ?? 0
+        record["calendarEventID"] = calendarEventID
         record["createdAt"] = createdAt
         record["updatedAt"] = updatedAt
         return record
@@ -135,27 +157,4 @@ struct Meeting: CloudKitRecordable, Codable {
     static func == (lhs: Meeting, rhs: Meeting) -> Bool {
         lhs.id == rhs.id
     }
-}
-
-// MARK: - Sample Data
-
-extension Meeting {
-    static let sample = Meeting(
-        managerID: UUID(),
-        date: Date().addingTimeInterval(86400 * 7), // Next week
-        status: .scheduled
-    )
-
-    static let sampleCompleted = Meeting(
-        managerID: UUID(),
-        date: Date().addingTimeInterval(-86400 * 7), // Last week
-        status: .completed,
-        notes: "Great discussion about project progress",
-        wentWell: ["Completed the API integration", "Got positive feedback from stakeholders"],
-        didntGoWell: ["Missed the documentation deadline"],
-        blockers: ["Waiting for design assets"],
-        escalations: ["Need additional budget for cloud resources"],
-        weekSentiment: 4,
-        meetingSentiment: 5
-    )
 }

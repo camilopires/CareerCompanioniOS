@@ -318,24 +318,39 @@ On first run, Xcode will automatically:
 
 ## Accessibility
 
-This app is designed to meet **WCAG 2.1 AA** standards:
+This app is designed to meet **WCAG 2.1 AA** standards with comprehensive support for assistive technologies.
 
 ### Visual
-- **Color Contrast**: All text meets 4.5:1 minimum ratio
-- **Dynamic Type**: Full support for all text sizes
-- **Dark Mode**: Complete dark mode support
-- **Color Independence**: Information not conveyed by color alone
+- **Color Contrast**: All text meets 4.5:1 minimum ratio (documented in `Colors.swift`)
+- **Dynamic Type**: 100% support using semantic font styles
+- **Dark Mode**: Complete dark mode support with adaptive colors
+- **Color Independence**: Status indicators include text labels, not just colors
+- **High Contrast**: Enhanced colors when system high contrast is enabled
 
 ### Motor
-- **Touch Targets**: Minimum 44x44pt touch areas
+- **Touch Targets**: Minimum 44x44pt touch areas (defined in `Spacing.touchTarget`)
 - **Keyboard Navigation**: Full external keyboard support
-- **Reduce Motion**: Respects system motion preferences
+- **Reduce Motion**: All animations respect `UIAccessibility.isReduceMotionEnabled`
+  - Splash screen animations disabled
+  - Button scale effects disabled
+  - Progress ring animations disabled
+  - Page indicator animations disabled
 
-### Screen Reader
-- **VoiceOver**: All elements have accessibility labels
-- **Accessibility Hints**: Complex interactions explained
-- **Logical Reading Order**: Content flows naturally
-- **Custom Actions**: Swipe actions have alternatives
+### Screen Reader (VoiceOver)
+- **Accessibility Labels**: All interactive elements have descriptive labels
+- **Accessibility Hints**: Complex interactions explained (e.g., "Double tap to view details")
+- **Accessibility Traits**: Buttons, selected states, and other traits properly set
+- **Combined Elements**: Related content grouped for efficient navigation
+- **Hidden Decorative Elements**: Icons and images that don't convey information are hidden
+- **Dynamic Announcements**: Filter changes and completions announced to VoiceOver users
+- **Form Validation**: Disabled buttons explain why they're disabled
+
+### Testing
+The app includes an accessibility test suite (`OneToOneTrackerTests/Accessibility/`) covering:
+- Touch target size verification
+- Color contrast ratio calculations
+- Accessibility label validation
+- Component and screen-level tests
 
 ---
 
@@ -488,7 +503,7 @@ Uses San Francisco (system font) with Dynamic Type:
   - Tappable empty states that open AddPersonView directly
   - Seamless person creation during meeting scheduling
 
-### v2.6 (Current)
+### v2.6
 - [x] **App Branding & Logo**
   - Custom app icon with Career Companion logo
   - Logo displayed on onboarding welcome screen
@@ -501,6 +516,25 @@ Uses San Francisco (system font) with Dynamic Type:
 - [x] **Branding Consistency**
   - Updated all "OneToOne" references to "Career Companion"
   - Premium features now branded as "Career Companion Premium"
+
+### v2.7 (Current)
+- [x] **Comprehensive Accessibility Audit**
+  - Full WCAG 2.1 AA compliance review
+  - 16 files updated with accessibility improvements
+- [x] **Reduce Motion Support**
+  - All animations now respect system reduce motion setting
+  - SentimentPicker, ProgressRing, Card, Theme button styles
+  - Onboarding page indicators and transitions
+- [x] **VoiceOver Improvements**
+  - Filter changes announce item counts
+  - Action item completion announcements
+  - Form validation hints on disabled buttons
+  - Goal status included in progress ring labels
+  - PersonRow includes relationship type in labels
+- [x] **Accessibility Test Suite**
+  - AccessibilityTestCase base class with helpers
+  - Component accessibility tests
+  - Screen-level accessibility tests
 
 ### Future
 - [ ] Integration APIs (Slack, Teams, Notion)

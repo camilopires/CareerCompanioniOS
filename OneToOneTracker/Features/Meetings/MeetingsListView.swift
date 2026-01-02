@@ -111,6 +111,13 @@ private struct MeetingsList: View {
             }
         }
         .listStyle(.insetGrouped)
+        .onChange(of: viewModel.relationshipFilter) { _, newValue in
+            let upcomingCount = viewModel.upcomingMeetings.count
+            let pastCount = viewModel.pastMeetings.count
+            let total = upcomingCount + pastCount
+            let message = "\(total) \(newValue.rawValue.lowercased()) meeting\(total == 1 ? "" : "s")"
+            UIAccessibility.post(notification: .announcement, argument: message)
+        }
     }
 }
 
@@ -324,6 +331,7 @@ struct AddMeetingView: View {
                         dismiss()
                     }
                     .disabled(selectedManagerID == nil)
+                    .accessibilityHint(selectedManagerID != nil ? "Creates new meeting" : "Select a person to enable this button")
                 }
             }
             .onAppear {

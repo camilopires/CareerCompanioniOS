@@ -69,6 +69,8 @@ struct ActionItemRow: View {
             Button(action: {
                 isCompleting = true
                 onComplete()
+                Theme.successHaptic()
+                UIAccessibility.post(notification: .announcement, argument: "\(item.title) marked complete")
             }) {
                 ZStack {
                     Circle()

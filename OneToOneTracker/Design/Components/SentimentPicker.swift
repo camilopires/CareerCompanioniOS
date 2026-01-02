@@ -18,7 +18,7 @@ struct SentimentPicker: View {
                         isSelected: selectedSentiment == sentiment.rawValue,
                         action: {
                             Theme.selectionHaptic()
-                            withAnimation(Theme.springAnimation) {
+                            withAnimation(Theme.animation(Theme.springAnimation)) {
                                 if selectedSentiment == sentiment.rawValue {
                                     selectedSentiment = nil
                                 } else {
@@ -47,13 +47,13 @@ private struct SentimentButton: View {
             VStack(spacing: Spacing.xxs) {
                 Text(sentiment.emoji)
                     .font(Typography.sentiment)
-                    .scaleEffect(isSelected ? 1.2 : 1.0)
+                    .scaleEffect(UIAccessibility.isReduceMotionEnabled ? 1.0 : (isSelected ? 1.2 : 1.0))
 
                 if isSelected {
                     Circle()
                         .fill(sentiment.color)
                         .frame(width: 6, height: 6)
-                        .transition(.scale.combined(with: .opacity))
+                        .transition(UIAccessibility.isReduceMotionEnabled ? .opacity : .scale.combined(with: .opacity))
                 }
             }
             .frame(minWidth: Spacing.touchTarget, minHeight: Spacing.touchTarget)
@@ -63,7 +63,7 @@ private struct SentimentButton: View {
             )
         }
         .buttonStyle(.plain)
-        .animation(Theme.springAnimation, value: isSelected)
+        .accessibleAnimation(Theme.springAnimation, value: isSelected)
         .accessibilityLabel(sentiment.accessibilityLabel)
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
     }
@@ -100,14 +100,14 @@ struct InlineSentimentPicker: View {
             ForEach(Sentiment.allCases) { sentiment in
                 Button {
                     Theme.selectionHaptic()
-                    withAnimation(Theme.springAnimation) {
+                    withAnimation(Theme.animation(Theme.springAnimation)) {
                         selectedSentiment = sentiment.rawValue
                     }
                 } label: {
                     Text(sentiment.emoji)
                         .font(.title2)
                         .opacity(selectedSentiment == sentiment.rawValue ? 1.0 : 0.4)
-                        .scaleEffect(selectedSentiment == sentiment.rawValue ? 1.1 : 1.0)
+                        .scaleEffect(UIAccessibility.isReduceMotionEnabled ? 1.0 : (selectedSentiment == sentiment.rawValue ? 1.1 : 1.0))
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(sentiment.accessibilityLabel)
@@ -149,6 +149,14 @@ struct SentimentSummary: View {
             case .neutral: return Colors.textTertiary
             }
         }
+
+        var accessibilityDescription: String {
+            switch self {
+            case .up: return "trending up"
+            case .down: return "trending down"
+            case .neutral: return "no change"
+            }
+        }
     }
 
     var body: some View {
@@ -163,7 +171,7 @@ struct SentimentSummary: View {
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(currentSentiment.displayName), trend: \(trend)")
+        .accessibilityLabel("\(currentSentiment.displayName), \(trend.accessibilityDescription)")
     }
 }
 

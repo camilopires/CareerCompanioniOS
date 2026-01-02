@@ -64,6 +64,11 @@ struct ActionItemsListView: View {
         .task {
             await viewModel.loadItems()
         }
+        .onChange(of: selectedFilter) { _, newValue in
+            let count = viewModel.filteredItems(for: newValue).count
+            let message = "\(count) \(newValue.displayName.lowercased()) item\(count == 1 ? "" : "s")"
+            UIAccessibility.post(notification: .announcement, argument: message)
+        }
     }
 }
 

@@ -66,6 +66,11 @@ struct GoalsListView: View {
         .task {
             await viewModel.loadGoals()
         }
+        .onChange(of: selectedFilter) { _, newValue in
+            let count = viewModel.filteredGoals(for: newValue).count
+            let message = "\(count) \(newValue.displayName.lowercased()) goal\(count == 1 ? "" : "s")"
+            UIAccessibility.post(notification: .announcement, argument: message)
+        }
     }
 }
 

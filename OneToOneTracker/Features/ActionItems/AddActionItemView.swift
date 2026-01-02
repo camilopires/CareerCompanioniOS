@@ -67,6 +67,7 @@ struct AddActionItemView: View {
                         addItem()
                     }
                     .disabled(!isValid)
+                    .accessibilityHint(isValid ? "Creates new action item" : "Enter a title to enable this button")
                 }
             }
         }

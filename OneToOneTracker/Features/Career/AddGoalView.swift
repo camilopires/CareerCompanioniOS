@@ -79,6 +79,7 @@ struct AddGoalView: View {
                         addGoal()
                     }
                     .disabled(!isValid)
+                    .accessibilityHint(isValid ? "Creates new goal" : "Enter a title to enable this button")
                 }
             }
         }

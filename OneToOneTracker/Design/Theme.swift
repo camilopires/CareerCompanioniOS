@@ -130,8 +130,8 @@ struct PrimaryButtonStyle: ButtonStyle {
                     .fill(isEnabled ? Color.accentColor : Colors.disabled)
             )
             .opacity(configuration.isPressed ? 0.8 : 1.0)
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .animation(Theme.springAnimation, value: configuration.isPressed)
+            .scaleEffect(UIAccessibility.isReduceMotionEnabled ? 1.0 : (configuration.isPressed ? 0.98 : 1.0))
+            .accessibleAnimation(Theme.springAnimation, value: configuration.isPressed)
     }
 }
 
@@ -150,7 +150,7 @@ struct SecondaryButtonStyle: ButtonStyle {
                     .strokeBorder(isEnabled ? Color.accentColor : Colors.disabled, lineWidth: 1.5)
             )
             .opacity(configuration.isPressed ? 0.7 : 1.0)
-            .animation(Theme.springAnimation, value: configuration.isPressed)
+            .accessibleAnimation(Theme.springAnimation, value: configuration.isPressed)
     }
 }
 

@@ -34,7 +34,7 @@ struct ProgressRing: View {
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
-                .animation(Theme.springAnimation, value: clampedProgress)
+                .accessibleAnimation(Theme.springAnimation, value: clampedProgress)
 
             // Percentage text
             if showPercentage {
@@ -116,6 +116,8 @@ struct GoalProgressRing: View {
             size: 60,
             progressColor: progressColor
         )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(goal.title), \(Int(goal.progressPercentage * 100)) percent, \(goal.status.displayName)")
     }
 }
 
@@ -144,7 +146,7 @@ struct ProgressBar: View {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(progressColor)
                     .frame(width: geometry.size.width * clampedProgress)
-                    .animation(Theme.springAnimation, value: clampedProgress)
+                    .accessibleAnimation(Theme.springAnimation, value: clampedProgress)
             }
         }
         .frame(height: height)

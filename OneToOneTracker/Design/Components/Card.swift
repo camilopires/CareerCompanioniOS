@@ -120,9 +120,9 @@ struct TappableCard<Content: View>: View {
 struct CardButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .scaleEffect(UIAccessibility.isReduceMotionEnabled ? 1.0 : (configuration.isPressed ? 0.98 : 1.0))
             .opacity(configuration.isPressed ? 0.9 : 1.0)
-            .animation(Theme.springAnimation, value: configuration.isPressed)
+            .accessibleAnimation(Theme.springAnimation, value: configuration.isPressed)
     }
 }
 

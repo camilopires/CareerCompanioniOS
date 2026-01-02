@@ -46,6 +46,22 @@ struct PersonRow: View {
 
             Spacer()
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabelText)
+    }
+
+    private var accessibilityLabelText: String {
+        var parts = [person.name]
+        if showRelationshipType {
+            parts.append(person.relationshipType)
+        }
+        if let email = person.email {
+            parts.append(email)
+        }
+        if !person.tags.isEmpty {
+            parts.append("Tags: \(person.tags.joined(separator: ", "))")
+        }
+        return parts.joined(separator: ", ")
     }
 }
 

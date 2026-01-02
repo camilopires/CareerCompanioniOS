@@ -46,7 +46,7 @@ struct OnboardingView: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .animation(.easeInOut, value: currentPage)
+            .accessibleAnimation(.easeInOut, value: currentPage)
 
             // Page indicator
             HStack(spacing: Spacing.sm) {
@@ -54,11 +54,13 @@ struct OnboardingView: View {
                     Circle()
                         .fill(currentPage == index ? Color.accentColor : Colors.textTertiary)
                         .frame(width: 8, height: 8)
-                        .scaleEffect(currentPage == index ? 1.2 : 1.0)
-                        .animation(.spring(), value: currentPage)
+                        .scaleEffect(UIAccessibility.isReduceMotionEnabled ? 1.0 : (currentPage == index ? 1.2 : 1.0))
+                        .accessibleAnimation(.spring(), value: currentPage)
                 }
             }
             .padding()
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Page \(currentPage + 1) of \(pages.count)")
 
             // Actions
             VStack(spacing: Spacing.md) {

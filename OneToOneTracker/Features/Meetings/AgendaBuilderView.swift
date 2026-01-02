@@ -302,6 +302,7 @@ private struct AgendaItemRow: View {
             }
         }
         .accessibilityElement(children: .combine)
+        .accessibilityHint("Use edit mode to reorder agenda items")
     }
 
     private func saveEdit() {

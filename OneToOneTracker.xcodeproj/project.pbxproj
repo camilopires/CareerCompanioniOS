@@ -56,6 +56,7 @@
 		A1000009001 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009001 /* SettingsView.swift */; };
 		A1000009002 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009002 /* OnboardingView.swift */; };
 		A1000009003 /* DemoModeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009003 /* DemoModeSheet.swift */; };
+		A1000009004 /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009004 /* SplashScreenView.swift */; };
 		A100000A001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A200000A001 /* Assets.xcassets */; };
 		A100010001 /* OneToOneTracker/Core/DemoData/DemoDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200010001 /* OneToOneTracker/Core/DemoData/DemoDataProvider.swift */; };
 		A100011001 /* ExportImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011001 /* ExportImportService.swift */; };
@@ -177,6 +178,7 @@
 		A2000009001 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A2000009002 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		A2000009003 /* DemoModeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoModeSheet.swift; sourceTree = "<group>"; };
+		A2000009004 /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
 		A200000A001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A200000B001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A200000C001 /* OneToOneTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneToOneTracker.entitlements; sourceTree = "<group>"; };
@@ -428,6 +430,7 @@
 			children = (
 				A2000009002 /* OnboardingView.swift */,
 				A2000009003 /* DemoModeSheet.swift */,
+				A2000009004 /* SplashScreenView.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -683,6 +686,7 @@
 				A1000009001 /* SettingsView.swift in Sources */,
 				A1000009002 /* OnboardingView.swift in Sources */,
 				A1000009003 /* DemoModeSheet.swift in Sources */,
+				A1000009004 /* SplashScreenView.swift in Sources */,
 				A1000003008 /* AppSettings.swift in Sources */,
 				A1000005006 /* ICDashboardView.swift in Sources */,
 				A1000005007 /* ManagerDashboardView.swift in Sources */,

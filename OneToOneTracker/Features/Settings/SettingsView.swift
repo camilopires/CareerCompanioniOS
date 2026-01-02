@@ -306,9 +306,12 @@ struct AboutView: View {
             VStack(spacing: Spacing.xl) {
                 // App icon and name
                 VStack(spacing: Spacing.md) {
-                    Image(systemName: "person.2.circle.fill")
-                        .font(.system(size: 80))
-                        .foregroundStyle(Color.accentColor)
+                    Image("AppLogo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 100, height: 100)
+                        .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusMedium))
+                        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
 
                     Text("Career Companion")
                         .font(Typography.title1)

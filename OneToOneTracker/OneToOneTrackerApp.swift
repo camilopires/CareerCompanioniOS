@@ -8,10 +8,12 @@ struct OneToOneTrackerApp: App {
     @State private var isDemoMode = AppSettings.shared.isDemoMode
     @State private var showDemoSheet = false
     @State private var showSetupView = false
+    @State private var showSplash = true
 
     var body: some Scene {
         WindowGroup {
-            if hasCompletedOnboarding {
+            ZStack {
+                if hasCompletedOnboarding {
                 MainTabView()
                     .environmentObject(cloudKitManager)
                     .sheet(isPresented: $showDemoSheet) {
@@ -26,14 +28,26 @@ struct OneToOneTrackerApp: App {
                             showDemoSheet = true
                         }
                     }
-            } else {
-                OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding, isDemoMode: $isDemoMode)
-                    .environmentObject(cloudKitManager)
-                    .onChange(of: hasCompletedOnboarding) { _, completed in
-                        if completed && isDemoMode {
-                            showDemoSheet = true
+                } else {
+                    OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding, isDemoMode: $isDemoMode)
+                        .environmentObject(cloudKitManager)
+                        .onChange(of: hasCompletedOnboarding) { _, completed in
+                            if completed && isDemoMode {
+                                showDemoSheet = true
+                            }
+                        }
+                }
+
+                // Splash screen overlay
+                if showSplash {
+                    SplashScreenView {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            showSplash = false
                         }
                     }
+                    .transition(.opacity)
+                    .zIndex(1)
+                }
             }
         }
     }

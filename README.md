@@ -32,6 +32,7 @@ Career Companion helps employees prepare for, conduct, and follow up on 1:1 meet
 - **Data Export/Import** - Full backup to JSON/CSV, restore from backup
 - **iOS Widgets** - Quick access to action items and upcoming meetings
 - **Export & Share** - Copy agendas to Slack, Teams, or email
+- **Animated Splash Screen** - Beautiful launch animation with custom branding
 
 ---
 
@@ -197,6 +198,9 @@ CareerCompanion/
 │   │   ├── ExportView.swift
 │   │   └── ImportView.swift
 │   └── Onboarding/
+│       ├── OnboardingView.swift
+│       ├── DemoModeSheet.swift
+│       └── SplashScreenView.swift      # Animated launch screen
 ├── CareerCompanionWidget/
 │   ├── ActionItemsWidget.swift
 │   ├── NextMeetingWidget.swift
@@ -474,7 +478,7 @@ Uses San Francisco (system font) with Dynamic Type:
   - Restore purchases support
   - Premium status in Settings
 
-### v2.5 (Current)
+### v2.5
 - [x] **People Quick Access** - Manage people directly from dashboards
   - "Add Your First Person" button when no people exist (no more "Go to Settings")
   - "Add a new person" option at top of person picker when scheduling meetings
@@ -483,6 +487,20 @@ Uses San Francisco (system font) with Dynamic Type:
 - [x] **Improved UX Flow**
   - Tappable empty states that open AddPersonView directly
   - Seamless person creation during meeting scheduling
+
+### v2.6 (Current)
+- [x] **App Branding & Logo**
+  - Custom app icon with Career Companion logo
+  - Logo displayed on onboarding welcome screen
+  - Logo in Settings > About screen
+- [x] **Animated Splash Screen**
+  - Beautiful launch animation with logo
+  - Characters animate upward toward the star
+  - Spring animation with haptic feedback
+  - Respects reduce motion accessibility setting
+- [x] **Branding Consistency**
+  - Updated all "OneToOne" references to "Career Companion"
+  - Premium features now branded as "Career Companion Premium"
 
 ### Future
 - [ ] Integration APIs (Slack, Teams, Notion)

@@ -276,7 +276,7 @@ final class ExportImportService: ObservableObject {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         let dateString = dateFormatter.string(from: Date())
-        return "OneToOneTracker-\(dateString).\(format.fileExtension)"
+        return "CareerCompanion-\(dateString).\(format.fileExtension)"
     }
 
     // MARK: - Import

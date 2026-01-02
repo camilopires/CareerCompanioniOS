@@ -15,7 +15,7 @@ struct PremiumSettingsSection: View {
                 freeUserRow
             }
         } header: {
-            Label("OneToOne Premium", systemImage: "crown.fill")
+            Label("Career Companion Premium", systemImage: "crown.fill")
         }
         .sheet(isPresented: $showingUpgrade) {
             UpgradeView()

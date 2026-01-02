@@ -34,7 +34,7 @@ struct UpgradeView: View {
                 .padding(.bottom, Spacing.xxl)
             }
             .background(Colors.backgroundGrouped)
-            .navigationTitle("OneToOne Premium")
+            .navigationTitle("Career Companion Premium")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

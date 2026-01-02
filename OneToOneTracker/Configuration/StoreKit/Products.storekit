@@ -11,12 +11,12 @@
       "localizations" : [
         {
           "description" : "Unlock all premium features forever. One-time purchase.",
-          "displayName" : "OneToOne Premium",
+          "displayName" : "Career Companion Premium",
           "locale" : "en_GB"
         },
         {
           "description" : "Unlock all premium features forever. One-time purchase.",
-          "displayName" : "OneToOne Premium",
+          "displayName" : "Career Companion Premium",
           "locale" : "en_US"
         }
       ],

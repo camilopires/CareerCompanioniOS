@@ -13,7 +13,8 @@ struct OnboardingView: View {
             icon: "person.2.circle.fill",
             title: "Welcome to Career Companion",
             description: "Prepare for your 1:1 meetings, capture action items, and track your career growth.",
-            color: .accentColor
+            color: .accentColor,
+            useAppLogo: true
         ),
         OnboardingPage(
             icon: "lock.shield.fill",
@@ -101,6 +102,7 @@ struct OnboardingPage {
     let title: String
     let description: String
     let color: Color
+    var useAppLogo: Bool = false
 }
 
 struct OnboardingPageView: View {
@@ -110,10 +112,20 @@ struct OnboardingPageView: View {
         VStack(spacing: Spacing.xl) {
             Spacer()
 
-            Image(systemName: page.icon)
-                .font(.system(size: 100))
-                .foregroundStyle(page.color)
-                .accessibilityHidden(true)
+            if page.useAppLogo {
+                Image("AppLogo")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 140, height: 140)
+                    .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusLarge))
+                    .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
+                    .accessibilityHidden(true)
+            } else {
+                Image(systemName: page.icon)
+                    .font(.system(size: 100))
+                    .foregroundStyle(page.color)
+                    .accessibilityHidden(true)
+            }
 
             VStack(spacing: Spacing.md) {
                 Text(page.title)

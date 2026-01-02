@@ -2,7 +2,7 @@ import WidgetKit
 import SwiftUI
 
 @main
-struct OneToOneTrackerWidgetBundle: WidgetBundle {
+struct CareerCompanionWidgetBundle: WidgetBundle {
     var body: some Widget {
         ActionItemsWidget()
         NextMeetingWidget()

@@ -850,9 +850,9 @@ PerformanceReport
 ## Project Structure
 
 ```
-OneToOneTrackeriOS/
-├── OneToOneTracker/
-│   ├── OneToOneTrackerApp.swift
+CareerCompanioniOS/
+├── CareerCompanion/
+│   ├── CareerCompanionApp.swift
 │   ├── Core/
 │   │   ├── CloudKit/
 │   │   │   ├── CloudKitManager.swift
@@ -902,13 +902,13 @@ OneToOneTrackeriOS/
 │       │   ├── ExportView.swift
 │       │   └── ImportView.swift
 │       └── Onboarding/
-├── OneToOneTrackerWidget/
+├── CareerCompanionWidget/
 │   ├── ActionItemsWidget.swift
 │   ├── NextMeetingWidget.swift
 │   ├── CareerGoalsWidget.swift
 │   └── WidgetBundle.swift
-├── OneToOneTrackerWatch/
-│   ├── OneToOneTrackerWatchApp.swift
+├── CareerCompanionWatch/
+│   ├── CareerCompanionWatchApp.swift
 │   ├── WatchHomeView.swift
 │   ├── WatchHomeViewModel.swift
 │   ├── WatchMeetingDetailView.swift

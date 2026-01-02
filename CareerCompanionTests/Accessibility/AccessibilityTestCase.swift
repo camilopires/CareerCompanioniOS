@@ -1,6 +1,6 @@
 import XCTest
 import SwiftUI
-@testable import OneToOneTracker
+@testable import CareerCompanion
 
 /// Base class for accessibility tests with common helpers
 class AccessibilityTestCase: XCTestCase {

@@ -199,7 +199,7 @@ extension AppSettings {
 
 ### Settings Integration
 
-- "OneToOne Premium" section in Settings
+- "Career Companion Premium" section in Settings
 - Current status (Free/Trial/Premium)
 - Trial days remaining (if applicable)
 - Upgrade button (if not premium)

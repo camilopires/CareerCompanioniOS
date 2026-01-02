@@ -346,7 +346,7 @@ This app is designed to meet **WCAG 2.1 AA** standards with comprehensive suppor
 - **Form Validation**: Disabled buttons explain why they're disabled
 
 ### Testing
-The app includes an accessibility test suite (`OneToOneTrackerTests/Accessibility/`) covering:
+The app includes an accessibility test suite (`CareerCompanionTests/Accessibility/`) covering:
 - Touch target size verification
 - Color contrast ratio calculations
 - Accessibility label validation

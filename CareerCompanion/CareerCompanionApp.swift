@@ -2,7 +2,7 @@ import SwiftUI
 import CloudKit
 
 @main
-struct OneToOneTrackerApp: App {
+struct CareerCompanionApp: App {
     @StateObject private var cloudKitManager = CloudKitManager.shared
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var isDemoMode = AppSettings.shared.isDemoMode

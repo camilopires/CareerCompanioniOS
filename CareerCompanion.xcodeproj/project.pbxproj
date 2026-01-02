@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A1000001001 /* OneToOneTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001001 /* OneToOneTrackerApp.swift */; };
+		A1000001001 /* CareerCompanionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001001 /* CareerCompanionApp.swift */; };
 		A1000002001 /* CloudKitRecordable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002001 /* CloudKitRecordable.swift */; };
 		A1000002002 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002002 /* CloudKitManager.swift */; };
 		A1000003001 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003001 /* Enums.swift */; };
@@ -58,7 +58,7 @@
 		A1000009003 /* DemoModeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009003 /* DemoModeSheet.swift */; };
 		A1000009004 /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000009004 /* SplashScreenView.swift */; };
 		A100000A001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A200000A001 /* Assets.xcassets */; };
-		A100010001 /* OneToOneTracker/Core/DemoData/DemoDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200010001 /* OneToOneTracker/Core/DemoData/DemoDataProvider.swift */; };
+		A100010001 /* CareerCompanion/Core/DemoData/DemoDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200010001 /* CareerCompanion/Core/DemoData/DemoDataProvider.swift */; };
 		A100011001 /* ExportImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011001 /* ExportImportService.swift */; };
 		A100011002 /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011002 /* ExportView.swift */; };
 		A100011003 /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011003 /* ImportView.swift */; };
@@ -86,8 +86,8 @@
 		B1000003003 /* Meeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003003 /* Meeting.swift */; };
 		B1000003005 /* ActionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003005 /* ActionItem.swift */; };
 		B1000003006 /* CareerGoal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003006 /* CareerGoal.swift */; };
-		B1000009001 /* OneToOneTrackerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B3000001001 /* OneToOneTrackerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		W1000001001 /* OneToOneTrackerWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001001 /* OneToOneTrackerWatchApp.swift */; };
+		B1000009001 /* CareerCompanionWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B3000001001 /* CareerCompanionWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		W1000001001 /* CareerCompanionWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001001 /* CareerCompanionWatchApp.swift */; };
 		W1000001002 /* WatchHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001002 /* WatchHomeView.swift */; };
 		W1000001003 /* WatchHomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001003 /* WatchHomeViewModel.swift */; };
 		W1000001004 /* WatchMeetingDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001004 /* WatchMeetingDetailView.swift */; };
@@ -101,7 +101,7 @@
 		W1000003005 /* ActionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003005 /* ActionItem.swift */; };
 		W1000003008 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003008 /* AppSettings.swift */; };
 		W100000A001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = W200000A001 /* Assets.xcassets */; };
-		W1000010001 /* OneToOneTracker/Core/DemoData/DemoDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200010001 /* OneToOneTracker/Core/DemoData/DemoDataProvider.swift */; };
+		W1000010001 /* CareerCompanion/Core/DemoData/DemoDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200010001 /* CareerCompanion/Core/DemoData/DemoDataProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -110,7 +110,7 @@
 			containerPortal = C1000001001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = B3000002001;
-			remoteInfo = OneToOneTrackerWidgetExtension;
+			remoteInfo = CareerCompanionWidgetExtension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -121,7 +121,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				B1000009001 /* OneToOneTrackerWidgetExtension.appex in Embed Foundation Extensions */,
+				B1000009001 /* CareerCompanionWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -129,7 +129,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		A2000001001 /* OneToOneTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneToOneTrackerApp.swift; sourceTree = "<group>"; };
+		A2000001001 /* CareerCompanionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerCompanionApp.swift; sourceTree = "<group>"; };
 		A2000002001 /* CloudKitRecordable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitRecordable.swift; sourceTree = "<group>"; };
 		A2000002002 /* CloudKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitManager.swift; sourceTree = "<group>"; };
 		A2000003001 /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
@@ -181,8 +181,8 @@
 		A2000009004 /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
 		A200000A001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A200000B001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A200000C001 /* OneToOneTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneToOneTracker.entitlements; sourceTree = "<group>"; };
-		A200010001 /* OneToOneTracker/Core/DemoData/DemoDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneToOneTracker/Core/DemoData/DemoDataProvider.swift; sourceTree = SOURCE_ROOT; };
+		A200000C001 /* CareerCompanion.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CareerCompanion.entitlements; sourceTree = "<group>"; };
+		A200010001 /* CareerCompanion/Core/DemoData/DemoDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerCompanion/Core/DemoData/DemoDataProvider.swift; sourceTree = SOURCE_ROOT; };
 		A200011001 /* ExportImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportImportService.swift; sourceTree = "<group>"; };
 		A200011002 /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
 		A200011003 /* ImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportView.swift; sourceTree = "<group>"; };
@@ -199,15 +199,15 @@
 		A200013001 /* PersonRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonRow.swift; sourceTree = "<group>"; };
 		A200013002 /* AddPersonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPersonView.swift; sourceTree = "<group>"; };
 		A200013003 /* PeopleListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleListView.swift; sourceTree = "<group>"; };
-		A3000001001 /* OneToOneTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneToOneTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A3000001001 /* CareerCompanion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CareerCompanion.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2000001001 /* WidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBundle.swift; sourceTree = "<group>"; };
 		B2000001002 /* ActionItemsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionItemsWidget.swift; sourceTree = "<group>"; };
 		B2000001003 /* NextMeetingWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextMeetingWidget.swift; sourceTree = "<group>"; };
 		B2000001004 /* CareerGoalsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerGoalsWidget.swift; sourceTree = "<group>"; };
 		B200000B001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B200000C001 /* OneToOneTrackerWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneToOneTrackerWidget.entitlements; sourceTree = "<group>"; };
-		B3000001001 /* OneToOneTrackerWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OneToOneTrackerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		W2000001001 /* OneToOneTrackerWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneToOneTrackerWatchApp.swift; sourceTree = "<group>"; };
+		B200000C001 /* CareerCompanionWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CareerCompanionWidget.entitlements; sourceTree = "<group>"; };
+		B3000001001 /* CareerCompanionWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CareerCompanionWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		W2000001001 /* CareerCompanionWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerCompanionWatchApp.swift; sourceTree = "<group>"; };
 		W2000001002 /* WatchHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchHomeView.swift; sourceTree = "<group>"; };
 		W2000001003 /* WatchHomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchHomeViewModel.swift; sourceTree = "<group>"; };
 		W2000001004 /* WatchMeetingDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchMeetingDetailView.swift; sourceTree = "<group>"; };
@@ -215,7 +215,7 @@
 		W2000001006 /* WatchQuickLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchQuickLogView.swift; sourceTree = "<group>"; };
 		W200000A001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		W200000B001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		W3000001001 /* OneToOneTrackerWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneToOneTrackerWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		W3000001001 /* CareerCompanionWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CareerCompanionWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -246,7 +246,7 @@
 		C0292BCF2F0705760025E8A5 /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
-				A200010001 /* OneToOneTracker/Core/DemoData/DemoDataProvider.swift */,
+				A200010001 /* CareerCompanion/Core/DemoData/DemoDataProvider.swift */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -254,26 +254,26 @@
 		C2000001001 = {
 			isa = PBXGroup;
 			children = (
-				C2000002001 /* OneToOneTracker */,
-				C2000003001 /* OneToOneTrackerWidget */,
-				C2000005001 /* OneToOneTrackerWatch */,
+				C2000002001 /* CareerCompanion */,
+				C2000003001 /* CareerCompanionWidget */,
+				C2000005001 /* CareerCompanionWatch */,
 				C2000004001 /* Products */,
 				C0292BCF2F0705760025E8A5 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
-		C2000002001 /* OneToOneTracker */ = {
+		C2000002001 /* CareerCompanion */ = {
 			isa = PBXGroup;
 			children = (
-				A2000001001 /* OneToOneTrackerApp.swift */,
+				A2000001001 /* CareerCompanionApp.swift */,
 				C2000002002 /* Core */,
 				C2000002003 /* Design */,
 				C2000002004 /* Features */,
 				C2000002005 /* Resources */,
 				A200000B001 /* Info.plist */,
-				A200000C001 /* OneToOneTracker.entitlements */,
+				A200000C001 /* CareerCompanion.entitlements */,
 			);
-			path = OneToOneTracker;
+			path = CareerCompanion;
 			sourceTree = "<group>";
 		};
 		C2000002002 /* Core */ = {
@@ -474,7 +474,7 @@
 			path = People;
 			sourceTree = "<group>";
 		};
-		C2000003001 /* OneToOneTrackerWidget */ = {
+		C2000003001 /* CareerCompanionWidget */ = {
 			isa = PBXGroup;
 			children = (
 				B2000001001 /* WidgetBundle.swift */,
@@ -482,25 +482,25 @@
 				B2000001003 /* NextMeetingWidget.swift */,
 				B2000001004 /* CareerGoalsWidget.swift */,
 				B200000B001 /* Info.plist */,
-				B200000C001 /* OneToOneTrackerWidget.entitlements */,
+				B200000C001 /* CareerCompanionWidget.entitlements */,
 			);
-			path = OneToOneTrackerWidget;
+			path = CareerCompanionWidget;
 			sourceTree = "<group>";
 		};
 		C2000004001 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A3000001001 /* OneToOneTracker.app */,
-				B3000001001 /* OneToOneTrackerWidgetExtension.appex */,
-				W3000001001 /* OneToOneTrackerWatch.app */,
+				A3000001001 /* CareerCompanion.app */,
+				B3000001001 /* CareerCompanionWidgetExtension.appex */,
+				W3000001001 /* CareerCompanionWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		C2000005001 /* OneToOneTrackerWatch */ = {
+		C2000005001 /* CareerCompanionWatch */ = {
 			isa = PBXGroup;
 			children = (
-				W2000001001 /* OneToOneTrackerWatchApp.swift */,
+				W2000001001 /* CareerCompanionWatchApp.swift */,
 				W2000001002 /* WatchHomeView.swift */,
 				W2000001003 /* WatchHomeViewModel.swift */,
 				W2000001004 /* WatchMeetingDetailView.swift */,
@@ -509,15 +509,15 @@
 				W200000A001 /* Assets.xcassets */,
 				W200000B001 /* Info.plist */,
 			);
-			path = OneToOneTrackerWatch;
+			path = CareerCompanionWatch;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A3000002001 /* OneToOneTracker */ = {
+		A3000002001 /* CareerCompanion */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D1000001001 /* Build configuration list for PBXNativeTarget "OneToOneTracker" */;
+			buildConfigurationList = D1000001001 /* Build configuration list for PBXNativeTarget "CareerCompanion" */;
 			buildPhases = (
 				A7000001001 /* Sources */,
 				A6000001001 /* Frameworks */,
@@ -529,14 +529,14 @@
 			dependencies = (
 				B4000002001 /* PBXTargetDependency */,
 			);
-			name = OneToOneTracker;
-			productName = OneToOneTracker;
-			productReference = A3000001001 /* OneToOneTracker.app */;
+			name = CareerCompanion;
+			productName = CareerCompanion;
+			productReference = A3000001001 /* CareerCompanion.app */;
 			productType = "com.apple.product-type.application";
 		};
-		B3000002001 /* OneToOneTrackerWidgetExtension */ = {
+		B3000002001 /* CareerCompanionWidgetExtension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D1000002001 /* Build configuration list for PBXNativeTarget "OneToOneTrackerWidgetExtension" */;
+			buildConfigurationList = D1000002001 /* Build configuration list for PBXNativeTarget "CareerCompanionWidgetExtension" */;
 			buildPhases = (
 				B7000001001 /* Sources */,
 				B6000001001 /* Frameworks */,
@@ -546,14 +546,14 @@
 			);
 			dependencies = (
 			);
-			name = OneToOneTrackerWidgetExtension;
-			productName = OneToOneTrackerWidgetExtension;
-			productReference = B3000001001 /* OneToOneTrackerWidgetExtension.appex */;
+			name = CareerCompanionWidgetExtension;
+			productName = CareerCompanionWidgetExtension;
+			productReference = B3000001001 /* CareerCompanionWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		W3000002001 /* OneToOneTrackerWatch */ = {
+		W3000002001 /* CareerCompanionWatch */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D1000004001 /* Build configuration list for PBXNativeTarget "OneToOneTrackerWatch" */;
+			buildConfigurationList = D1000004001 /* Build configuration list for PBXNativeTarget "CareerCompanionWatch" */;
 			buildPhases = (
 				W7000001001 /* Sources */,
 				W6000001001 /* Frameworks */,
@@ -563,9 +563,9 @@
 			);
 			dependencies = (
 			);
-			name = OneToOneTrackerWatch;
-			productName = OneToOneTrackerWatch;
-			productReference = W3000001001 /* OneToOneTrackerWatch.app */;
+			name = CareerCompanionWatch;
+			productName = CareerCompanionWatch;
+			productReference = W3000001001 /* CareerCompanionWatch.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -589,7 +589,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D1000003001 /* Build configuration list for PBXProject "OneToOneTracker" */;
+			buildConfigurationList = D1000003001 /* Build configuration list for PBXProject "CareerCompanion" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -602,9 +602,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A3000002001 /* OneToOneTracker */,
-				B3000002001 /* OneToOneTrackerWidgetExtension */,
-				W3000002001 /* OneToOneTrackerWatch */,
+				A3000002001 /* CareerCompanion */,
+				B3000002001 /* CareerCompanionWidgetExtension */,
+				W3000002001 /* CareerCompanionWatch */,
 			);
 		};
 /* End PBXProject section */
@@ -640,7 +640,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1000001001 /* OneToOneTrackerApp.swift in Sources */,
+				A1000001001 /* CareerCompanionApp.swift in Sources */,
 				A1000002001 /* CloudKitRecordable.swift in Sources */,
 				A1000002002 /* CloudKitManager.swift in Sources */,
 				A1000003001 /* Enums.swift in Sources */,
@@ -690,7 +690,7 @@
 				A1000003008 /* AppSettings.swift in Sources */,
 				A1000005006 /* ICDashboardView.swift in Sources */,
 				A1000005007 /* ManagerDashboardView.swift in Sources */,
-				A100010001 /* OneToOneTracker/Core/DemoData/DemoDataProvider.swift in Sources */,
+				A100010001 /* CareerCompanion/Core/DemoData/DemoDataProvider.swift in Sources */,
 				A100011001 /* ExportImportService.swift in Sources */,
 				A100011002 /* ExportView.swift in Sources */,
 				A100011003 /* ImportView.swift in Sources */,
@@ -732,7 +732,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				W1000001001 /* OneToOneTrackerWatchApp.swift in Sources */,
+				W1000001001 /* CareerCompanionWatchApp.swift in Sources */,
 				W1000001002 /* WatchHomeView.swift in Sources */,
 				W1000001003 /* WatchHomeViewModel.swift in Sources */,
 				W1000001004 /* WatchMeetingDetailView.swift in Sources */,
@@ -745,7 +745,7 @@
 				W1000003003 /* Meeting.swift in Sources */,
 				W1000003005 /* ActionItem.swift in Sources */,
 				W1000003008 /* AppSettings.swift in Sources */,
-				W1000010001 /* OneToOneTracker/Core/DemoData/DemoDataProvider.swift in Sources */,
+				W1000010001 /* CareerCompanion/Core/DemoData/DemoDataProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -754,7 +754,7 @@
 /* Begin PBXTargetDependency section */
 		B4000002001 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = B3000002001 /* OneToOneTrackerWidgetExtension */;
+			target = B3000002001 /* CareerCompanionWidgetExtension */;
 			targetProxy = B4000001001 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -886,14 +886,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = OneToOneTracker/OneToOneTracker.entitlements;
+				CODE_SIGN_ENTITLEMENTS = CareerCompanion/CareerCompanion.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = OneToOneTracker/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "1:1 Tracker";
+				INFOPLIST_FILE = CareerCompanion/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Career Companion";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -904,7 +904,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.onetoonetracker.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.careercompanion.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -917,14 +917,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = OneToOneTracker/OneToOneTracker.entitlements;
+				CODE_SIGN_ENTITLEMENTS = CareerCompanion/CareerCompanion.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = OneToOneTracker/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "1:1 Tracker";
+				INFOPLIST_FILE = CareerCompanion/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Career Companion";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -935,7 +935,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.onetoonetracker.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.careercompanion.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -948,13 +948,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = OneToOneTrackerWidget/OneToOneTrackerWidget.entitlements;
+				CODE_SIGN_ENTITLEMENTS = CareerCompanionWidget/CareerCompanionWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = OneToOneTrackerWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "1:1 Tracker Widget";
+				INFOPLIST_FILE = CareerCompanionWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Career Companion Widget";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -962,7 +962,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.onetoonetracker.app.widget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.careercompanion.app.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -976,13 +976,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = OneToOneTrackerWidget/OneToOneTrackerWidget.entitlements;
+				CODE_SIGN_ENTITLEMENTS = CareerCompanionWidget/CareerCompanionWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = OneToOneTrackerWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "1:1 Tracker Widget";
+				INFOPLIST_FILE = CareerCompanionWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Career Companion Widget";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -990,7 +990,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.onetoonetracker.app.widget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.careercompanion.app.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1009,15 +1009,15 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = OneToOneTrackerWatch/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "1:1 Tracker";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.onetoonetracker.app;
+				INFOPLIST_FILE = CareerCompanionWatch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Career Companion";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.careercompanion.app;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.onetoonetracker.app.watch;
+				PRODUCT_BUNDLE_IDENTIFIER = com.careercompanion.app.watch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1038,15 +1038,15 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = OneToOneTrackerWatch/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "1:1 Tracker";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.onetoonetracker.app;
+				INFOPLIST_FILE = CareerCompanionWatch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Career Companion";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.careercompanion.app;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.onetoonetracker.app.watch;
+				PRODUCT_BUNDLE_IDENTIFIER = com.careercompanion.app.watch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1060,7 +1060,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D1000001001 /* Build configuration list for PBXNativeTarget "OneToOneTracker" */ = {
+		D1000001001 /* Build configuration list for PBXNativeTarget "CareerCompanion" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D2000003001 /* Debug */,
@@ -1069,7 +1069,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D1000002001 /* Build configuration list for PBXNativeTarget "OneToOneTrackerWidgetExtension" */ = {
+		D1000002001 /* Build configuration list for PBXNativeTarget "CareerCompanionWidgetExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D2000005001 /* Debug */,
@@ -1078,7 +1078,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D1000003001 /* Build configuration list for PBXProject "OneToOneTracker" */ = {
+		D1000003001 /* Build configuration list for PBXProject "CareerCompanion" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D2000001001 /* Debug */,
@@ -1087,7 +1087,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D1000004001 /* Build configuration list for PBXNativeTarget "OneToOneTrackerWatch" */ = {
+		D1000004001 /* Build configuration list for PBXNativeTarget "CareerCompanionWatch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D2000007001 /* Debug */,

@@ -1,6 +1,6 @@
 import XCTest
 import SwiftUI
-@testable import OneToOneTracker
+@testable import CareerCompanion
 
 /// Tests for screen-level accessibility
 final class ScreenAccessibilityTests: AccessibilityTestCase {

@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct OneToOneTrackerWatchApp: App {
+struct CareerCompanionWatchApp: App {
     var body: some Scene {
         WindowGroup {
             WatchHomeView()

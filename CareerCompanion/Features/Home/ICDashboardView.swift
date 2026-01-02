@@ -4,6 +4,11 @@ import SwiftUI
 /// Shows personal 1:1s with manager, action items, and career progress
 struct ICDashboardView: View {
     @StateObject private var viewModel = HomeViewModel()
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    private var isRegularWidth: Bool {
+        horizontalSizeClass == .regular
+    }
 
     var body: some View {
         ScrollView {
@@ -20,27 +25,59 @@ struct ICDashboardView: View {
                 // Quick Stats
                 ICQuickStatsSection(viewModel: viewModel)
 
-                // Action Items Section
-                ActionItemsSection(viewModel: viewModel)
+                // iPad: Two-column layout for main content
+                if isRegularWidth {
+                    HStack(alignment: .top, spacing: Spacing.lg) {
+                        // Left column: Action Items + Career Progress
+                        VStack(spacing: Spacing.sectionSpacing) {
+                            ActionItemsSection(viewModel: viewModel)
+                            CareerProgressCard(viewModel: viewModel)
+                        }
+                        .frame(maxWidth: .infinity)
 
-                // Upcoming 1:1 with Manager
-                if let nextMeeting = viewModel.nextMeeting {
-                    VStack(alignment: .leading, spacing: Spacing.sm) {
-                        Text("With My Manager")
-                            .font(Typography.headline)
-                            .foregroundStyle(Colors.textPrimary)
+                        // Right column: Meetings
+                        VStack(spacing: Spacing.sectionSpacing) {
+                            // Upcoming 1:1 with Manager
+                            if let nextMeeting = viewModel.nextMeeting {
+                                VStack(alignment: .leading, spacing: Spacing.sm) {
+                                    Text("With My Manager")
+                                        .font(Typography.headline)
+                                        .foregroundStyle(Colors.textPrimary)
 
-                        UpcomingMeetingCard(meeting: nextMeeting, manager: viewModel.manager)
+                                    UpcomingMeetingCard(meeting: nextMeeting, manager: viewModel.manager)
+                                }
+                            }
+
+                            // Other 1:1s Section
+                            if !viewModel.upcomingOtherMeetings.isEmpty {
+                                OtherMeetingsSection(viewModel: viewModel)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
                     }
-                }
+                } else {
+                    // iPhone: Single column layout
+                    ActionItemsSection(viewModel: viewModel)
 
-                // Other 1:1s Section
-                if !viewModel.upcomingOtherMeetings.isEmpty {
-                    OtherMeetingsSection(viewModel: viewModel)
-                }
+                    // Upcoming 1:1 with Manager
+                    if let nextMeeting = viewModel.nextMeeting {
+                        VStack(alignment: .leading, spacing: Spacing.sm) {
+                            Text("With My Manager")
+                                .font(Typography.headline)
+                                .foregroundStyle(Colors.textPrimary)
 
-                // Career Progress
-                CareerProgressCard(viewModel: viewModel)
+                            UpcomingMeetingCard(meeting: nextMeeting, manager: viewModel.manager)
+                        }
+                    }
+
+                    // Other 1:1s Section
+                    if !viewModel.upcomingOtherMeetings.isEmpty {
+                        OtherMeetingsSection(viewModel: viewModel)
+                    }
+
+                    // Career Progress
+                    CareerProgressCard(viewModel: viewModel)
+                }
             }
             .padding(.horizontal, Spacing.screenPadding)
             .padding(.bottom, Spacing.xxl)

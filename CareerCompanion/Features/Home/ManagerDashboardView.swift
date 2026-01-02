@@ -4,6 +4,11 @@ import SwiftUI
 /// Shows team overview, upcoming 1:1s with reports, and team metrics
 struct ManagerDashboardView: View {
     @StateObject private var viewModel = ManagerDashboardViewModel()
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    private var isRegularWidth: Bool {
+        horizontalSizeClass == .regular
+    }
 
     var body: some View {
         ScrollView {
@@ -14,18 +19,35 @@ struct ManagerDashboardView: View {
                 // Team Health Card
                 TeamHealthSection(viewModel: viewModel)
 
-                // Upcoming 1:1s with Team
-                TeamMeetingsSection(viewModel: viewModel)
+                // iPad: Two-column layout for main content
+                if isRegularWidth {
+                    HStack(alignment: .top, spacing: Spacing.lg) {
+                        // Left column: Meetings + Other 1:1s
+                        VStack(spacing: Spacing.sectionSpacing) {
+                            TeamMeetingsSection(viewModel: viewModel)
 
-                // Team Action Items
-                TeamActionItemsSection(viewModel: viewModel)
+                            if !viewModel.upcomingOtherMeetings.isEmpty {
+                                ManagerOtherMeetingsSection(viewModel: viewModel)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
 
-                // Team Members Grid
-                TeamMembersGridSection(viewModel: viewModel)
+                        // Right column: Action Items + Team Grid
+                        VStack(spacing: Spacing.sectionSpacing) {
+                            TeamActionItemsSection(viewModel: viewModel)
+                            TeamMembersGridSection(viewModel: viewModel)
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                } else {
+                    // iPhone: Single column layout
+                    TeamMeetingsSection(viewModel: viewModel)
+                    TeamActionItemsSection(viewModel: viewModel)
+                    TeamMembersGridSection(viewModel: viewModel)
 
-                // Other 1:1s Section (non-direct reports)
-                if !viewModel.upcomingOtherMeetings.isEmpty {
-                    ManagerOtherMeetingsSection(viewModel: viewModel)
+                    if !viewModel.upcomingOtherMeetings.isEmpty {
+                        ManagerOtherMeetingsSection(viewModel: viewModel)
+                    }
                 }
             }
             .padding(.horizontal, Spacing.screenPadding)

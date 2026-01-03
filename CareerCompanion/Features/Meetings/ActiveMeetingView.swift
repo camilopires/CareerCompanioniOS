@@ -3,6 +3,7 @@ import SwiftUI
 /// View for conducting an active 1:1 meeting
 struct ActiveMeetingView: View {
     @StateObject private var viewModel: ActiveMeetingViewModel
+    @StateObject private var cloudKit = CloudKitManager.shared
     @Environment(\.dismiss) private var dismiss
     @State private var showingEndConfirmation = false
     @State private var showingUpgrade = false
@@ -11,6 +12,8 @@ struct ActiveMeetingView: View {
     @State private var showingImproveAllPreview = false
     @State private var batchPreview: BatchImprovementPreview?
     @State private var isImprovingAll = false
+    @State private var showDemoExitPrompt = false
+    @State private var showingErrorAlert = false
 
     var managerName: String = ""
 
@@ -22,6 +25,10 @@ struct ActiveMeetingView: View {
         AppSettings.shared.canAccessAI
     }
 
+    private var isCloudKitAvailable: Bool {
+        cloudKit.isSignedIn || AppSettings.shared.isDemoMode
+    }
+
     init(meeting: Meeting) {
         self._viewModel = StateObject(wrappedValue: ActiveMeetingViewModel(meeting: meeting))
     }
@@ -29,6 +36,11 @@ struct ActiveMeetingView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: Spacing.sectionSpacing) {
+                // iCloud warning banner
+                if !isCloudKitAvailable {
+                    iCloudWarningBanner
+                }
+
                 // Timer
                 MeetingTimer(startTime: viewModel.startTime)
 
@@ -204,14 +216,45 @@ struct ActiveMeetingView: View {
             titleVisibility: .visible
         ) {
             Button("Complete Meeting") {
-                Task {
-                    await viewModel.completeMeeting()
-                    dismiss()
+                if AppSettings.shared.isDemoMode {
+                    showDemoExitPrompt = true
+                } else {
+                    Task {
+                        await viewModel.completeMeeting()
+                        dismiss()
+                    }
                 }
             }
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("This will save all notes and mark the meeting as complete.")
+        }
+        .alert("Exit Demo Mode?", isPresented: $showDemoExitPrompt) {
+            Button("Stay in Demo", role: .cancel) {
+                Task {
+                    await viewModel.completeMeeting()
+                    dismiss()
+                }
+            }
+            Button("Exit Demo Mode") {
+                AppSettings.shared.isDemoMode = false
+                Task {
+                    await viewModel.completeMeeting()
+                    dismiss()
+                }
+            }
+        } message: {
+            Text("You're saving real meeting data. Would you like to exit demo mode to save your notes permanently?")
+        }
+        .alert("Unable to Save", isPresented: $showingErrorAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(viewModel.error?.localizedDescription ?? "An error occurred while saving your meeting. Please check your iCloud settings.")
+        }
+        .onChange(of: viewModel.error != nil) { _, hasError in
+            if hasError {
+                showingErrorAlert = true
+            }
         }
         .task {
             await viewModel.loadData()
@@ -349,6 +392,35 @@ struct ActiveMeetingView: View {
         }
 
         Theme.successHaptic()
+    }
+
+    // MARK: - iCloud Warning Banner
+
+    private var iCloudWarningBanner: some View {
+        HStack(spacing: Spacing.sm) {
+            Image(systemName: "exclamationmark.icloud")
+                .foregroundStyle(Colors.warning)
+
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
+                Text("iCloud Not Available")
+                    .font(Typography.subheadline.weight(.semibold))
+                Text("Sign in to iCloud in Settings to save your meetings.")
+                    .font(Typography.caption1)
+                    .foregroundStyle(Colors.textSecondary)
+            }
+
+            Spacer()
+
+            Button("Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            .font(Typography.caption1.weight(.medium))
+        }
+        .padding(Spacing.md)
+        .background(Colors.warning.opacity(0.15))
+        .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusMedium))
     }
 }
 

@@ -1,9 +1,9 @@
 import SwiftUI
-import CloudKit
+import SwiftData
 
 @main
 struct CareerCompanionApp: App {
-    @StateObject private var cloudKitManager = CloudKitManager.shared
+    @StateObject private var dataManager = DataManager.shared
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var isDemoMode = AppSettings.shared.isDemoMode
     @State private var showDemoSheet = false
@@ -17,7 +17,7 @@ struct CareerCompanionApp: App {
                 if hasCompletedOnboarding {
                     AdaptiveRootView()
                         .id(refreshID)
-                        .environmentObject(cloudKitManager)
+                        .modelContainer(dataManager.container)
                         .sheet(isPresented: $showDemoSheet) {
                             DemoModeSheet(onStartFresh: startFresh)
                         }
@@ -32,7 +32,7 @@ struct CareerCompanionApp: App {
                         }
                 } else {
                     OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding, isDemoMode: $isDemoMode)
-                        .environmentObject(cloudKitManager)
+                        .modelContainer(dataManager.container)
                         .onChange(of: hasCompletedOnboarding) { _, completed in
                             if completed && isDemoMode {
                                 showDemoSheet = true
@@ -510,5 +510,5 @@ struct MainTabView: View {
 
 #Preview {
     MainTabView()
-        .environmentObject(CloudKitManager.shared)
+        .modelContainer(DataManager.shared.container)
 }

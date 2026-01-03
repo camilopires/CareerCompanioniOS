@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import SwiftData
 
 /// ViewModel for the agenda builder
 @MainActor
@@ -14,6 +15,12 @@ final class AgendaBuilderViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
 
+    // MARK: - Private Properties
+
+    private var context: ModelContext { DataManager.shared.context }
+    private var sdAgendaItems: [UUID: SDAgendaItem] = [:]
+    private var sdMeeting: SDMeeting?
+
     // MARK: - Initialization
 
     init(meeting: Meeting) {
@@ -25,19 +32,38 @@ final class AgendaBuilderViewModel: ObservableObject {
     func loadData() async {
         isLoading = true
 
+        // Demo mode - return empty for now
+        if AppSettings.shared.isDemoMode {
+            agendaItems = []
+            carriedOverItems = []
+            isLoading = false
+            return
+        }
+
         do {
-            // Load agenda items for this meeting
-            let items: [AgendaItem] = try await CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "meetingRef == %@", meeting.recordID),
-                sortDescriptors: [NSSortDescriptor(key: "order", ascending: true)]
-            )
-            agendaItems = items
+            // Find the SDMeeting
+            let meetingID = meeting.id
+            let meetingPredicate = #Predicate<SDMeeting> { $0.id == meetingID }
+            var descriptor = FetchDescriptor<SDMeeting>(predicate: meetingPredicate)
+            descriptor.fetchLimit = 1
+            if let foundMeeting = try context.fetch(descriptor).first {
+                sdMeeting = foundMeeting
+
+                // Get agenda items from the meeting relationship
+                let items = foundMeeting.agendaItems.sorted { $0.order < $1.order }
+                agendaItems = items.map { $0.toAgendaItem() }
+                sdAgendaItems = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
+            }
 
             // Load incomplete action items from previous meetings
-            let actionItems: [ActionItem] = try await CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "status != %@", ActionItemStatus.completed.rawValue)
-            )
-            carriedOverItems = actionItems.filter { $0.meetingID != meeting.id }
+            let openPredicate = #Predicate<SDActionItem> { item in
+                item.statusRaw != "completed"
+            }
+            let actionDescriptor = FetchDescriptor<SDActionItem>(predicate: openPredicate)
+            let allOpenItems = try context.fetch(actionDescriptor)
+            carriedOverItems = allOpenItems
+                .filter { $0.meeting?.id != meeting.id }
+                .map { $0.toActionItem() }
 
         } catch {
             self.error = error
@@ -55,9 +81,28 @@ final class AgendaBuilderViewModel: ObservableObject {
             order: agendaItems.count
         )
 
+        // In demo mode, only update in-memory
+        if AppSettings.shared.isDemoMode {
+            agendaItems.append(newItem)
+            Theme.lightHaptic()
+            return
+        }
+
         do {
-            let saved = try await CloudKitManager.shared.save(newItem)
-            agendaItems.append(saved)
+            let sdItem = SDAgendaItem(
+                id: newItem.id,
+                meeting: sdMeeting,
+                title: newItem.title,
+                notes: newItem.notes,
+                isCompleted: newItem.isCompleted,
+                order: newItem.order,
+                createdAt: newItem.createdAt
+            )
+            context.insert(sdItem)
+            try DataManager.shared.save()
+
+            sdAgendaItems[sdItem.id] = sdItem
+            agendaItems.append(newItem)
             Theme.lightHaptic()
         } catch {
             self.error = error
@@ -65,10 +110,21 @@ final class AgendaBuilderViewModel: ObservableObject {
     }
 
     func updateItem(_ item: AgendaItem) async {
+        if AppSettings.shared.isDemoMode {
+            if let index = agendaItems.firstIndex(where: { $0.id == item.id }) {
+                agendaItems[index] = item
+            }
+            return
+        }
+
         do {
-            let saved = try await CloudKitManager.shared.save(item)
-            if let index = agendaItems.firstIndex(where: { $0.id == saved.id }) {
-                agendaItems[index] = saved
+            if let sdItem = sdAgendaItems[item.id] {
+                sdItem.update(from: item)
+                try DataManager.shared.save()
+            }
+
+            if let index = agendaItems.firstIndex(where: { $0.id == item.id }) {
+                agendaItems[index] = item
             }
         } catch {
             self.error = error
@@ -79,8 +135,17 @@ final class AgendaBuilderViewModel: ObservableObject {
         let itemsToDelete = offsets.map { agendaItems[$0] }
 
         for item in itemsToDelete {
+            if AppSettings.shared.isDemoMode {
+                agendaItems.removeAll { $0.id == item.id }
+                continue
+            }
+
             do {
-                try await CloudKitManager.shared.delete(item)
+                if let sdItem = sdAgendaItems[item.id] {
+                    context.delete(sdItem)
+                    try DataManager.shared.save()
+                    sdAgendaItems.removeValue(forKey: item.id)
+                }
                 agendaItems.removeAll { $0.id == item.id }
             } catch {
                 self.error = error

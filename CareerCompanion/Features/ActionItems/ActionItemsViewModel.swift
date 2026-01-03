@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import SwiftData
 
 /// ViewModel for action items list
 @MainActor
@@ -10,6 +11,11 @@ final class ActionItemsViewModel: ObservableObject {
     @Published var items: [ActionItem] = []
     @Published var isLoading = false
     @Published var error: Error?
+
+    // MARK: - Private Properties
+
+    private var context: ModelContext { DataManager.shared.context }
+    private var sdItems: [UUID: SDActionItem] = [:]
 
     // MARK: - Filtered Items
 
@@ -62,10 +68,9 @@ final class ActionItemsViewModel: ObservableObject {
         }
 
         do {
-            let fetched: [ActionItem] = try await CloudKitManager.shared.fetch(
-                sortDescriptors: [NSSortDescriptor(key: "createdAt", ascending: false)]
-            )
-            items = fetched
+            let fetched = try DataManager.shared.fetchActionItems()
+            items = fetched.map { $0.toActionItem() }
+            sdItems = Dictionary(uniqueKeysWithValues: fetched.map { ($0.id, $0) })
         } catch {
             self.error = error
         }
@@ -84,8 +89,23 @@ final class ActionItemsViewModel: ObservableObject {
         }
 
         do {
-            let saved = try await CloudKitManager.shared.save(item)
-            items.insert(saved, at: 0)
+            let sdItem = SDActionItem(
+                id: item.id,
+                meeting: nil,
+                title: item.title,
+                itemDescription: item.itemDescription,
+                dueDate: item.dueDate,
+                priority: item.priority,
+                status: item.status,
+                owner: item.owner,
+                links: item.links,
+                createdAt: item.createdAt
+            )
+            context.insert(sdItem)
+            try DataManager.shared.save()
+
+            sdItems[item.id] = sdItem
+            items.insert(item, at: 0)
             Theme.successHaptic()
         } catch {
             self.error = error
@@ -111,9 +131,13 @@ final class ActionItemsViewModel: ObservableObject {
         }
 
         do {
-            let saved = try await CloudKitManager.shared.save(updated)
-            if let index = items.firstIndex(where: { $0.id == saved.id }) {
-                items[index] = saved
+            if let sdItem = sdItems[item.id] {
+                sdItem.update(from: updated)
+                try DataManager.shared.save()
+            }
+
+            if let index = items.firstIndex(where: { $0.id == item.id }) {
+                items[index] = updated
             }
             Theme.successHaptic()
         } catch {
@@ -132,9 +156,13 @@ final class ActionItemsViewModel: ObservableObject {
         }
 
         do {
-            let saved = try await CloudKitManager.shared.save(item)
-            if let index = items.firstIndex(where: { $0.id == saved.id }) {
-                items[index] = saved
+            if let sdItem = sdItems[item.id] {
+                sdItem.update(from: item)
+                try DataManager.shared.save()
+            }
+
+            if let index = items.firstIndex(where: { $0.id == item.id }) {
+                items[index] = item
             }
         } catch {
             self.error = error
@@ -153,7 +181,11 @@ final class ActionItemsViewModel: ObservableObject {
             }
 
             do {
-                try await CloudKitManager.shared.delete(item)
+                if let sdItem = sdItems[item.id] {
+                    context.delete(sdItem)
+                    try DataManager.shared.save()
+                    sdItems.removeValue(forKey: item.id)
+                }
                 items.removeAll { $0.id == item.id }
             } catch {
                 self.error = error

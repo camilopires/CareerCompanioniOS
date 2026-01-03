@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import SwiftData
 
 /// ViewModel for the Home screen
 @MainActor
@@ -16,6 +17,11 @@ final class HomeViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
     @Published var showPrivacyBanner: Bool
+
+    // MARK: - Private Properties
+
+    private var context: ModelContext { DataManager.shared.context }
+    private var sdActionItems: [UUID: SDActionItem] = [:]
 
     /// People with "Other" relationship types (not My Manager or Direct Report)
     var otherPeople: [Manager] {
@@ -112,24 +118,26 @@ final class HomeViewModel: ObservableObject {
         }
 
         do {
-            async let fetchedActionItems: [ActionItem] = CloudKitManager.shared.fetch(
-                sortDescriptors: [NSSortDescriptor(key: "createdAt", ascending: false)]
-            )
-            async let fetchedManagers: [Manager] = CloudKitManager.shared.fetch()
-            async let fetchedMeetings: [Meeting] = CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "status == %@", MeetingStatus.scheduled.rawValue),
-                sortDescriptors: [NSSortDescriptor(key: "date", ascending: true)]
-            )
-            async let fetchedGoals: [CareerGoal] = CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "status IN %@", [GoalStatus.inProgress.rawValue, GoalStatus.notStarted.rawValue])
-            )
+            // Fetch action items
+            let fetchedActionItems = try DataManager.shared.fetchActionItems()
+            actionItems = fetchedActionItems.map { $0.toActionItem() }
+            sdActionItems = Dictionary(uniqueKeysWithValues: fetchedActionItems.map { ($0.id, $0) })
 
-            actionItems = try await fetchedActionItems
-            allManagers = try await fetchedManagers
+            // Fetch managers
+            let fetchedManagers = try DataManager.shared.fetchManagers()
+            allManagers = fetchedManagers.map { $0.toManager() }
             manager = allManagers.first { $0.isMyManager }
-            activeGoals = try await fetchedGoals
 
-            let allUpcomingMeetings = try await fetchedMeetings
+            // Fetch upcoming meetings
+            let scheduledPredicate = #Predicate<SDMeeting> { meeting in
+                meeting.statusRaw == "scheduled"
+            }
+            let allUpcomingMeetings = try context.fetch(
+                FetchDescriptor<SDMeeting>(
+                    predicate: scheduledPredicate,
+                    sortBy: [SortDescriptor(\.date)]
+                )
+            ).map { $0.toMeeting() }
 
             // Next meeting with "My Manager"
             let myManagerIDs = Set(allManagers.filter { $0.isMyManager }.map { $0.id })
@@ -138,6 +146,15 @@ final class HomeViewModel: ObservableObject {
             // Upcoming meetings with other people (mentors, peers, etc.)
             let otherPersonIDs = Set(otherPeople.map { $0.id })
             upcomingOtherMeetings = Array(allUpcomingMeetings.filter { otherPersonIDs.contains($0.managerID) }.prefix(3))
+
+            // Fetch active goals
+            let activeGoalsPredicate = #Predicate<SDCareerGoal> { goal in
+                goal.statusRaw == "inProgress" || goal.statusRaw == "notStarted"
+            }
+            let fetchedGoals = try context.fetch(
+                FetchDescriptor<SDCareerGoal>(predicate: activeGoalsPredicate)
+            )
+            activeGoals = fetchedGoals.map { $0.toCareerGoal() }
 
             updateCachedCounts()
         } catch {
@@ -185,9 +202,13 @@ final class HomeViewModel: ObservableObject {
         }
 
         do {
-            let saved = try await CloudKitManager.shared.save(updatedItem)
-            if let index = actionItems.firstIndex(where: { $0.id == saved.id }) {
-                actionItems[index] = saved
+            if let sdItem = sdActionItems[item.id] {
+                sdItem.update(from: updatedItem)
+                try DataManager.shared.save()
+            }
+
+            if let index = actionItems.firstIndex(where: { $0.id == item.id }) {
+                actionItems[index] = updatedItem
             }
             updateCachedCounts()
             Theme.successHaptic()

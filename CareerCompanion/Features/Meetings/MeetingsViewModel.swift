@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import SwiftData
 
 /// Filter for relationship types
 enum RelationshipFilter: String, CaseIterable, Identifiable {
@@ -23,6 +24,14 @@ final class MeetingsViewModel: ObservableObject {
     @Published var relationshipFilter: RelationshipFilter = .all
     @Published var isLoading = false
     @Published var error: Error?
+
+    // MARK: - Private Properties
+
+    private var context: ModelContext { DataManager.shared.context }
+
+    // Store SDMeeting references for updates
+    private var sdMeetings: [UUID: SDMeeting] = [:]
+    private var sdManagers: [UUID: SDManager] = [:]
 
     // MARK: - Computed Properties
 
@@ -95,13 +104,19 @@ final class MeetingsViewModel: ObservableObject {
         }
 
         do {
-            async let fetchedManagers: [Manager] = CloudKitManager.shared.fetch()
-            async let fetchedMeetings: [Meeting] = CloudKitManager.shared.fetch(
-                sortDescriptors: [NSSortDescriptor(key: "date", ascending: false)]
-            )
+            // Fetch managers from SwiftData
+            let fetchedSDManagers = try DataManager.shared.fetchManagers()
+            managers = fetchedSDManagers.map { $0.toManager() }
 
-            managers = try await fetchedManagers
-            allMeetings = try await fetchedMeetings
+            // Store references for updates
+            sdManagers = Dictionary(uniqueKeysWithValues: fetchedSDManagers.map { ($0.id, $0) })
+
+            // Fetch meetings from SwiftData
+            let fetchedSDMeetings = try DataManager.shared.fetchMeetings()
+            allMeetings = fetchedSDMeetings.map { $0.toMeeting() }
+
+            // Store references for updates
+            sdMeetings = Dictionary(uniqueKeysWithValues: fetchedSDMeetings.map { ($0.id, $0) })
         } catch {
             self.error = error
         }
@@ -138,8 +153,40 @@ final class MeetingsViewModel: ObservableObject {
                 }
             }
 
-            let saved = try await CloudKitManager.shared.save(meetingToSave)
-            allMeetings.insert(saved, at: 0)
+            // Find the SDManager
+            let sdManager = sdManagers[meeting.managerID]
+
+            // Create SDMeeting
+            let sdMeeting = SDMeeting(
+                id: meetingToSave.id,
+                manager: sdManager,
+                date: meetingToSave.date,
+                status: meetingToSave.status,
+                perspective: meetingToSave.perspective,
+                meetingType: meetingToSave.meetingType,
+                notes: meetingToSave.notes,
+                wentWell: meetingToSave.wentWell,
+                didntGoWell: meetingToSave.didntGoWell,
+                blockers: meetingToSave.blockers,
+                escalations: meetingToSave.escalations,
+                thisWeekGoals: meetingToSave.thisWeekGoals,
+                thisWeekProgress: meetingToSave.thisWeekProgress,
+                keyMetrics: meetingToSave.keyMetrics,
+                nextWeekGoals: meetingToSave.nextWeekGoals,
+                weekSentiment: meetingToSave.weekSentiment,
+                meetingSentiment: meetingToSave.meetingSentiment,
+                calendarEventID: meetingToSave.calendarEventID,
+                recurrence: meetingToSave.recurrence,
+                createdAt: meetingToSave.createdAt,
+                updatedAt: meetingToSave.updatedAt
+            )
+
+            context.insert(sdMeeting)
+            try DataManager.shared.save()
+
+            // Store reference and update local list
+            sdMeetings[sdMeeting.id] = sdMeeting
+            allMeetings.insert(meetingToSave, at: 0)
             Theme.successHaptic()
         } catch {
             self.error = error
@@ -167,9 +214,14 @@ final class MeetingsViewModel: ObservableObject {
                 )
             }
 
-            let saved = try await CloudKitManager.shared.save(meeting)
-            if let index = allMeetings.firstIndex(where: { $0.id == saved.id }) {
-                allMeetings[index] = saved
+            // Find and update the SDMeeting
+            if let sdMeeting = sdMeetings[meeting.id] {
+                sdMeeting.update(from: meeting)
+                try DataManager.shared.save()
+            }
+
+            if let index = allMeetings.firstIndex(where: { $0.id == meeting.id }) {
+                allMeetings[index] = meeting
             }
         } catch {
             self.error = error
@@ -192,7 +244,13 @@ final class MeetingsViewModel: ObservableObject {
                     try? await CalendarManager.shared.deleteEvent(eventID: eventID)
                 }
 
-                try await CloudKitManager.shared.delete(meeting)
+                // Delete from SwiftData
+                if let sdMeeting = sdMeetings[meeting.id] {
+                    context.delete(sdMeeting)
+                    try DataManager.shared.save()
+                    sdMeetings.removeValue(forKey: meeting.id)
+                }
+
                 allMeetings.removeAll { $0.id == meeting.id }
             } catch {
                 self.error = error
@@ -232,14 +290,27 @@ final class MeetingsViewModel: ObservableObject {
             recurrence: meeting.recurrence
         )
 
-        // Save to CloudKit
+        // Save to SwiftData
+        await createMeeting(nextMeeting)
+    }
+
+    // MARK: - Manager CRUD
+
+    func createManager(_ manager: Manager) async {
+        if AppSettings.shared.isDemoMode {
+            managers.append(manager)
+            return
+        }
+
         do {
-            let saved = try await CloudKitManager.shared.save(nextMeeting)
-            await MainActor.run {
-                allMeetings.append(saved)
-            }
+            let sdManager = SDManager(from: manager)
+            context.insert(sdManager)
+            try DataManager.shared.save()
+
+            sdManagers[manager.id] = sdManager
+            managers.append(manager)
         } catch {
-            print("Failed to schedule next recurring meeting: \(error)")
+            self.error = error
         }
     }
 }

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import SwiftData
 
 /// ViewModel for career home screen
 @MainActor
@@ -11,6 +12,12 @@ final class CareerHomeViewModel: ObservableObject {
     @Published var achievements: [Achievement] = []
     @Published var isLoading = false
     @Published var error: Error?
+
+    // MARK: - Private Properties
+
+    private var context: ModelContext { DataManager.shared.context }
+    private var sdGoals: [UUID: SDCareerGoal] = [:]
+    private var sdAchievements: [UUID: SDAchievement] = [:]
 
     // MARK: - Computed Properties
 
@@ -52,15 +59,13 @@ final class CareerHomeViewModel: ObservableObject {
         }
 
         do {
-            async let fetchedGoals: [CareerGoal] = CloudKitManager.shared.fetch(
-                sortDescriptors: [NSSortDescriptor(key: "updatedAt", ascending: false)]
-            )
-            async let fetchedAchievements: [Achievement] = CloudKitManager.shared.fetch(
-                sortDescriptors: [NSSortDescriptor(key: "dateAchieved", ascending: false)]
-            )
+            let fetchedGoals = try DataManager.shared.fetchCareerGoals()
+            goals = fetchedGoals.map { $0.toCareerGoal() }
+            sdGoals = Dictionary(uniqueKeysWithValues: fetchedGoals.map { ($0.id, $0) })
 
-            goals = try await fetchedGoals
-            achievements = try await fetchedAchievements
+            let fetchedAchievements = try DataManager.shared.fetchAchievements()
+            achievements = fetchedAchievements.map { $0.toAchievement() }
+            sdAchievements = Dictionary(uniqueKeysWithValues: fetchedAchievements.map { ($0.id, $0) })
         } catch {
             self.error = error
         }
@@ -79,8 +84,27 @@ final class CareerHomeViewModel: ObservableObject {
         }
 
         do {
-            let saved = try await CloudKitManager.shared.save(goal)
-            goals.insert(saved, at: 0)
+            let sdGoal = SDCareerGoal(
+                id: goal.id,
+                title: goal.title,
+                goalDescription: goal.goalDescription,
+                category: goal.category,
+                targetDate: goal.targetDate,
+                status: goal.status,
+                priority: goal.priority,
+                successMetrics: goal.successMetrics,
+                trackingMethod: goal.trackingMethod,
+                progress: goal.progress,
+                skills: goal.skills,
+                notes: goal.notes,
+                createdAt: goal.createdAt,
+                updatedAt: goal.updatedAt
+            )
+            context.insert(sdGoal)
+            try DataManager.shared.save()
+
+            sdGoals[goal.id] = sdGoal
+            goals.insert(goal, at: 0)
             Theme.successHaptic()
         } catch {
             self.error = error
@@ -97,8 +121,26 @@ final class CareerHomeViewModel: ObservableObject {
         }
 
         do {
-            let saved = try await CloudKitManager.shared.save(achievement)
-            achievements.insert(saved, at: 0)
+            // Find linked goals
+            let linkedGoals = achievement.goalIDs.compactMap { sdGoals[$0] }
+
+            let sdAchievement = SDAchievement(
+                id: achievement.id,
+                title: achievement.title,
+                achievementDescription: achievement.achievementDescription,
+                dateAchieved: achievement.dateAchieved,
+                impactStatement: achievement.impactStatement,
+                goals: linkedGoals,
+                evidenceLinks: achievement.evidenceLinks,
+                tags: achievement.tags,
+                visibility: achievement.visibility,
+                createdAt: achievement.createdAt
+            )
+            context.insert(sdAchievement)
+            try DataManager.shared.save()
+
+            sdAchievements[achievement.id] = sdAchievement
+            achievements.insert(achievement, at: 0)
             Theme.successHaptic()
         } catch {
             self.error = error

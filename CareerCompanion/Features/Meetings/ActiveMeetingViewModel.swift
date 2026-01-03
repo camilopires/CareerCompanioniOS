@@ -1,6 +1,6 @@
 import Foundation
 import SwiftUI
-import CloudKit
+import SwiftData
 
 /// ViewModel for the active meeting view
 @MainActor
@@ -27,6 +27,12 @@ final class ActiveMeetingViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
 
+    // MARK: - Private Properties
+
+    private var context: ModelContext { DataManager.shared.context }
+    private var sdMeeting: SDMeeting?
+    private var sdAgendaItems: [UUID: SDAgendaItem] = [:]
+
     // MARK: - Initialization
 
     init(meeting: Meeting) {
@@ -52,12 +58,27 @@ final class ActiveMeetingViewModel: ObservableObject {
     func loadData() async {
         isLoading = true
 
+        if AppSettings.shared.isDemoMode {
+            agendaItems = []
+            await loadCarryOverData()
+            isLoading = false
+            return
+        }
+
         do {
-            let items: [AgendaItem] = try await CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "meetingRef == %@", meeting.recordID),
-                sortDescriptors: [NSSortDescriptor(key: "order", ascending: true)]
-            )
-            agendaItems = items
+            // Find the SDMeeting
+            let meetingID = meeting.id
+            let meetingPredicate = #Predicate<SDMeeting> { $0.id == meetingID }
+            var descriptor = FetchDescriptor<SDMeeting>(predicate: meetingPredicate)
+            descriptor.fetchLimit = 1
+            if let foundMeeting = try context.fetch(descriptor).first {
+                sdMeeting = foundMeeting
+
+                // Get agenda items from the meeting relationship
+                let items = foundMeeting.agendaItems.sorted { $0.order < $1.order }
+                agendaItems = items.map { $0.toAgendaItem() }
+                sdAgendaItems = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
+            }
         } catch {
             self.error = error
         }
@@ -96,25 +117,28 @@ final class ActiveMeetingViewModel: ObservableObject {
                 .first
         }
 
-        // Fetch from CloudKit
+        // Fetch from SwiftData
         do {
-            let managerRecordID = CKRecord.ID(recordName: meeting.managerID.uuidString)
-            let managerRef = CKRecord.Reference(recordID: managerRecordID, action: .none)
-
-            let meetings: [Meeting] = try await CloudKitManager.shared.fetch(
-                predicate: NSPredicate(
-                    format: "managerRef == %@ AND status == %@ AND date < %@",
-                    managerRef,
-                    MeetingStatus.completed.rawValue,
-                    meeting.date as NSDate
-                ),
-                sortDescriptors: [NSSortDescriptor(key: "date", ascending: false)],
-                limit: 1
+            let managerID = meeting.managerID
+            let meetingDate = meeting.date
+            let predicate = #Predicate<SDMeeting> { sdMeeting in
+                sdMeeting.manager?.id == managerID &&
+                sdMeeting.statusRaw == "completed" &&
+                sdMeeting.date < meetingDate
+            }
+            var descriptor = FetchDescriptor<SDMeeting>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
-            return meetings.first
+            descriptor.fetchLimit = 1
+
+            if let foundMeeting = try context.fetch(descriptor).first {
+                return foundMeeting.toMeeting()
+            }
         } catch {
-            return nil
+            // Ignore error, return nil
         }
+        return nil
     }
 
     // MARK: - Action Items
@@ -135,40 +159,73 @@ final class ActiveMeetingViewModel: ObservableObject {
     func completeMeeting() async {
         isLoading = true
 
+        // In demo mode, just show success (data is in-memory only)
+        if AppSettings.shared.isDemoMode {
+            Theme.successHaptic()
+            isLoading = false
+            return
+        }
+
         do {
+            // Find or ensure we have the SDMeeting
+            if sdMeeting == nil {
+                let meetingID = meeting.id
+                let meetingPredicate = #Predicate<SDMeeting> { $0.id == meetingID }
+                var descriptor = FetchDescriptor<SDMeeting>(predicate: meetingPredicate)
+                descriptor.fetchLimit = 1
+                sdMeeting = try context.fetch(descriptor).first
+            }
+
+            guard let sdMeeting = sdMeeting else {
+                throw NSError(domain: "ActiveMeetingViewModel", code: 1, userInfo: [NSLocalizedDescriptionKey: "Meeting not found"])
+            }
+
             // Update meeting with all data
-            var updatedMeeting = meeting
-            updatedMeeting.status = .completed
-            updatedMeeting.notes = notes
-            updatedMeeting.wentWell = wentWell
-            updatedMeeting.didntGoWell = didntGoWell
-            updatedMeeting.blockers = blockers
-            updatedMeeting.escalations = escalations
-            updatedMeeting.thisWeekGoals = thisWeekGoals
-            updatedMeeting.thisWeekProgress = thisWeekProgress
-            updatedMeeting.keyMetrics = keyMetrics
-            updatedMeeting.nextWeekGoals = nextWeekGoals
-            updatedMeeting.weekSentiment = weekSentiment
-            updatedMeeting.meetingSentiment = meetingSentiment
-            updatedMeeting.updatedAt = Date()
+            sdMeeting.status = .completed
+            sdMeeting.notes = notes
+            sdMeeting.wentWell = wentWell
+            sdMeeting.didntGoWell = didntGoWell
+            sdMeeting.blockers = blockers
+            sdMeeting.escalations = escalations
+            sdMeeting.thisWeekGoals = thisWeekGoals
+            sdMeeting.thisWeekProgress = thisWeekProgress
+            sdMeeting.keyMetrics = keyMetrics
+            sdMeeting.nextWeekGoals = nextWeekGoals
+            sdMeeting.weekSentiment = weekSentiment
+            sdMeeting.meetingSentiment = meetingSentiment
+            sdMeeting.updatedAt = Date()
 
-            _ = try await CloudKitManager.shared.save(updatedMeeting)
-
-            // Save all agenda items (with completion status)
+            // Update all agenda items (with completion status)
             for item in agendaItems {
-                _ = try await CloudKitManager.shared.save(item)
+                if let sdItem = sdAgendaItems[item.id] {
+                    sdItem.update(from: item)
+                }
             }
 
             // Save all new action items
             for item in newActionItems {
-                _ = try await CloudKitManager.shared.save(item)
+                let sdActionItem = SDActionItem(
+                    id: item.id,
+                    meeting: sdMeeting,
+                    title: item.title,
+                    itemDescription: item.itemDescription,
+                    dueDate: item.dueDate,
+                    priority: item.priority,
+                    status: item.status,
+                    owner: item.owner,
+                    links: item.links,
+                    createdAt: item.createdAt
+                )
+                context.insert(sdActionItem)
             }
+
+            try DataManager.shared.save()
 
             // Create achievements from "what went well" items
             await createAchievementsFromWins()
 
             // Auto-schedule next meeting if this is a recurring meeting
-            await scheduleNextRecurringMeeting(from: updatedMeeting)
+            await scheduleNextRecurringMeeting(from: sdMeeting.toMeeting())
 
             Theme.successHaptic()
 
@@ -193,17 +250,19 @@ final class ActiveMeetingViewModel: ObservableObject {
         let nextDate = rule.nextDate(from: meeting.date)
 
         // Create new meeting with same properties
-        let nextMeeting = Meeting(
-            managerID: meeting.managerID,
+        let nextMeeting = SDMeeting(
+            manager: sdMeeting?.manager,
             date: nextDate,
+            status: .scheduled,
             perspective: meeting.perspective,
             meetingType: meeting.meetingType,
             recurrence: meeting.recurrence
         )
 
-        // Save to CloudKit
+        context.insert(nextMeeting)
+
         do {
-            _ = try await CloudKitManager.shared.save(nextMeeting)
+            try DataManager.shared.save()
         } catch {
             print("Failed to schedule next recurring meeting: \(error)")
         }

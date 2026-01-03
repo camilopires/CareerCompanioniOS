@@ -84,6 +84,13 @@
 		A100013006 /* NoteImprovement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200013006 /* NoteImprovement.swift */; };
 		A1000006012 /* ImprovementPreviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006012 /* ImprovementPreviewSheet.swift */; };
 		A1000006013 /* SmartNotesSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006013 /* SmartNotesSheet.swift */; };
+		A100014001 /* SDManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200014001 /* SDManager.swift */; };
+		A100014002 /* SDMeeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200014002 /* SDMeeting.swift */; };
+		A100014003 /* SDAgendaItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200014003 /* SDAgendaItem.swift */; };
+		A100014004 /* SDActionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200014004 /* SDActionItem.swift */; };
+		A100014005 /* SDCareerGoal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200014005 /* SDCareerGoal.swift */; };
+		A100014006 /* SDAchievement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200014006 /* SDAchievement.swift */; };
+		A100014007 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200014007 /* DataManager.swift */; };
 		B1000001001 /* WidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001001 /* WidgetBundle.swift */; };
 		B1000001002 /* ActionItemsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001002 /* ActionItemsWidget.swift */; };
 		B1000001003 /* NextMeetingWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001003 /* NextMeetingWidget.swift */; };
@@ -219,6 +226,13 @@
 		A200013006 /* NoteImprovement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteImprovement.swift; sourceTree = "<group>"; };
 		A2000006012 /* ImprovementPreviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImprovementPreviewSheet.swift; sourceTree = "<group>"; };
 		A2000006013 /* SmartNotesSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartNotesSheet.swift; sourceTree = "<group>"; };
+		A200014001 /* SDManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDManager.swift; sourceTree = "<group>"; };
+		A200014002 /* SDMeeting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDMeeting.swift; sourceTree = "<group>"; };
+		A200014003 /* SDAgendaItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDAgendaItem.swift; sourceTree = "<group>"; };
+		A200014004 /* SDActionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDActionItem.swift; sourceTree = "<group>"; };
+		A200014005 /* SDCareerGoal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDCareerGoal.swift; sourceTree = "<group>"; };
+		A200014006 /* SDAchievement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDAchievement.swift; sourceTree = "<group>"; };
+		A200014007 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		A3000001001 /* CareerCompanion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CareerCompanion.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2000001001 /* WidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBundle.swift; sourceTree = "<group>"; };
 		B2000001002 /* ActionItemsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionItemsWidget.swift; sourceTree = "<group>"; };
@@ -300,6 +314,7 @@
 			isa = PBXGroup;
 			children = (
 				C2000002006 /* CloudKit */,
+				C2000014001 /* SwiftData */,
 				C2000002007 /* Models */,
 				C200000200F /* Services */,
 				C2000002010 /* Intents */,
@@ -349,6 +364,28 @@
 				A2000002002 /* CloudKitManager.swift */,
 			);
 			path = CloudKit;
+			sourceTree = "<group>";
+		};
+		C2000014001 /* SwiftData */ = {
+			isa = PBXGroup;
+			children = (
+				C2000014002 /* Models */,
+				A200014007 /* DataManager.swift */,
+			);
+			path = SwiftData;
+			sourceTree = "<group>";
+		};
+		C2000014002 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A200014001 /* SDManager.swift */,
+				A200014002 /* SDMeeting.swift */,
+				A200014003 /* SDAgendaItem.swift */,
+				A200014004 /* SDActionItem.swift */,
+				A200014005 /* SDCareerGoal.swift */,
+				A200014006 /* SDAchievement.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		C2000002007 /* Models */ = {
@@ -753,6 +790,13 @@
 				A100013006 /* NoteImprovement.swift in Sources */,
 				A1000006012 /* ImprovementPreviewSheet.swift in Sources */,
 				A1000006013 /* SmartNotesSheet.swift in Sources */,
+				A100014001 /* SDManager.swift in Sources */,
+				A100014002 /* SDMeeting.swift in Sources */,
+				A100014003 /* SDAgendaItem.swift in Sources */,
+				A100014004 /* SDActionItem.swift in Sources */,
+				A100014005 /* SDCareerGoal.swift in Sources */,
+				A100014006 /* SDAchievement.swift in Sources */,
+				A100014007 /* DataManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

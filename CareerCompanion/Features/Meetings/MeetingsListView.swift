@@ -3,8 +3,14 @@ import SwiftUI
 /// List of all 1:1 meetings (past and upcoming)
 struct MeetingsListView: View {
     @StateObject private var viewModel = MeetingsViewModel()
+    @StateObject private var dataManager = DataManager.shared
     @State private var showingNewMeeting = false
     @State private var isDemoMode = AppSettings.shared.isDemoMode
+    @State private var showingErrorAlert = false
+
+    private var isCloudKitAvailable: Bool {
+        dataManager.isCloudKitAvailable || AppSettings.shared.isDemoMode
+    }
 
     var body: some View {
         Group {
@@ -13,7 +19,15 @@ struct MeetingsListView: View {
             } else if viewModel.allMeetings.isEmpty {
                 EmptyMeetingsView(onAddMeeting: { showingNewMeeting = true })
             } else {
-                MeetingsList(viewModel: viewModel)
+                VStack(spacing: 0) {
+                    // iCloud warning banner
+                    if !isCloudKitAvailable {
+                        iCloudWarningBanner
+                            .padding(.horizontal, Spacing.screenPadding)
+                            .padding(.top, Spacing.sm)
+                    }
+                    MeetingsList(viewModel: viewModel)
+                }
             }
         }
         .navigationTitle("1:1 Meetings")
@@ -32,6 +46,16 @@ struct MeetingsListView: View {
                 }
             }
         }
+        .alert("Unable to Save", isPresented: $showingErrorAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(viewModel.error?.localizedDescription ?? "An error occurred. Please check your iCloud settings.")
+        }
+        .onChange(of: viewModel.error != nil) { _, hasError in
+            if hasError {
+                showingErrorAlert = true
+            }
+        }
         .refreshable {
             await viewModel.loadMeetings()
         }
@@ -47,6 +71,33 @@ struct MeetingsListView: View {
                 }
             }
         }
+    }
+
+    private var iCloudWarningBanner: some View {
+        HStack(spacing: Spacing.sm) {
+            Image(systemName: "icloud.slash")
+                .foregroundStyle(Colors.textSecondary)
+
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
+                Text("iCloud Sync Unavailable")
+                    .font(Typography.subheadline.weight(.semibold))
+                Text("Data saves locally. Sign in to iCloud to sync across devices.")
+                    .font(Typography.caption1)
+                    .foregroundStyle(Colors.textSecondary)
+            }
+
+            Spacer()
+
+            Button("Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            .font(Typography.caption1.weight(.medium))
+        }
+        .padding(Spacing.md)
+        .background(Colors.backgroundSecondary)
+        .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusMedium))
     }
 }
 

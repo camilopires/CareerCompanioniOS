@@ -81,6 +81,9 @@
 		A1000006010 /* ExportMeetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006010 /* ExportMeetingView.swift */; };
 		A1000006011 /* QuickExportButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006011 /* QuickExportButton.swift */; };
 		A100013005 /* ExportSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200013005 /* ExportSettingsSection.swift */; };
+		A100013006 /* NoteImprovement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200013006 /* NoteImprovement.swift */; };
+		A1000006012 /* ImprovementPreviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006012 /* ImprovementPreviewSheet.swift */; };
+		A1000006013 /* SmartNotesSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006013 /* SmartNotesSheet.swift */; };
 		B1000001001 /* WidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001001 /* WidgetBundle.swift */; };
 		B1000001002 /* ActionItemsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001002 /* ActionItemsWidget.swift */; };
 		B1000001003 /* NextMeetingWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001003 /* NextMeetingWidget.swift */; };
@@ -213,6 +216,9 @@
 		A2000006010 /* ExportMeetingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportMeetingView.swift; sourceTree = "<group>"; };
 		A2000006011 /* QuickExportButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickExportButton.swift; sourceTree = "<group>"; };
 		A200013005 /* ExportSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportSettingsSection.swift; sourceTree = "<group>"; };
+		A200013006 /* NoteImprovement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteImprovement.swift; sourceTree = "<group>"; };
+		A2000006012 /* ImprovementPreviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImprovementPreviewSheet.swift; sourceTree = "<group>"; };
+		A2000006013 /* SmartNotesSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartNotesSheet.swift; sourceTree = "<group>"; };
 		A3000001001 /* CareerCompanion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CareerCompanion.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2000001001 /* WidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBundle.swift; sourceTree = "<group>"; };
 		B2000001002 /* ActionItemsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionItemsWidget.swift; sourceTree = "<group>"; };
@@ -357,6 +363,7 @@
 				A2000003007 /* Achievement.swift */,
 				A2000003008 /* AppSettings.swift */,
 				A2000003009 /* RecurrenceRule.swift */,
+				A200013006 /* NoteImprovement.swift */,
 				A200012001 /* PremiumFeatures.swift */,
 			);
 			path = Models;
@@ -401,8 +408,18 @@
 				A2000006009 /* CustomRecurrencePicker.swift */,
 				A2000006010 /* ExportMeetingView.swift */,
 				A2000006011 /* QuickExportButton.swift */,
+				C200000600C /* Components */,
 			);
 			path = Meetings;
+			sourceTree = "<group>";
+		};
+		C200000600C /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				A2000006012 /* ImprovementPreviewSheet.swift */,
+				A2000006013 /* SmartNotesSheet.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		C200000200B /* ActionItems */ = {
@@ -733,6 +750,9 @@
 				A1000006010 /* ExportMeetingView.swift in Sources */,
 				A1000006011 /* QuickExportButton.swift in Sources */,
 				A100013005 /* ExportSettingsSection.swift in Sources */,
+				A100013006 /* NoteImprovement.swift in Sources */,
+				A1000006012 /* ImprovementPreviewSheet.swift in Sources */,
+				A1000006013 /* SmartNotesSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

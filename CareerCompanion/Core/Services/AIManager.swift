@@ -304,6 +304,455 @@ final class AIManager: ObservableObject {
 
         return summaryParts.joined(separator: "\n\n")
     }
+
+    // MARK: - Note Improvement (v2.9)
+
+    /// Improve text based on the selected improvement type
+    func improveText(
+        _ text: String,
+        type: NoteImprovementType,
+        section: MeetingSectionType
+    ) async -> String {
+        guard isAvailable && isEnabled else { return text }
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return text }
+
+        isProcessing = true
+        defer { isProcessing = false }
+
+        switch type {
+        case .professionalTone:
+            return makeProfessional(text, section: section)
+        case .expandDetails:
+            return expandDetails(text, section: section)
+        case .fixGrammar:
+            return fixGrammar(text)
+        case .simplify:
+            return simplify(text)
+        case .addContext:
+            return addContext(text, section: section)
+        }
+    }
+
+    /// Improve a list of items
+    func improveItems(
+        _ items: [String],
+        type: NoteImprovementType,
+        section: MeetingSectionType
+    ) async -> [String] {
+        guard isAvailable && isEnabled else { return items }
+        guard !items.isEmpty else { return items }
+
+        isProcessing = true
+        defer { isProcessing = false }
+
+        var improved: [String] = []
+        for item in items {
+            // Process without nested isProcessing toggle
+            let improvedItem: String
+            switch type {
+            case .professionalTone:
+                improvedItem = makeProfessional(item, section: section)
+            case .expandDetails:
+                improvedItem = expandDetails(item, section: section)
+            case .fixGrammar:
+                improvedItem = fixGrammar(item)
+            case .simplify:
+                improvedItem = simplify(item)
+            case .addContext:
+                improvedItem = addContext(item, section: section)
+            }
+            improved.append(improvedItem)
+        }
+        return improved
+    }
+
+    // MARK: - Improvement Helpers
+
+    private func makeProfessional(_ text: String, section: MeetingSectionType) -> String {
+        var result = text
+
+        // Capitalize first letter
+        if let first = result.first {
+            result = String(first).uppercased() + result.dropFirst()
+        }
+
+        // Replace informal phrases
+        let replacements: [(String, String)] = [
+            ("gonna", "going to"),
+            ("wanna", "want to"),
+            ("kinda", "somewhat"),
+            ("sorta", "sort of"),
+            ("gotta", "have to"),
+            ("really good", "excellent"),
+            ("really bad", "challenging"),
+            ("messed up", "encountered issues with"),
+            ("screwed up", "made an error in"),
+            ("super", "very"),
+            ("awesome", "excellent"),
+            ("cool", "good"),
+            ("stuff", "items"),
+            ("things", "aspects"),
+            ("a lot", "significantly"),
+            ("lots of", "numerous"),
+            ("pretty much", "essentially"),
+            ("kind of", "somewhat"),
+            ("a bunch of", "several"),
+            ("totally", "completely"),
+            ("huge", "significant"),
+            ("crazy", "unexpected"),
+            ("insane", "remarkable")
+        ]
+
+        for (informal, formal) in replacements {
+            result = result.replacingOccurrences(of: informal, with: formal, options: .caseInsensitive)
+        }
+
+        // Add period if missing
+        let trimmed = result.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty && !trimmed.hasSuffix(".") && !trimmed.hasSuffix("!") && !trimmed.hasSuffix("?") {
+            result = trimmed + "."
+        }
+
+        return result
+    }
+
+    private func expandDetails(_ text: String, section: MeetingSectionType) -> String {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Only suggest expansion for short text
+        guard trimmed.count < 80 else { return text }
+
+        // Add context hints based on section type
+        let hint: String
+        switch section {
+        case .wentWell:
+            hint = " — consider adding: specific impact, metrics, or stakeholder feedback"
+        case .didntGoWell:
+            hint = " — consider adding: root cause analysis and lessons learned"
+        case .blockers:
+            hint = " — consider adding: timeline impact, dependencies, and mitigation steps"
+        case .escalations:
+            hint = " — consider adding: urgency level, decision needed, and deadline"
+        case .thisWeekGoals:
+            hint = " — consider adding: success criteria and key milestones"
+        case .thisWeekProgress:
+            hint = " — consider adding: percentage complete and remaining work"
+        case .keyMetrics:
+            hint = " — consider adding: target value, current value, and trend"
+        case .nextWeekGoals:
+            hint = " — consider adding: dependencies and potential blockers"
+        case .notes:
+            hint = " — consider adding: action items, decisions made, and follow-ups"
+        }
+
+        return trimmed + hint
+    }
+
+    private func fixGrammar(_ text: String) -> String {
+        var result = text
+
+        // Basic capitalization fixes
+        if let first = result.first, first.isLowercase {
+            result = String(first).uppercased() + result.dropFirst()
+        }
+
+        // Fix capitalization after periods
+        var chars = Array(result)
+        var shouldCapitalize = false
+        for i in chars.indices {
+            if chars[i] == "." || chars[i] == "!" || chars[i] == "?" {
+                shouldCapitalize = true
+            } else if shouldCapitalize && chars[i].isLetter {
+                chars[i] = Character(chars[i].uppercased())
+                shouldCapitalize = false
+            } else if !chars[i].isWhitespace {
+                shouldCapitalize = false
+            }
+        }
+        result = String(chars)
+
+        // Common typos and contractions
+        let fixes: [(String, String)] = [
+            ("i ", "I "),
+            (" i ", " I "),
+            ("i'm", "I'm"),
+            ("i've", "I've"),
+            ("i'll", "I'll"),
+            ("i'd", "I'd"),
+            ("dont", "don't"),
+            ("cant", "can't"),
+            ("wont", "won't"),
+            ("didnt", "didn't"),
+            ("couldnt", "couldn't"),
+            ("wouldnt", "wouldn't"),
+            ("shouldnt", "shouldn't"),
+            ("wasnt", "wasn't"),
+            ("werent", "weren't"),
+            ("isnt", "isn't"),
+            ("arent", "aren't"),
+            ("hasnt", "hasn't"),
+            ("havent", "haven't"),
+            ("doesnt", "doesn't"),
+            ("ive", "I've"),
+            ("youre", "you're"),
+            ("theyre", "they're"),
+            ("weve", "we've"),
+            ("thats", "that's"),
+            ("whats", "what's"),
+            ("  ", " ")
+        ]
+
+        for (typo, correction) in fixes {
+            result = result.replacingOccurrences(of: typo, with: correction, options: .caseInsensitive)
+        }
+
+        // Remove multiple spaces
+        while result.contains("  ") {
+            result = result.replacingOccurrences(of: "  ", with: " ")
+        }
+
+        // Add period if missing
+        let trimmed = result.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty && !trimmed.hasSuffix(".") && !trimmed.hasSuffix("!") && !trimmed.hasSuffix("?") {
+            result = trimmed + "."
+        }
+
+        return result
+    }
+
+    private func simplify(_ text: String) -> String {
+        var result = text
+
+        // Remove filler words
+        let fillerWords = [
+            "basically", "actually", "literally", "honestly",
+            "essentially", "obviously", "clearly", "simply",
+            "just", "really", "very", "quite", "rather",
+            "definitely", "certainly", "absolutely", "probably",
+            "perhaps", "maybe", "seemingly", "apparently"
+        ]
+
+        for filler in fillerWords {
+            // Remove filler word with surrounding spaces
+            result = result.replacingOccurrences(of: " \(filler) ", with: " ", options: .caseInsensitive)
+            // Remove at start of sentence
+            if result.lowercased().hasPrefix("\(filler) ") {
+                result = String(result.dropFirst(filler.count + 1))
+            }
+        }
+
+        // Remove redundant phrases
+        let redundancies: [(String, String)] = [
+            ("in order to", "to"),
+            ("due to the fact that", "because"),
+            ("at this point in time", "now"),
+            ("in the event that", "if"),
+            ("for the purpose of", "to"),
+            ("in the near future", "soon"),
+            ("at the present time", "now"),
+            ("in spite of the fact that", "although"),
+            ("on a daily basis", "daily"),
+            ("on a weekly basis", "weekly")
+        ]
+
+        for (redundant, simple) in redundancies {
+            result = result.replacingOccurrences(of: redundant, with: simple, options: .caseInsensitive)
+        }
+
+        // Remove double spaces
+        while result.contains("  ") {
+            result = result.replacingOccurrences(of: "  ", with: " ")
+        }
+
+        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func addContext(_ text: String, section: MeetingSectionType) -> String {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Add section-appropriate context prefix
+        let prefix: String
+        switch section {
+        case .wentWell:
+            prefix = "Successfully "
+        case .didntGoWell:
+            prefix = "Challenge: "
+        case .blockers:
+            prefix = "Blocked by: "
+        case .escalations:
+            prefix = "Needs escalation: "
+        case .thisWeekGoals:
+            prefix = "Goal: "
+        case .thisWeekProgress:
+            prefix = "Progress: "
+        case .keyMetrics:
+            prefix = "Metric: "
+        case .nextWeekGoals:
+            prefix = "Next week: "
+        case .notes:
+            return trimmed  // No prefix for notes
+        }
+
+        // Only add prefix if not already present or similar
+        let lowerText = trimmed.lowercased()
+        let lowerPrefix = prefix.lowercased().trimmingCharacters(in: .whitespaces).dropLast()
+
+        if !lowerText.hasPrefix(String(lowerPrefix)) {
+            // Lowercase the first character after the prefix
+            if let first = trimmed.first, first.isUppercase {
+                return prefix + String(first).lowercased() + trimmed.dropFirst()
+            }
+            return prefix + trimmed
+        }
+
+        return trimmed
+    }
+
+    // MARK: - Smart Notes Categorization (v2.9)
+
+    /// Categorize rough notes into appropriate meeting sections
+    func categorizeNotes(
+        _ rawNotes: String,
+        selectedSections: Set<MeetingSectionType>
+    ) async -> SmartNotesResult {
+        guard isAvailable && isEnabled else {
+            return SmartNotesResult(categorizedItems: [:], uncategorizedItems: [rawNotes])
+        }
+        guard !rawNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return SmartNotesResult(categorizedItems: [:], uncategorizedItems: [])
+        }
+
+        isProcessing = true
+        defer { isProcessing = false }
+
+        // Split into sentences/items
+        let items = splitIntoItems(rawNotes)
+
+        var categorized: [MeetingSectionType: [String]] = [:]
+        var uncategorized: [String] = []
+
+        for item in items {
+            let trimmed = item.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { continue }
+
+            if let category = categorizeItem(trimmed, availableSections: selectedSections) {
+                categorized[category, default: []].append(trimmed)
+            } else {
+                uncategorized.append(trimmed)
+            }
+        }
+
+        return SmartNotesResult(categorizedItems: categorized, uncategorizedItems: uncategorized)
+    }
+
+    private func splitIntoItems(_ text: String) -> [String] {
+        var items: [String] = []
+
+        // Split by newlines first
+        let lines = text.components(separatedBy: .newlines)
+
+        for line in lines {
+            var cleaned = line
+            // Remove bullet points
+            cleaned = cleaned.replacingOccurrences(of: "^[\\-\\*\\•\\◦\\▸\\→]\\s*", with: "", options: .regularExpression)
+            // Remove numbered list markers
+            cleaned = cleaned.replacingOccurrences(of: "^\\d+\\.\\s*", with: "", options: .regularExpression)
+            // Remove checkbox markers
+            cleaned = cleaned.replacingOccurrences(of: "^\\[[ x]\\]\\s*", with: "", options: .regularExpression)
+
+            let trimmed = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty {
+                items.append(trimmed)
+            }
+        }
+
+        return items
+    }
+
+    private func categorizeItem(_ text: String, availableSections: Set<MeetingSectionType>) -> MeetingSectionType? {
+        let lowerText = text.lowercased()
+
+        // Use NLP to analyze the text
+        let tagger = NLTagger(tagSchemes: [.sentimentScore])
+        tagger.string = text
+
+        // Analyze sentiment
+        var sentimentScore: Double = 0
+        tagger.enumerateTags(in: text.startIndex..<text.endIndex, unit: .paragraph, scheme: .sentimentScore) { tag, _ in
+            if let score = tag?.rawValue, let value = Double(score) {
+                sentimentScore = value
+            }
+            return true
+        }
+
+        // Keyword-based categorization
+        let wentWellKeywords = ["achieved", "completed", "success", "won", "improved", "great", "excellent",
+                                "good progress", "milestone", "accomplished", "delivered", "shipped",
+                                "fixed", "resolved", "positive", "proud", "celebrated"]
+
+        let didntGoWellKeywords = ["failed", "missed", "delayed", "struggled", "issue", "problem",
+                                   "didn't work", "challenge", "difficult", "frustrated", "concern",
+                                   "setback", "mistake", "error", "wrong", "bad"]
+
+        let blockerKeywords = ["blocked", "waiting", "depends on", "need", "can't proceed", "stuck",
+                               "blocker", "blocking", "dependency", "waiting for", "pending",
+                               "on hold", "paused", "requires", "needs approval"]
+
+        let escalationKeywords = ["escalate", "manager", "leadership", "decision needed", "approval",
+                                  "urgent", "priority", "critical", "executive", "senior",
+                                  "higher level", "attention needed", "risk"]
+
+        let goalKeywords = ["goal", "objective", "aim", "target", "plan to", "will", "want to",
+                           "intend to", "looking to", "hoping to", "going to"]
+
+        let progressKeywords = ["progress", "completed", "done", "finished", "working on",
+                               "started", "continuing", "in progress", "underway", "ongoing",
+                               "moving forward", "advancing"]
+
+        let metricKeywords = ["metric", "kpi", "percentage", "number", "%", "count", "rate",
+                             "velocity", "score", "increase", "decrease", "ratio", "average"]
+
+        let nextWeekKeywords = ["next week", "next sprint", "upcoming", "future", "later",
+                               "following week", "next period", "carry over"]
+
+        // Check each category (only if section is selected)
+        // Order matters - check more specific patterns first
+
+        if availableSections.contains(.blockers) && blockerKeywords.contains(where: { lowerText.contains($0) }) {
+            return .blockers
+        }
+
+        if availableSections.contains(.escalations) && escalationKeywords.contains(where: { lowerText.contains($0) }) {
+            return .escalations
+        }
+
+        if availableSections.contains(.keyMetrics) && metricKeywords.contains(where: { lowerText.contains($0) }) {
+            return .keyMetrics
+        }
+
+        if availableSections.contains(.nextWeekGoals) && nextWeekKeywords.contains(where: { lowerText.contains($0) }) {
+            return .nextWeekGoals
+        }
+
+        if availableSections.contains(.thisWeekProgress) && progressKeywords.contains(where: { lowerText.contains($0) }) {
+            return .thisWeekProgress
+        }
+
+        if availableSections.contains(.thisWeekGoals) && goalKeywords.contains(where: { lowerText.contains($0) }) {
+            return .thisWeekGoals
+        }
+
+        // Use sentiment for went well / didn't go well if keywords don't match
+        if availableSections.contains(.wentWell) && (sentimentScore > 0.3 || wentWellKeywords.contains(where: { lowerText.contains($0) })) {
+            return .wentWell
+        }
+
+        if availableSections.contains(.didntGoWell) && (sentimentScore < -0.3 || didntGoWellKeywords.contains(where: { lowerText.contains($0) })) {
+            return .didntGoWell
+        }
+
+        return nil
+    }
 }
 
 // MARK: - AI Error

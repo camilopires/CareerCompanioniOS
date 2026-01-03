@@ -573,3 +573,103 @@ enum ExportSection: String, Codable, CaseIterable, Identifiable {
         [.header, .wentWell, .didntGoWell, .blockers, .escalations, .actionItems, .nextSteps]
     }
 }
+
+// MARK: - AI Note Improvement (v2.9)
+
+/// Types of AI improvements available for notes
+enum NoteImprovementType: String, CaseIterable, Identifiable {
+    case professionalTone = "professional"
+    case expandDetails = "expand"
+    case fixGrammar = "grammar"
+    case simplify = "simplify"
+    case addContext = "context"
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .professionalTone: return "Professional Tone"
+        case .expandDetails: return "Expand Details"
+        case .fixGrammar: return "Fix Grammar"
+        case .simplify: return "Simplify"
+        case .addContext: return "Add Context"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .professionalTone: return "briefcase.fill"
+        case .expandDetails: return "text.append"
+        case .fixGrammar: return "textformat.abc"
+        case .simplify: return "text.justify.left"
+        case .addContext: return "doc.text.magnifyingglass"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .professionalTone: return "Make it sound more professional"
+        case .expandDetails: return "Add more detail and depth"
+        case .fixGrammar: return "Correct spelling and grammar"
+        case .simplify: return "Make it clearer and more concise"
+        case .addContext: return "Add relevant context and background"
+        }
+    }
+}
+
+/// Meeting sections that can be improved with AI
+enum MeetingSectionType: String, CaseIterable, Identifiable {
+    case notes
+    case wentWell
+    case didntGoWell
+    case blockers
+    case escalations
+    case thisWeekGoals
+    case thisWeekProgress
+    case keyMetrics
+    case nextWeekGoals
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .notes: return "Notes"
+        case .wentWell: return "What Went Well"
+        case .didntGoWell: return "What Didn't Go Well"
+        case .blockers: return "Blockers"
+        case .escalations: return "Escalations"
+        case .thisWeekGoals: return "This Week's Goals"
+        case .thisWeekProgress: return "Progress Updates"
+        case .keyMetrics: return "Key Metrics"
+        case .nextWeekGoals: return "Next Week's Goals"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .notes: return "note.text"
+        case .wentWell: return "hand.thumbsup.fill"
+        case .didntGoWell: return "hand.thumbsdown.fill"
+        case .blockers: return "exclamationmark.octagon.fill"
+        case .escalations: return "arrow.up.circle.fill"
+        case .thisWeekGoals: return "list.clipboard.fill"
+        case .thisWeekProgress: return "chart.bar.fill"
+        case .keyMetrics: return "chart.line.uptrend.xyaxis"
+        case .nextWeekGoals: return "arrow.right.circle.fill"
+        }
+    }
+
+    var iconColor: Color {
+        switch self {
+        case .notes: return .primary
+        case .wentWell: return .green
+        case .didntGoWell: return .orange
+        case .blockers: return .red
+        case .escalations: return .blue
+        case .thisWeekGoals: return .blue
+        case .thisWeekProgress: return .purple
+        case .keyMetrics: return .orange
+        case .nextWeekGoals: return .teal
+        }
+    }
+}

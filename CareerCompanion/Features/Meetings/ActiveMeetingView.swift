@@ -7,11 +7,19 @@ struct ActiveMeetingView: View {
     @State private var showingEndConfirmation = false
     @State private var showingUpgrade = false
     @State private var showingExport = false
+    @State private var showingSmartNotes = false
+    @State private var showingImproveAllPreview = false
+    @State private var batchPreview: BatchImprovementPreview?
+    @State private var isImprovingAll = false
 
     var managerName: String = ""
 
     private var canAccessWeeklyGoals: Bool {
         AppSettings.shared.canAccessWeeklyGoals
+    }
+
+    private var canAccessAI: Bool {
+        AppSettings.shared.canAccessAI
     }
 
     init(meeting: Meeting) {
@@ -35,7 +43,8 @@ struct ActiveMeetingView: View {
                         icon: "list.clipboard.fill",
                         iconColor: .blue,
                         items: $viewModel.thisWeekGoals,
-                        placeholder: "Add a goal for this week..."
+                        placeholder: "Add a goal for this week...",
+                        sectionType: .thisWeekGoals
                     )
 
                     // Progress Updates (optional)
@@ -44,7 +53,8 @@ struct ActiveMeetingView: View {
                         icon: "chart.bar.fill",
                         iconColor: .purple,
                         items: $viewModel.thisWeekProgress,
-                        placeholder: "Add a progress update..."
+                        placeholder: "Add a progress update...",
+                        sectionType: .thisWeekProgress
                     )
 
                     // Key Metrics (optional, carries over between meetings)
@@ -53,7 +63,8 @@ struct ActiveMeetingView: View {
                         icon: "chart.line.uptrend.xyaxis",
                         iconColor: .orange,
                         items: $viewModel.keyMetrics,
-                        placeholder: "Add a metric you're tracking..."
+                        placeholder: "Add a metric you're tracking...",
+                        sectionType: .keyMetrics
                     )
 
                     // Next Week's Goals (optional, carries to next meeting)
@@ -62,7 +73,8 @@ struct ActiveMeetingView: View {
                         icon: "arrow.right.circle.fill",
                         iconColor: .teal,
                         items: $viewModel.nextWeekGoals,
-                        placeholder: "Add a goal for next week..."
+                        placeholder: "Add a goal for next week...",
+                        sectionType: .nextWeekGoals
                     )
                 } else {
                     PremiumLockedSection(feature: .weeklyGoalsMetrics) {
@@ -79,7 +91,8 @@ struct ActiveMeetingView: View {
                     icon: "hand.thumbsup.fill",
                     iconColor: Colors.success,
                     items: $viewModel.wentWell,
-                    placeholder: "Add a win..."
+                    placeholder: "Add a win...",
+                    sectionType: .wentWell
                 )
 
                 // What didn't go well
@@ -88,7 +101,8 @@ struct ActiveMeetingView: View {
                     icon: "hand.thumbsdown.fill",
                     iconColor: Colors.warning,
                     items: $viewModel.didntGoWell,
-                    placeholder: "Add a challenge..."
+                    placeholder: "Add a challenge...",
+                    sectionType: .didntGoWell
                 )
 
                 // Blockers
@@ -97,7 +111,8 @@ struct ActiveMeetingView: View {
                     icon: "exclamationmark.octagon.fill",
                     iconColor: Colors.error,
                     items: $viewModel.blockers,
-                    placeholder: "Add a blocker..."
+                    placeholder: "Add a blocker...",
+                    sectionType: .blockers
                 )
 
                 // Escalations
@@ -106,7 +121,8 @@ struct ActiveMeetingView: View {
                     icon: "arrow.up.circle.fill",
                     iconColor: Colors.info,
                     items: $viewModel.escalations,
-                    placeholder: "Add an escalation..."
+                    placeholder: "Add an escalation...",
+                    sectionType: .escalations
                 )
 
                 // Action Items
@@ -136,11 +152,41 @@ struct ActiveMeetingView: View {
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showingExport = true
-                } label: {
-                    Image(systemName: "doc.on.doc")
-                        .accessibilityLabel("Export meeting")
+                HStack(spacing: Spacing.sm) {
+                    // Smart Notes button (AI)
+                    if canAccessAI {
+                        Button {
+                            showingSmartNotes = true
+                        } label: {
+                            Image(systemName: "doc.text.magnifyingglass")
+                                .accessibilityLabel("Smart Notes")
+                        }
+                    }
+
+                    // Improve All menu (AI)
+                    if canAccessAI {
+                        Menu {
+                            ForEach(NoteImprovementType.allCases) { type in
+                                Button {
+                                    Task { await improveAllSections(type: type) }
+                                } label: {
+                                    Label(type.displayName, systemImage: type.icon)
+                                }
+                            }
+                        } label: {
+                            Image(systemName: "sparkles")
+                                .accessibilityLabel("Improve all notes")
+                        }
+                        .disabled(isImprovingAll)
+                    }
+
+                    // Export button
+                    Button {
+                        showingExport = true
+                    } label: {
+                        Image(systemName: "doc.on.doc")
+                            .accessibilityLabel("Export meeting")
+                    }
                 }
             }
         }
@@ -173,6 +219,136 @@ struct ActiveMeetingView: View {
         .sheet(isPresented: $showingUpgrade) {
             UpgradeView()
         }
+        .sheet(isPresented: $showingSmartNotes) {
+            SmartNotesSheet { result, manualAssignments in
+                applySmartNotesResult(result, manualAssignments: manualAssignments)
+            }
+        }
+        .sheet(isPresented: $showingImproveAllPreview) {
+            if let preview = batchPreview {
+                BatchImprovementPreviewSheet(
+                    preview: preview,
+                    onApply: {
+                        applyBatchImprovements(preview)
+                    },
+                    onCancel: { }
+                )
+            }
+        }
+    }
+
+    // MARK: - AI Helper Functions
+
+    private func improveAllSections(type: NoteImprovementType) async {
+        isImprovingAll = true
+
+        var improvements: [NoteImprovementPreview] = []
+
+        // Improve each non-empty section
+        let sectionsToImprove: [(MeetingSectionType, [String])] = [
+            (.wentWell, viewModel.wentWell),
+            (.didntGoWell, viewModel.didntGoWell),
+            (.blockers, viewModel.blockers),
+            (.escalations, viewModel.escalations),
+            (.thisWeekGoals, viewModel.thisWeekGoals),
+            (.thisWeekProgress, viewModel.thisWeekProgress),
+            (.keyMetrics, viewModel.keyMetrics),
+            (.nextWeekGoals, viewModel.nextWeekGoals)
+        ]
+
+        for (section, items) in sectionsToImprove where !items.isEmpty {
+            let improved = await AIManager.shared.improveItems(items, type: type, section: section)
+            improvements.append(NoteImprovementPreview(
+                sectionType: section,
+                improvementType: type,
+                originalContent: items,
+                improvedContent: improved
+            ))
+        }
+
+        batchPreview = BatchImprovementPreview(improvements: improvements, improvementType: type)
+        isImprovingAll = false
+        showingImproveAllPreview = true
+    }
+
+    private func applyBatchImprovements(_ preview: BatchImprovementPreview) {
+        for improvement in preview.improvements where improvement.hasChanges {
+            switch improvement.sectionType {
+            case .wentWell:
+                viewModel.wentWell = improvement.improvedContent
+            case .didntGoWell:
+                viewModel.didntGoWell = improvement.improvedContent
+            case .blockers:
+                viewModel.blockers = improvement.improvedContent
+            case .escalations:
+                viewModel.escalations = improvement.improvedContent
+            case .thisWeekGoals:
+                viewModel.thisWeekGoals = improvement.improvedContent
+            case .thisWeekProgress:
+                viewModel.thisWeekProgress = improvement.improvedContent
+            case .keyMetrics:
+                viewModel.keyMetrics = improvement.improvedContent
+            case .nextWeekGoals:
+                viewModel.nextWeekGoals = improvement.improvedContent
+            case .notes:
+                break // Notes handled separately
+            }
+        }
+        Theme.successHaptic()
+    }
+
+    private func applySmartNotesResult(_ result: SmartNotesResult, manualAssignments: [String: MeetingSectionType]) {
+        // Apply categorized items
+        for (section, items) in result.categorizedItems {
+            switch section {
+            case .wentWell:
+                viewModel.wentWell.append(contentsOf: items)
+            case .didntGoWell:
+                viewModel.didntGoWell.append(contentsOf: items)
+            case .blockers:
+                viewModel.blockers.append(contentsOf: items)
+            case .escalations:
+                viewModel.escalations.append(contentsOf: items)
+            case .thisWeekGoals:
+                viewModel.thisWeekGoals.append(contentsOf: items)
+            case .thisWeekProgress:
+                viewModel.thisWeekProgress.append(contentsOf: items)
+            case .keyMetrics:
+                viewModel.keyMetrics.append(contentsOf: items)
+            case .nextWeekGoals:
+                viewModel.nextWeekGoals.append(contentsOf: items)
+            case .notes:
+                if !items.isEmpty {
+                    viewModel.notes += (viewModel.notes.isEmpty ? "" : "\n") + items.joined(separator: "\n")
+                }
+            }
+        }
+
+        // Apply manual assignments
+        for (item, section) in manualAssignments {
+            switch section {
+            case .wentWell:
+                viewModel.wentWell.append(item)
+            case .didntGoWell:
+                viewModel.didntGoWell.append(item)
+            case .blockers:
+                viewModel.blockers.append(item)
+            case .escalations:
+                viewModel.escalations.append(item)
+            case .thisWeekGoals:
+                viewModel.thisWeekGoals.append(item)
+            case .thisWeekProgress:
+                viewModel.thisWeekProgress.append(item)
+            case .keyMetrics:
+                viewModel.keyMetrics.append(item)
+            case .nextWeekGoals:
+                viewModel.nextWeekGoals.append(item)
+            case .notes:
+                viewModel.notes += (viewModel.notes.isEmpty ? "" : "\n") + item
+            }
+        }
+
+        Theme.successHaptic()
     }
 }
 
@@ -304,14 +480,61 @@ struct FeedbackListSection: View {
     let iconColor: Color
     var items: Binding<[String]>
     let placeholder: String
+    var sectionType: MeetingSectionType? = nil
 
     @State private var newItem = ""
+    @State private var isProcessing = false
+    @State private var showingPreview = false
+    @State private var preview: NoteImprovementPreview?
+    @State private var showingUpgrade = false
+
+    private var canAccessAI: Bool {
+        AppSettings.shared.canAccessAI
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
-            Label(title, systemImage: icon)
-                .font(Typography.headline)
-                .foregroundStyle(iconColor)
+            // Header with optional AI button
+            HStack {
+                Label(title, systemImage: icon)
+                    .font(Typography.headline)
+                    .foregroundStyle(iconColor)
+
+                Spacer()
+
+                // AI Improve button (only if sectionType provided and items not empty)
+                if let sectionType = sectionType, !items.wrappedValue.isEmpty {
+                    if isProcessing {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                    } else if canAccessAI {
+                        Menu {
+                            ForEach(NoteImprovementType.allCases) { type in
+                                Button {
+                                    Task { await improveSection(type: type, section: sectionType) }
+                                } label: {
+                                    Label(type.displayName, systemImage: type.icon)
+                                }
+                            }
+                        } label: {
+                            Image(systemName: "sparkles")
+                                .font(.caption)
+                                .foregroundStyle(Color.accentColor)
+                        }
+                        .accessibilityLabel("Improve with AI")
+                    } else {
+                        Button {
+                            showingUpgrade = true
+                        } label: {
+                            HStack(spacing: 2) {
+                                Image(systemName: "sparkles")
+                                    .font(.caption)
+                                PremiumBadge()
+                            }
+                        }
+                    }
+                }
+            }
 
             VStack(spacing: Spacing.sm) {
                 ForEach(items.wrappedValue.indices, id: \.self) { index in
@@ -352,6 +575,23 @@ struct FeedbackListSection: View {
             .background(Colors.backgroundSecondary)
             .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusMedium))
         }
+        .sheet(isPresented: $showingPreview) {
+            if let preview = preview {
+                ImprovementPreviewSheet(
+                    preview: preview,
+                    onApply: {
+                        items.wrappedValue = preview.improvedContent
+                        Theme.successHaptic()
+                    },
+                    onCancel: { }
+                )
+            }
+        }
+        .sheet(isPresented: $showingUpgrade) {
+            UpgradePromptSheet(feature: .aiSuggestions) {
+                showingUpgrade = false
+            }
+        }
     }
 
     private func addItem() {
@@ -359,6 +599,26 @@ struct FeedbackListSection: View {
         items.wrappedValue.append(newItem)
         newItem = ""
         Theme.lightHaptic()
+    }
+
+    private func improveSection(type: NoteImprovementType, section: MeetingSectionType) async {
+        isProcessing = true
+
+        let improved = await AIManager.shared.improveItems(
+            items.wrappedValue,
+            type: type,
+            section: section
+        )
+
+        preview = NoteImprovementPreview(
+            sectionType: section,
+            improvementType: type,
+            originalContent: items.wrappedValue,
+            improvedContent: improved
+        )
+
+        isProcessing = false
+        showingPreview = true
     }
 }
 

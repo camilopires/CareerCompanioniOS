@@ -1,5 +1,6 @@
 import Foundation
 import UniformTypeIdentifiers
+import SwiftData
 
 // MARK: - Export Data Container
 
@@ -154,7 +155,7 @@ final class ExportImportService: ObservableObject {
     @Published var progress: Double = 0
     @Published var statusMessage = ""
 
-    private let cloudKitManager = CloudKitManager.shared
+    private var context: ModelContext { DataManager.shared.context }
 
     private init() {}
 
@@ -172,24 +173,26 @@ final class ExportImportService: ObservableObject {
             statusMessage = ""
         }
 
-        // Fetch all data from CloudKit
+        // Fetch all data from SwiftData
         progress = 0.1
-        let managers: [Manager] = try await cloudKitManager.fetch()
+        let managers: [Manager] = try DataManager.shared.fetchManagers().map { $0.toManager() }
 
         progress = 0.2
-        let meetings: [Meeting] = try await cloudKitManager.fetch()
+        let meetings: [Meeting] = try DataManager.shared.fetchMeetings().map { $0.toMeeting() }
 
         progress = 0.4
-        let actionItems: [ActionItem] = try await cloudKitManager.fetch()
+        let actionItems: [ActionItem] = try DataManager.shared.fetchActionItems().map { $0.toActionItem() }
 
         progress = 0.6
-        let careerGoals: [CareerGoal] = try await cloudKitManager.fetch()
+        let careerGoals: [CareerGoal] = try DataManager.shared.fetchCareerGoals().map { $0.toCareerGoal() }
 
         progress = 0.7
-        let achievements: [Achievement] = try await cloudKitManager.fetch()
+        let achievements: [Achievement] = try DataManager.shared.fetchAchievements().map { $0.toAchievement() }
 
         progress = 0.8
-        let agendaItems: [AgendaItem] = try await cloudKitManager.fetch()
+        // Fetch all agenda items
+        let agendaDescriptor = FetchDescriptor<SDAgendaItem>()
+        let agendaItems: [AgendaItem] = try context.fetch(agendaDescriptor).map { $0.toAgendaItem() }
 
         progress = 0.9
         statusMessage = "Creating export file..."
@@ -223,14 +226,14 @@ final class ExportImportService: ObservableObject {
         }
 
         progress = 0.2
-        let managers: [Manager] = try await cloudKitManager.fetch()
+        let managers: [Manager] = try DataManager.shared.fetchManagers().map { $0.toManager() }
         let managerLookup = Dictionary(uniqueKeysWithValues: managers.map { ($0.id, $0) })
 
         progress = 0.4
-        let meetings: [Meeting] = try await cloudKitManager.fetch()
+        let meetings: [Meeting] = try DataManager.shared.fetchMeetings().map { $0.toMeeting() }
 
         progress = 0.6
-        let actionItems: [ActionItem] = try await cloudKitManager.fetch()
+        let actionItems: [ActionItem] = try DataManager.shared.fetchActionItems().map { $0.toActionItem() }
 
         progress = 0.8
         statusMessage = "Creating CSV..."
@@ -305,12 +308,13 @@ final class ExportImportService: ObservableObject {
         statusMessage = "Checking for duplicates..."
 
         // Fetch existing data to check for conflicts
-        let existingManagers: [Manager] = try await cloudKitManager.fetch()
-        let existingMeetings: [Meeting] = try await cloudKitManager.fetch()
-        let existingActionItems: [ActionItem] = try await cloudKitManager.fetch()
-        let existingGoals: [CareerGoal] = try await cloudKitManager.fetch()
-        let existingAchievements: [Achievement] = try await cloudKitManager.fetch()
-        let existingAgendaItems: [AgendaItem] = try await cloudKitManager.fetch()
+        let existingManagers = try DataManager.shared.fetchManagers()
+        let existingMeetings = try DataManager.shared.fetchMeetings()
+        let existingActionItems = try DataManager.shared.fetchActionItems()
+        let existingGoals = try DataManager.shared.fetchCareerGoals()
+        let existingAchievements = try DataManager.shared.fetchAchievements()
+        let agendaDescriptor = FetchDescriptor<SDAgendaItem>()
+        let existingAgendaItems = try context.fetch(agendaDescriptor)
 
         let existingManagerIDs = Set(existingManagers.map { $0.id })
         let existingMeetingIDs = Set(existingMeetings.map { $0.id })
@@ -352,7 +356,9 @@ final class ExportImportService: ObservableObject {
                 }
 
                 do {
-                    _ = try await cloudKitManager.save(importManager)
+                    let sdManager = SDManager(from: importManager)
+                    context.insert(sdManager)
+                    try DataManager.shared.save()
                     managersImported += 1
                 } catch {
                     errors.append("Failed to import manager '\(manager.name)': \(error.localizedDescription)")
@@ -398,7 +404,37 @@ final class ExportImportService: ObservableObject {
                 }
 
                 do {
-                    _ = try await cloudKitManager.save(importMeeting)
+                    // Find the manager for this meeting
+                    let managerID = importMeeting.managerID
+                    let managerPredicate = #Predicate<SDManager> { $0.id == managerID }
+                    let managerDescriptor = FetchDescriptor<SDManager>(predicate: managerPredicate)
+                    let sdManager = try? context.fetch(managerDescriptor).first
+
+                    let sdMeeting = SDMeeting(
+                        id: importMeeting.id,
+                        manager: sdManager,
+                        date: importMeeting.date,
+                        status: importMeeting.status,
+                        perspective: importMeeting.perspective,
+                        meetingType: importMeeting.meetingType,
+                        notes: importMeeting.notes,
+                        wentWell: importMeeting.wentWell,
+                        didntGoWell: importMeeting.didntGoWell,
+                        blockers: importMeeting.blockers,
+                        escalations: importMeeting.escalations,
+                        thisWeekGoals: importMeeting.thisWeekGoals,
+                        thisWeekProgress: importMeeting.thisWeekProgress,
+                        keyMetrics: importMeeting.keyMetrics,
+                        nextWeekGoals: importMeeting.nextWeekGoals,
+                        weekSentiment: importMeeting.weekSentiment,
+                        meetingSentiment: importMeeting.meetingSentiment,
+                        calendarEventID: importMeeting.calendarEventID,
+                        recurrence: importMeeting.recurrence,
+                        createdAt: importMeeting.createdAt,
+                        updatedAt: importMeeting.updatedAt
+                    )
+                    context.insert(sdMeeting)
+                    try DataManager.shared.save()
                     meetingsImported += 1
                 } catch {
                     errors.append("Failed to import meeting: \(error.localizedDescription)")
@@ -437,7 +473,21 @@ final class ExportImportService: ObservableObject {
                 }
 
                 do {
-                    _ = try await cloudKitManager.save(importItem)
+                    let sdItem = SDActionItem(
+                        id: importItem.id,
+                        title: importItem.title,
+                        itemDescription: importItem.itemDescription,
+                        dueDate: importItem.dueDate,
+                        priority: importItem.priority,
+                        status: importItem.status,
+                        owner: importItem.owner,
+                        links: importItem.links,
+                        createdAt: importItem.createdAt,
+                        completedAt: importItem.completedAt,
+                        completionNotes: importItem.completionNotes
+                    )
+                    context.insert(sdItem)
+                    try DataManager.shared.save()
                     actionItemsImported += 1
                 } catch {
                     errors.append("Failed to import action item '\(item.title)': \(error.localizedDescription)")
@@ -478,7 +528,24 @@ final class ExportImportService: ObservableObject {
                 }
 
                 do {
-                    _ = try await cloudKitManager.save(importGoal)
+                    let sdGoal = SDCareerGoal(
+                        id: importGoal.id,
+                        title: importGoal.title,
+                        goalDescription: importGoal.goalDescription,
+                        category: importGoal.category,
+                        targetDate: importGoal.targetDate,
+                        status: importGoal.status,
+                        priority: importGoal.priority,
+                        successMetrics: importGoal.successMetrics,
+                        trackingMethod: importGoal.trackingMethod,
+                        progress: importGoal.progress,
+                        skills: importGoal.skills,
+                        notes: importGoal.notes,
+                        createdAt: importGoal.createdAt,
+                        updatedAt: importGoal.updatedAt
+                    )
+                    context.insert(sdGoal)
+                    try DataManager.shared.save()
                     goalsImported += 1
                 } catch {
                     errors.append("Failed to import goal '\(goal.title)': \(error.localizedDescription)")
@@ -516,7 +583,20 @@ final class ExportImportService: ObservableObject {
                 }
 
                 do {
-                    _ = try await cloudKitManager.save(importAchievement)
+                    let sdAchievement = SDAchievement(
+                        id: importAchievement.id,
+                        title: importAchievement.title,
+                        achievementDescription: importAchievement.achievementDescription,
+                        dateAchieved: importAchievement.dateAchieved,
+                        impactStatement: importAchievement.impactStatement,
+                        goals: [], // Goals need to be linked separately
+                        evidenceLinks: importAchievement.evidenceLinks,
+                        tags: importAchievement.tags,
+                        visibility: importAchievement.visibility,
+                        createdAt: importAchievement.createdAt
+                    )
+                    context.insert(sdAchievement)
+                    try DataManager.shared.save()
                     achievementsImported += 1
                 } catch {
                     errors.append("Failed to import achievement '\(achievement.title)': \(error.localizedDescription)")
@@ -550,7 +630,23 @@ final class ExportImportService: ObservableObject {
                 }
 
                 do {
-                    _ = try await cloudKitManager.save(importAgendaItem)
+                    // Find the meeting for this agenda item
+                    let meetingID = importAgendaItem.meetingID
+                    let meetingPredicate = #Predicate<SDMeeting> { $0.id == meetingID }
+                    let meetingDescriptor = FetchDescriptor<SDMeeting>(predicate: meetingPredicate)
+                    let sdMeeting = try? context.fetch(meetingDescriptor).first
+
+                    let sdAgendaItem = SDAgendaItem(
+                        id: importAgendaItem.id,
+                        meeting: sdMeeting,
+                        title: importAgendaItem.title,
+                        notes: importAgendaItem.notes,
+                        isCompleted: importAgendaItem.isCompleted,
+                        order: importAgendaItem.order,
+                        createdAt: importAgendaItem.createdAt
+                    )
+                    context.insert(sdAgendaItem)
+                    try DataManager.shared.save()
                     agendaItemsImported += 1
                 } catch {
                     errors.append("Failed to import agenda item '\(agendaItem.title)': \(error.localizedDescription)")

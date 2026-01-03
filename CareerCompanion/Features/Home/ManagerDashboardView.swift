@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// Dashboard view for Managers
 /// Shows team overview, upcoming 1:1s with reports, and team metrics
@@ -209,25 +210,22 @@ final class ManagerDashboardViewModel: ObservableObject {
 
         do {
             // Fetch all people
-            async let fetchedAllPeople: [Manager] = CloudKitManager.shared.fetch()
-
-            // Fetch all meetings (as manager)
-            async let fetchedMeetings: [Meeting] = CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "perspective == %@", MeetingPerspective.asManager.rawValue),
-                sortDescriptors: [NSSortDescriptor(key: "date", ascending: false)]
-            )
-
-            // Fetch action items assigned to manager
-            async let fetchedActionItems: [ActionItem] = CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "owner == %@", Owner.manager.rawValue)
-            )
-
-            let allPeople = try await fetchedAllPeople
+            let fetchedManagers = try DataManager.shared.fetchManagers()
+            let allPeople = fetchedManagers.map { $0.toManager() }
             teamMembers = allPeople.filter { $0.isDirectReport }
             otherPeople = allPeople.filter { $0.isOtherRelationship }
 
-            allMeetings = try await fetchedMeetings
-            teamActionItems = try await fetchedActionItems
+            // Fetch all meetings (as manager)
+            let perspective = MeetingPerspective.asManager.rawValue
+            let meetingPredicate = #Predicate<SDMeeting> { $0.perspectiveRaw == perspective }
+            let fetchedMeetings = try DataManager.shared.fetchMeetings(predicate: meetingPredicate)
+            allMeetings = fetchedMeetings.map { $0.toMeeting() }
+
+            // Fetch action items assigned to manager
+            let ownerRaw = Owner.manager.rawValue
+            let actionItemPredicate = #Predicate<SDActionItem> { $0.ownerRaw == ownerRaw }
+            let fetchedActionItems = try DataManager.shared.fetchActionItems(predicate: actionItemPredicate)
+            teamActionItems = fetchedActionItems.map { $0.toActionItem() }
 
             // Get upcoming meetings with other people
             let otherPersonIDs = Set(otherPeople.map { $0.id })
@@ -754,7 +752,38 @@ struct QuickScheduleMeetingView: View {
                 return
             }
 
-            _ = try? await CloudKitManager.shared.save(meeting)
+            // Find the SDManager
+            let managerID = member.id
+            let predicate = #Predicate<SDManager> { $0.id == managerID }
+            let descriptor = FetchDescriptor<SDManager>(predicate: predicate)
+            let sdManager = try? DataManager.shared.context.fetch(descriptor).first
+
+            let sdMeeting = SDMeeting(
+                id: meeting.id,
+                manager: sdManager,
+                date: meeting.date,
+                status: meeting.status,
+                perspective: meeting.perspective,
+                meetingType: meeting.meetingType,
+                notes: meeting.notes,
+                wentWell: meeting.wentWell,
+                didntGoWell: meeting.didntGoWell,
+                blockers: meeting.blockers,
+                escalations: meeting.escalations,
+                thisWeekGoals: meeting.thisWeekGoals,
+                thisWeekProgress: meeting.thisWeekProgress,
+                keyMetrics: meeting.keyMetrics,
+                nextWeekGoals: meeting.nextWeekGoals,
+                weekSentiment: meeting.weekSentiment,
+                meetingSentiment: meeting.meetingSentiment,
+                calendarEventID: meeting.calendarEventID,
+                recurrence: meeting.recurrence,
+                createdAt: meeting.createdAt,
+                updatedAt: meeting.updatedAt
+            )
+
+            DataManager.shared.context.insert(sdMeeting)
+            try? DataManager.shared.save()
             dismiss()
         }
     }
@@ -864,5 +893,4 @@ private struct ManagerOtherMeetingRow: View {
     NavigationStack {
         ManagerDashboardView()
     }
-    .environmentObject(CloudKitManager.shared)
 }

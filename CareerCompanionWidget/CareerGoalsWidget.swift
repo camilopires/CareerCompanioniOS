@@ -64,7 +64,7 @@ struct CareerGoalsProvider: TimelineProvider {
         Task {
             do {
                 let goals: [CareerGoal] = try await CloudKitManager.shared.fetch(
-                    predicate: NSPredicate(format: "status IN %@", [GoalStatus.inProgress.rawValue, GoalStatus.notStarted.rawValue]),
+                    predicate: NSPredicate(format: "status == %@ OR status == %@", GoalStatus.inProgress.rawValue, GoalStatus.notStarted.rawValue),
                     sortDescriptors: [NSSortDescriptor(key: "updatedAt", ascending: false)]
                 )
 

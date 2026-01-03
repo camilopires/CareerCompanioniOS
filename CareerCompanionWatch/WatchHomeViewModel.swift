@@ -45,14 +45,12 @@ final class WatchHomeViewModel: ObservableObject {
             managers = try await CloudKitManager.shared.fetch()
 
             // Fetch upcoming meetings
-            let meetings: [Meeting] = try await CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "status == %@ AND date > %@",
-                                       MeetingStatus.scheduled.rawValue,
-                                       Date() as NSDate),
+            let allMeetings: [Meeting] = try await CloudKitManager.shared.fetch(
+                predicate: NSPredicate(format: "status == %@ AND date > %@", MeetingStatus.scheduled.rawValue, Date() as CVarArg),
                 sortDescriptors: [NSSortDescriptor(key: "date", ascending: true)]
             )
-            upcomingMeetings = meetings
-            nextMeeting = meetings.first
+            upcomingMeetings = allMeetings
+            nextMeeting = upcomingMeetings.first
 
             // Fetch open action items
             openActionItems = try await CloudKitManager.shared.fetch(
@@ -80,12 +78,12 @@ final class WatchHomeViewModel: ObservableObject {
 
         // Sync to CloudKit
         let isDemoMode = UserDefaults(suiteName: "group.com.onetoone.tracker")?.bool(forKey: "isDemoMode") ?? false
-        if !isDemoMode {
-            do {
-                try await CloudKitManager.shared.save(updatedItem)
-            } catch {
-                print("Watch: Failed to complete action item: \(error)")
-            }
+        guard !isDemoMode else { return }
+
+        do {
+            _ = try await CloudKitManager.shared.save(updatedItem)
+        } catch {
+            print("Watch: Failed to complete action item: \(error)")
         }
     }
 
@@ -98,12 +96,12 @@ final class WatchHomeViewModel: ObservableObject {
         updatedMeeting.weekSentiment = sentiment.rawValue
 
         let isDemoMode = UserDefaults(suiteName: "group.com.onetoone.tracker")?.bool(forKey: "isDemoMode") ?? false
-        if !isDemoMode {
-            do {
-                try await CloudKitManager.shared.save(updatedMeeting)
-            } catch {
-                print("Watch: Failed to log sentiment: \(error)")
-            }
+        guard !isDemoMode else { return }
+
+        do {
+            _ = try await CloudKitManager.shared.save(updatedMeeting)
+        } catch {
+            print("Watch: Failed to log sentiment: \(error)")
         }
     }
 }

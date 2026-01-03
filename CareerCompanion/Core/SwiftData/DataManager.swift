@@ -8,6 +8,16 @@ import CloudKit
 final class DataManager: ObservableObject {
     static let shared = DataManager()
 
+    /// Shared schema for all targets (main app, Watch, Widgets)
+    static let schema = Schema([
+        SDMeeting.self,
+        SDManager.self,
+        SDActionItem.self,
+        SDCareerGoal.self,
+        SDAchievement.self,
+        SDAgendaItem.self
+    ])
+
     let container: ModelContainer
     var context: ModelContext { container.mainContext }
 
@@ -18,17 +28,17 @@ final class DataManager: ObservableObject {
     // MARK: - Initialization
 
     private init() {
-        let schema = Schema([
-            SDMeeting.self,
-            SDManager.self,
-            SDActionItem.self,
-            SDCareerGoal.self,
-            SDAchievement.self,
-            SDAgendaItem.self
-        ])
+        container = Self.createContainer()
 
-        // Try CloudKit first, fall back to local-only if it fails
+        Task {
+            await checkCloudKitStatus()
+        }
+    }
+
+    /// Creates a ModelContainer - can be used by Watch/Widget extensions
+    static func createContainer() -> ModelContainer {
         var createdContainer: ModelContainer?
+        var usingCloudKit = false
 
         // Try with CloudKit sync (using the bundle identifier-based container)
         do {
@@ -38,7 +48,7 @@ final class DataManager: ObservableObject {
                 cloudKitDatabase: .automatic
             )
             createdContainer = try ModelContainer(for: schema, configurations: [cloudConfig])
-            isUsingCloudKit = true
+            usingCloudKit = true
         } catch {
             print("CloudKit ModelContainer failed: \(error). Falling back to local storage.")
         }
@@ -52,17 +62,18 @@ final class DataManager: ObservableObject {
                     cloudKitDatabase: .none
                 )
                 createdContainer = try ModelContainer(for: schema, configurations: [localConfig])
-                isUsingCloudKit = false
+                usingCloudKit = false
             } catch {
                 fatalError("Failed to create local ModelContainer: \(error)")
             }
         }
 
-        container = createdContainer!
-
-        Task {
-            await checkCloudKitStatus()
+        // Update shared instance state if this is the shared instance
+        Task { @MainActor in
+            DataManager.shared.isUsingCloudKit = usingCloudKit
         }
+
+        return createdContainer!
     }
 
     // MARK: - CloudKit Status
@@ -129,6 +140,25 @@ final class DataManager: ObservableObject {
         }
         let descriptor = FetchDescriptor<SDAgendaItem>(predicate: predicate, sortBy: sortBy)
         return try context.fetch(descriptor)
+    }
+
+    func fetchAgendaItems(
+        forMeetingID meetingID: UUID,
+        sortBy: [SortDescriptor<SDAgendaItem>] = [SortDescriptor(\.order)]
+    ) throws -> [SDAgendaItem] {
+        let predicate = #Predicate<SDAgendaItem> { item in
+            item.meeting?.id == meetingID
+        }
+        let descriptor = FetchDescriptor<SDAgendaItem>(predicate: predicate, sortBy: sortBy)
+        return try context.fetch(descriptor)
+    }
+
+    func fetchMeeting(by id: UUID) throws -> SDMeeting? {
+        let predicate = #Predicate<SDMeeting> { meeting in
+            meeting.id == id
+        }
+        let descriptor = FetchDescriptor<SDMeeting>(predicate: predicate)
+        return try context.fetch(descriptor).first
     }
 
     // MARK: - Save

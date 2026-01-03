@@ -153,8 +153,17 @@ final class MeetingsViewModel: ObservableObject {
                 }
             }
 
-            // Find the SDManager
-            let sdManager = sdManagers[meeting.managerID]
+            // Find the SDManager - fetch from SwiftData if not cached
+            var sdManager = sdManagers[meeting.managerID]
+            if sdManager == nil {
+                let managerID = meeting.managerID
+                let predicate = #Predicate<SDManager> { $0.id == managerID }
+                let descriptor = FetchDescriptor<SDManager>(predicate: predicate)
+                if let fetchedManager = try? context.fetch(descriptor).first {
+                    sdManager = fetchedManager
+                    sdManagers[managerID] = fetchedManager
+                }
+            }
 
             // Create SDMeeting
             let sdMeeting = SDMeeting(

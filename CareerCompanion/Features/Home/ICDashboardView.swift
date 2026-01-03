@@ -302,5 +302,4 @@ struct StatItem: View {
     NavigationStack {
         ICDashboardView()
     }
-    .environmentObject(CloudKitManager.shared)
 }

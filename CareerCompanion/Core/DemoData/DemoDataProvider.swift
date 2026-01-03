@@ -275,6 +275,7 @@ struct DemoDataProvider {
         ]
     }
 
+    #if !os(watchOS)
     /// Sample career goals for demo mode
     static var careerGoals: [CareerGoal] {
         let now = Date()
@@ -347,4 +348,5 @@ struct DemoDataProvider {
             )
         ]
     }
+    #endif
 }

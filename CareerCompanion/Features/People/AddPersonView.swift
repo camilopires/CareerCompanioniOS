@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// View for adding a new person (manager, report, mentor, etc.)
 struct AddPersonView: View {
@@ -153,6 +154,7 @@ struct AddPersonView: View {
         }
     }
 
+    @MainActor
     private func savePerson() {
         let person = Manager(
             name: name.trimmingCharacters(in: .whitespaces),
@@ -161,13 +163,15 @@ struct AddPersonView: View {
             tags: tags
         )
 
-        Task {
-            let savedPerson = try? await CloudKitManager.shared.save(person)
-            await MainActor.run {
-                onPersonAdded?(savedPerson ?? person)
-                dismiss()
-            }
+        // Save to SwiftData if not in demo mode
+        if !AppSettings.shared.isDemoMode {
+            let sdManager = SDManager(from: person)
+            DataManager.shared.context.insert(sdManager)
+            try? DataManager.shared.save()
         }
+
+        onPersonAdded?(person)
+        dismiss()
     }
 }
 

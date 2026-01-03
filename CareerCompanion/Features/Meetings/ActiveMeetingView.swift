@@ -3,7 +3,7 @@ import SwiftUI
 /// View for conducting an active 1:1 meeting
 struct ActiveMeetingView: View {
     @StateObject private var viewModel: ActiveMeetingViewModel
-    @StateObject private var cloudKit = CloudKitManager.shared
+    @StateObject private var dataManager = DataManager.shared
     @Environment(\.dismiss) private var dismiss
     @State private var showingEndConfirmation = false
     @State private var showingUpgrade = false
@@ -26,7 +26,8 @@ struct ActiveMeetingView: View {
     }
 
     private var isCloudKitAvailable: Bool {
-        cloudKit.isSignedIn || AppSettings.shared.isDemoMode
+        // With SwiftData local-first storage, data is always available
+        dataManager.isCloudKitAvailable || !dataManager.isUsingCloudKit || AppSettings.shared.isDemoMode
     }
 
     init(meeting: Meeting) {

@@ -8,6 +8,7 @@ enum MeetingStatus: String, Codable, CaseIterable, Identifiable {
     case inProgress
     case completed
     case cancelled
+    case skipped
 
     var id: String { rawValue }
 
@@ -17,6 +18,7 @@ enum MeetingStatus: String, Codable, CaseIterable, Identifiable {
         case .inProgress: return "In Progress"
         case .completed: return "Completed"
         case .cancelled: return "Cancelled"
+        case .skipped: return "Skipped"
         }
     }
 
@@ -26,6 +28,7 @@ enum MeetingStatus: String, Codable, CaseIterable, Identifiable {
         case .inProgress: return "play.circle.fill"
         case .completed: return "checkmark.circle.fill"
         case .cancelled: return "xmark.circle.fill"
+        case .skipped: return "forward.fill"
         }
     }
 
@@ -35,6 +38,7 @@ enum MeetingStatus: String, Codable, CaseIterable, Identifiable {
         case .inProgress: return Color(red: 0.255, green: 0.318, blue: 0.839)
         case .completed: return .green
         case .cancelled: return .secondary
+        case .skipped: return .orange
         }
     }
 }

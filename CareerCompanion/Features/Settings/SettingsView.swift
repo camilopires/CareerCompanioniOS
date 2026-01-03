@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// App settings view
 struct SettingsView: View {
@@ -165,6 +166,7 @@ struct ManagerEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""
     @State private var email = ""
+    @State private var existingManagerID: UUID?
 
     var body: some View {
         NavigationStack {
@@ -198,19 +200,44 @@ struct ManagerEditorView: View {
     }
 
     private func loadManager() async {
-        do {
-            let managers: [Manager] = try await CloudKitManager.shared.fetch()
-            if let manager = managers.first {
+        if AppSettings.shared.isDemoMode {
+            if let manager = DemoDataProvider.managers.first {
                 name = manager.name
                 email = manager.email ?? ""
+                existingManagerID = manager.id
+            }
+            return
+        }
+
+        do {
+            let managers = try DataManager.shared.fetchManagers()
+            if let sdManager = managers.first {
+                name = sdManager.name
+                email = sdManager.email ?? ""
+                existingManagerID = sdManager.id
             }
         } catch {}
     }
 
     private func saveManager() {
+        if AppSettings.shared.isDemoMode { return }
+
         Task {
-            let manager = Manager(name: name, email: email.isEmpty ? nil : email)
-            _ = try? await CloudKitManager.shared.save(manager)
+            // Update existing manager or create new one
+            if let existingID = existingManagerID {
+                let predicate = #Predicate<SDManager> { $0.id == existingID }
+                let descriptor = FetchDescriptor<SDManager>(predicate: predicate)
+                if let sdManager = try? DataManager.shared.context.fetch(descriptor).first {
+                    sdManager.name = name
+                    sdManager.email = email.isEmpty ? nil : email
+                    try? DataManager.shared.save()
+                }
+            } else {
+                let manager = Manager(name: name, email: email.isEmpty ? nil : email)
+                let sdManager = SDManager(from: manager)
+                DataManager.shared.context.insert(sdManager)
+                try? DataManager.shared.save()
+            }
         }
     }
 }

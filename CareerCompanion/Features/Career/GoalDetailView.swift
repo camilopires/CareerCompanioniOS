@@ -1,8 +1,10 @@
 import SwiftUI
+import SwiftData
 
 /// Detailed view of a career goal
 struct GoalDetailView: View {
     @State private var goal: CareerGoal
+    @State private var sdGoal: SDCareerGoal?
     @State private var isEditing = false
     @State private var linkedAchievements: [Achievement] = []
 
@@ -50,7 +52,7 @@ struct GoalDetailView: View {
             }
         }
         .task {
-            await loadAchievements()
+            await loadData()
         }
     }
 
@@ -66,15 +68,32 @@ struct GoalDetailView: View {
     }
 
     private func saveChanges() {
-        Task {
-            _ = try? await CloudKitManager.shared.save(goal)
+        if AppSettings.shared.isDemoMode { return }
+
+        if let sdGoal = sdGoal {
+            sdGoal.update(from: goal)
+            try? DataManager.shared.save()
         }
     }
 
-    private func loadAchievements() async {
+    private func loadData() async {
+        if AppSettings.shared.isDemoMode {
+            linkedAchievements = DemoDataProvider.achievements.filter { $0.goalIDs.contains(goal.id) }
+            return
+        }
+
+        // Load the SDCareerGoal
+        let goalID = goal.id
+        let goalPredicate = #Predicate<SDCareerGoal> { $0.id == goalID }
+        let goalDescriptor = FetchDescriptor<SDCareerGoal>(predicate: goalPredicate)
+        sdGoal = try? DataManager.shared.context.fetch(goalDescriptor).first
+
+        // Load linked achievements
         do {
-            let all: [Achievement] = try await CloudKitManager.shared.fetch()
-            linkedAchievements = all.filter { $0.goalIDs.contains(goal.id) }
+            let fetchedAchievements = try DataManager.shared.fetchAchievements()
+            linkedAchievements = fetchedAchievements
+                .map { $0.toAchievement() }
+                .filter { $0.goalIDs.contains(goal.id) }
         } catch {}
     }
 }

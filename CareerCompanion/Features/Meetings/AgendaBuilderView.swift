@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// View for building and editing meeting agenda
 struct AgendaBuilderView: View {
@@ -151,16 +152,20 @@ struct AgendaBuilderView: View {
             previousMeetings = DemoDataProvider.meetings.filter { $0.status == .completed }
             openActionItems = DemoDataProvider.actionItems.filter { $0.status != .completed }
         } else {
-            previousMeetings = (try? await CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "managerID == %@ AND status == %@",
-                                       meeting.managerID.uuidString,
-                                       MeetingStatus.completed.rawValue),
-                sortDescriptors: [NSSortDescriptor(key: "date", ascending: false)]
-            )) ?? []
+            // Fetch previous meetings for this manager
+            let managerID = meeting.managerID
+            let completedStatus = MeetingStatus.completed.rawValue
+            let meetingPredicate = #Predicate<SDMeeting> { $0.manager?.id == managerID && $0.statusRaw == completedStatus }
+            if let fetchedMeetings = try? DataManager.shared.fetchMeetings(predicate: meetingPredicate) {
+                previousMeetings = fetchedMeetings.map { $0.toMeeting() }
+            }
 
-            openActionItems = (try? await CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "status != %@", ActionItemStatus.completed.rawValue)
-            )) ?? []
+            // Fetch open action items
+            let completedActionStatus = ActionItemStatus.completed.rawValue
+            let actionItemPredicate = #Predicate<SDActionItem> { $0.statusRaw != completedActionStatus }
+            if let fetchedItems = try? DataManager.shared.fetchActionItems(predicate: actionItemPredicate) {
+                openActionItems = fetchedItems.map { $0.toActionItem() }
+            }
         }
 
         aiSuggestions = await aiManager.suggestAgendaItems(

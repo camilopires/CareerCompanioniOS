@@ -1,8 +1,10 @@
 import SwiftUI
+import SwiftData
 
 /// Detailed view of an action item
 struct ActionItemDetailView: View {
     @State private var item: ActionItem
+    @State private var sdItem: SDActionItem?
     @Environment(\.dismiss) private var dismiss
     @State private var showingDeleteConfirmation = false
     @State private var isEditing = false
@@ -60,6 +62,19 @@ struct ActionItemDetailView: View {
         } message: {
             Text("This cannot be undone.")
         }
+        .task {
+            await loadData()
+        }
+    }
+
+    private func loadData() async {
+        if AppSettings.shared.isDemoMode { return }
+
+        // Load the SDActionItem
+        let itemID = item.id
+        let predicate = #Predicate<SDActionItem> { $0.id == itemID }
+        let descriptor = FetchDescriptor<SDActionItem>(predicate: predicate)
+        sdItem = try? DataManager.shared.context.fetch(descriptor).first
     }
 
     private func toggleComplete() {
@@ -72,9 +87,15 @@ struct ActionItemDetailView: View {
     }
 
     private func saveChanges() {
-        Task {
+        if AppSettings.shared.isDemoMode {
+            Theme.successHaptic()
+            return
+        }
+
+        if let sdItem = sdItem {
+            sdItem.update(from: item)
             do {
-                _ = try await CloudKitManager.shared.save(item)
+                try DataManager.shared.save()
                 Theme.successHaptic()
             } catch {
                 Theme.errorHaptic()
@@ -83,9 +104,15 @@ struct ActionItemDetailView: View {
     }
 
     private func deleteItem() {
-        Task {
+        if AppSettings.shared.isDemoMode {
+            dismiss()
+            return
+        }
+
+        if let sdItem = sdItem {
+            DataManager.shared.context.delete(sdItem)
             do {
-                try await CloudKitManager.shared.delete(item)
+                try DataManager.shared.save()
                 dismiss()
             } catch {
                 Theme.errorHaptic()

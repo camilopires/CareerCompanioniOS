@@ -1,8 +1,10 @@
 import SwiftUI
+import SwiftData
 
 /// List view showing all people grouped by relationship type
 struct PeopleListView: View {
     @State private var allPeople: [Manager] = []
+    @State private var sdManagers: [UUID: SDManager] = [:]
     @State private var isLoading = false
     @State private var showingAddPerson = false
 
@@ -100,7 +102,9 @@ struct PeopleListView: View {
         }
 
         do {
-            allPeople = try await CloudKitManager.shared.fetch()
+            let fetchedManagers = try DataManager.shared.fetchManagers()
+            allPeople = fetchedManagers.map { $0.toManager() }
+            sdManagers = Dictionary(uniqueKeysWithValues: fetchedManagers.map { ($0.id, $0) })
         } catch {}
         isLoading = false
     }
@@ -116,7 +120,11 @@ struct PeopleListView: View {
                     continue
                 }
 
-                try? await CloudKitManager.shared.delete(person)
+                if let sdManager = sdManagers[person.id] {
+                    DataManager.shared.context.delete(sdManager)
+                    try? DataManager.shared.save()
+                    sdManagers.removeValue(forKey: person.id)
+                }
                 allPeople.removeAll { $0.id == person.id }
             }
         }

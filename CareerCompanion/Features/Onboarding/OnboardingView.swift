@@ -4,7 +4,6 @@ import SwiftUI
 struct OnboardingView: View {
     @Binding var hasCompletedOnboarding: Bool
     @Binding var isDemoMode: Bool
-    @EnvironmentObject private var cloudKitManager: CloudKitManager
 
     @State private var currentPage = 0
 
@@ -274,7 +273,6 @@ struct SetupView: View {
 
 #Preview("Onboarding") {
     OnboardingView(hasCompletedOnboarding: .constant(false), isDemoMode: .constant(false))
-        .environmentObject(CloudKitManager.shared)
 }
 
 #Preview("Setup") {

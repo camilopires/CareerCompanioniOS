@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// List of all career goals
 struct GoalsListView: View {
@@ -181,6 +182,9 @@ final class GoalsViewModel: ObservableObject {
     @Published var goals: [CareerGoal] = []
     @Published var isLoading = false
 
+    private var context: ModelContext { DataManager.shared.context }
+    private var sdGoals: [UUID: SDCareerGoal] = [:]
+
     func filteredGoals(for filter: GoalFilter) -> [CareerGoal] {
         switch filter {
         case .active:
@@ -204,12 +208,11 @@ final class GoalsViewModel: ObservableObject {
         }
 
         do {
-            goals = try await CloudKitManager.shared.fetch(
-                sortDescriptors: [NSSortDescriptor(key: "updatedAt", ascending: false)]
-            )
+            let fetchedGoals = try DataManager.shared.fetchCareerGoals()
+            goals = fetchedGoals.map { $0.toCareerGoal() }
+            sdGoals = Dictionary(uniqueKeysWithValues: fetchedGoals.map { ($0.id, $0) })
             updateCachedCount()
         } catch {
-            // Show empty state on error
             goals = []
         }
         isLoading = false
@@ -229,8 +232,27 @@ final class GoalsViewModel: ObservableObject {
         }
 
         do {
-            let saved = try await CloudKitManager.shared.save(goal)
-            goals.insert(saved, at: 0)
+            let sdGoal = SDCareerGoal(
+                id: goal.id,
+                title: goal.title,
+                goalDescription: goal.goalDescription,
+                category: goal.category,
+                targetDate: goal.targetDate,
+                status: goal.status,
+                priority: goal.priority,
+                successMetrics: goal.successMetrics,
+                trackingMethod: goal.trackingMethod,
+                progress: goal.progress,
+                skills: goal.skills,
+                notes: goal.notes,
+                createdAt: goal.createdAt,
+                updatedAt: goal.updatedAt
+            )
+            context.insert(sdGoal)
+            try DataManager.shared.save()
+
+            sdGoals[goal.id] = sdGoal
+            goals.insert(goal, at: 0)
             updateCachedCount()
         } catch {}
     }
@@ -246,10 +268,14 @@ final class GoalsViewModel: ObservableObject {
                 continue
             }
 
-            do {
-                try await CloudKitManager.shared.delete(goal)
-                goals.removeAll { $0.id == goal.id }
-            } catch {}
+            if let sdGoal = sdGoals[goal.id] {
+                context.delete(sdGoal)
+                do {
+                    try DataManager.shared.save()
+                    sdGoals.removeValue(forKey: goal.id)
+                    goals.removeAll { $0.id == goal.id }
+                } catch {}
+            }
         }
         updateCachedCount()
     }

@@ -4,8 +4,6 @@ import SwiftUI
 /// Displays ICDashboardView for Individual Contributors
 /// Displays ManagerDashboardView for Managers
 struct HomeView: View {
-    @EnvironmentObject private var cloudKitManager: CloudKitManager
-
     private var userRole: UserRole { AppSettings.shared.userRole }
 
     var body: some View {
@@ -26,5 +24,4 @@ struct HomeView: View {
 
 #Preview {
     HomeView()
-        .environmentObject(CloudKitManager.shared)
 }

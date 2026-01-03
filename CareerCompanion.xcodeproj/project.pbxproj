@@ -77,6 +77,10 @@
 		A100013001 /* PersonRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200013001 /* PersonRow.swift */; };
 		A100013002 /* AddPersonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200013002 /* AddPersonView.swift */; };
 		A100013003 /* PeopleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200013003 /* PeopleListView.swift */; };
+		A100013004 /* MeetingExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200013004 /* MeetingExportService.swift */; };
+		A1000006010 /* ExportMeetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006010 /* ExportMeetingView.swift */; };
+		A1000006011 /* QuickExportButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006011 /* QuickExportButton.swift */; };
+		A100013005 /* ExportSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200013005 /* ExportSettingsSection.swift */; };
 		B1000001001 /* WidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001001 /* WidgetBundle.swift */; };
 		B1000001002 /* ActionItemsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001002 /* ActionItemsWidget.swift */; };
 		B1000001003 /* NextMeetingWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001003 /* NextMeetingWidget.swift */; };
@@ -205,6 +209,10 @@
 		A200013001 /* PersonRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonRow.swift; sourceTree = "<group>"; };
 		A200013002 /* AddPersonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPersonView.swift; sourceTree = "<group>"; };
 		A200013003 /* PeopleListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeopleListView.swift; sourceTree = "<group>"; };
+		A200013004 /* MeetingExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingExportService.swift; sourceTree = "<group>"; };
+		A2000006010 /* ExportMeetingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportMeetingView.swift; sourceTree = "<group>"; };
+		A2000006011 /* QuickExportButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickExportButton.swift; sourceTree = "<group>"; };
+		A200013005 /* ExportSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportSettingsSection.swift; sourceTree = "<group>"; };
 		A3000001001 /* CareerCompanion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CareerCompanion.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2000001001 /* WidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBundle.swift; sourceTree = "<group>"; };
 		B2000001002 /* ActionItemsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionItemsWidget.swift; sourceTree = "<group>"; };
@@ -391,6 +399,8 @@
 				A2000006007 /* ActiveMeetingViewModel.swift */,
 				A2000006008 /* MeetingDetailView.swift */,
 				A2000006009 /* CustomRecurrencePicker.swift */,
+				A2000006010 /* ExportMeetingView.swift */,
+				A2000006011 /* QuickExportButton.swift */,
 			);
 			path = Meetings;
 			sourceTree = "<group>";
@@ -429,6 +439,7 @@
 				A200011003 /* ImportView.swift */,
 				A200011008 /* ManageTypesView.swift */,
 				A200012005 /* PremiumSettingsSection.swift */,
+				A200013005 /* ExportSettingsSection.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -450,6 +461,7 @@
 				A200011004 /* CalendarManager.swift */,
 				A200011005 /* AIManager.swift */,
 				A200012002 /* SubscriptionManager.swift */,
+				A200013004 /* MeetingExportService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -717,6 +729,10 @@
 				A100013001 /* PersonRow.swift in Sources */,
 				A100013002 /* AddPersonView.swift in Sources */,
 				A100013003 /* PeopleListView.swift in Sources */,
+				A100013004 /* MeetingExportService.swift in Sources */,
+				A1000006010 /* ExportMeetingView.swift in Sources */,
+				A1000006011 /* QuickExportButton.swift in Sources */,
+				A100013005 /* ExportSettingsSection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -435,3 +435,141 @@ enum MeetingPerspective: String, Codable, CaseIterable, Identifiable {
         }
     }
 }
+
+// MARK: - Export Style (v2.8)
+
+enum ExportStyle: String, Codable, CaseIterable, Identifiable {
+    case professional
+    case casual
+    case minimal
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .professional: return "Professional"
+        case .casual: return "Casual"
+        case .minimal: return "Minimal"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .professional: return "Clean headers, bullet points, formal"
+        case .casual: return "Emojis, friendly formatting"
+        case .minimal: return "Simple, no decorations"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .professional: return "briefcase.fill"
+        case .casual: return "face.smiling.fill"
+        case .minimal: return "text.alignleft"
+        }
+    }
+}
+
+// MARK: - Export Template (v2.8)
+
+enum ExportTemplate: String, Codable, CaseIterable, Identifiable {
+    case prep
+    case summary
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .prep: return "Meeting Prep"
+        case .summary: return "Meeting Summary"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .prep: return "Share agenda before the meeting"
+        case .summary: return "Share outcomes after the meeting"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .prep: return "list.clipboard"
+        case .summary: return "doc.text.fill"
+        }
+    }
+}
+
+// MARK: - Export Section (v2.8)
+
+enum ExportSection: String, Codable, CaseIterable, Identifiable {
+    case header
+    case agenda
+    case lastMeetingRecap
+    case goalsProgress
+    case wentWell
+    case didntGoWell
+    case blockers
+    case escalations
+    case actionItems
+    case nextSteps
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .header: return "Header"
+        case .agenda: return "Agenda"
+        case .lastMeetingRecap: return "Last Meeting Recap"
+        case .goalsProgress: return "Goals & Progress"
+        case .wentWell: return "What Went Well"
+        case .didntGoWell: return "What Didn't Go Well"
+        case .blockers: return "Blockers"
+        case .escalations: return "Escalations"
+        case .actionItems: return "Action Items"
+        case .nextSteps: return "Next Steps"
+        }
+    }
+
+    /// Default icon for professional style
+    var defaultIcon: String {
+        switch self {
+        case .header: return ""
+        case .agenda: return "AGENDA"
+        case .lastMeetingRecap: return "LAST MEETING"
+        case .goalsProgress: return "GOALS & PROGRESS"
+        case .wentWell: return "WHAT WENT WELL"
+        case .didntGoWell: return "CHALLENGES"
+        case .blockers: return "BLOCKERS"
+        case .escalations: return "ESCALATIONS"
+        case .actionItems: return "ACTION ITEMS"
+        case .nextSteps: return "NEXT STEPS"
+        }
+    }
+
+    /// Casual style emoji
+    var casualEmoji: String {
+        switch self {
+        case .header: return ""
+        case .agenda: return "📋"
+        case .lastMeetingRecap: return "📝"
+        case .goalsProgress: return "🎯"
+        case .wentWell: return "✅"
+        case .didntGoWell: return "⚠️"
+        case .blockers: return "🚧"
+        case .escalations: return "🔺"
+        case .actionItems: return "📌"
+        case .nextSteps: return "➡️"
+        }
+    }
+
+    /// Sections included in prep template
+    static var prepSections: [ExportSection] {
+        [.header, .agenda, .lastMeetingRecap, .goalsProgress, .actionItems]
+    }
+
+    /// Sections included in summary template
+    static var summarySections: [ExportSection] {
+        [.header, .wentWell, .didntGoWell, .blockers, .escalations, .actionItems, .nextSteps]
+    }
+}

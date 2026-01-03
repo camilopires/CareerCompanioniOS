@@ -6,6 +6,9 @@ struct ActiveMeetingView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showingEndConfirmation = false
     @State private var showingUpgrade = false
+    @State private var showingExport = false
+
+    var managerName: String = ""
 
     private var canAccessWeeklyGoals: Bool {
         AppSettings.shared.canAccessWeeklyGoals
@@ -132,6 +135,22 @@ struct ActiveMeetingView: View {
                     dismiss()
                 }
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showingExport = true
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                        .accessibilityLabel("Export meeting")
+                }
+            }
+        }
+        .sheet(isPresented: $showingExport) {
+            ExportMeetingView(
+                meeting: viewModel.meeting,
+                managerName: managerName.isEmpty ? "Person" : managerName,
+                agendaItems: viewModel.agendaItems,
+                actionItems: viewModel.newActionItems
+            )
         }
         .confirmationDialog(
             "End Meeting",

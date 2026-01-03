@@ -91,6 +91,9 @@ struct SettingsView: View {
             // AI Suggestions section
             AISettingsSection()
 
+            // Meeting Export section
+            ExportSettingsSection()
+
             // Data section
             Section {
                 NavigationLink(destination: DataPrivacyView()) {

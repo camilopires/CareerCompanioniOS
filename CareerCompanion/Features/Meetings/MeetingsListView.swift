@@ -82,12 +82,10 @@ private struct MeetingsList: View {
             if !viewModel.upcomingMeetings.isEmpty {
                 Section {
                     ForEach(viewModel.upcomingMeetings) { meeting in
-                        NavigationLink(destination: MeetingDetailView(meeting: meeting)) {
-                            MeetingRowView(
-                                meeting: meeting,
-                                managerName: viewModel.managerName(for: meeting.managerID)
-                            )
-                        }
+                        MeetingRowWithExport(
+                            meeting: meeting,
+                            managerName: viewModel.managerName(for: meeting.managerID)
+                        )
                     }
                     .onDelete { indexSet in
                         Task {
@@ -103,12 +101,10 @@ private struct MeetingsList: View {
             if !viewModel.pastMeetings.isEmpty {
                 Section {
                     ForEach(viewModel.pastMeetings) { meeting in
-                        NavigationLink(destination: MeetingDetailView(meeting: meeting)) {
-                            MeetingRowView(
-                                meeting: meeting,
-                                managerName: viewModel.managerName(for: meeting.managerID)
-                            )
-                        }
+                        MeetingRowWithExport(
+                            meeting: meeting,
+                            managerName: viewModel.managerName(for: meeting.managerID)
+                        )
                     }
                     .onDelete { indexSet in
                         Task {
@@ -220,6 +216,35 @@ struct MeetingRowView: View {
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(meeting.formattedDate)\(managerName.isEmpty ? "" : " with \(managerName)"), \(meeting.meetingType), \(meeting.status.displayName)\(meeting.isRecurring ? ", recurring" : "")")
+    }
+}
+
+// MARK: - Meeting Row with Export Swipe Action
+
+private struct MeetingRowWithExport: View {
+    let meeting: Meeting
+    let managerName: String
+
+    @State private var showExportSheet = false
+
+    var body: some View {
+        NavigationLink(destination: MeetingDetailView(meeting: meeting, managerName: managerName)) {
+            MeetingRowView(meeting: meeting, managerName: managerName)
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            Button {
+                showExportSheet = true
+            } label: {
+                Label("Export", systemImage: "doc.on.doc")
+            }
+            .tint(.blue)
+        }
+        .sheet(isPresented: $showExportSheet) {
+            ExportMeetingView(
+                meeting: meeting,
+                managerName: managerName
+            )
+        }
     }
 }
 

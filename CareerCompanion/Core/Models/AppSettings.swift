@@ -294,6 +294,80 @@ final class AppSettings {
         customMeetingTypeColors = colors
     }
 
+    // MARK: - Export Settings (v2.8)
+
+    /// Selected export style preset
+    var exportStyle: ExportStyle {
+        get {
+            guard let value = UserDefaults.standard.string(forKey: "exportStyle"),
+                  let style = ExportStyle(rawValue: value) else {
+                return .professional
+            }
+            return style
+        }
+        set {
+            UserDefaults.standard.set(newValue.rawValue, forKey: "exportStyle")
+        }
+    }
+
+    /// Custom emoji/icons for export sections
+    var exportSectionIcons: [String: String] {
+        get { UserDefaults.standard.dictionary(forKey: "exportSectionIcons") as? [String: String] ?? [:] }
+        set { UserDefaults.standard.set(newValue, forKey: "exportSectionIcons") }
+    }
+
+    /// Sections to include in export (by rawValue)
+    var exportIncludedSections: Set<String> {
+        get {
+            if let array = UserDefaults.standard.stringArray(forKey: "exportIncludedSections") {
+                return Set(array)
+            }
+            // Default: all sections included
+            return Set(ExportSection.allCases.map { $0.rawValue })
+        }
+        set {
+            UserDefaults.standard.set(Array(newValue), forKey: "exportIncludedSections")
+        }
+    }
+
+    /// Get the icon for an export section based on current style
+    func iconForExportSection(_ section: ExportSection) -> String {
+        // Check custom icons first
+        if let custom = exportSectionIcons[section.rawValue], !custom.isEmpty {
+            return custom
+        }
+        // Fall back to style-based defaults
+        switch exportStyle {
+        case .casual:
+            return section.casualEmoji
+        case .professional, .minimal:
+            return section.defaultIcon
+        }
+    }
+
+    /// Set a custom icon for an export section
+    func setIconForExportSection(_ section: ExportSection, icon: String) {
+        var icons = exportSectionIcons
+        icons[section.rawValue] = icon
+        exportSectionIcons = icons
+    }
+
+    /// Check if a section is included in export
+    func isSectionIncludedInExport(_ section: ExportSection) -> Bool {
+        exportIncludedSections.contains(section.rawValue)
+    }
+
+    /// Toggle section inclusion in export
+    func toggleSectionInExport(_ section: ExportSection) {
+        var sections = exportIncludedSections
+        if sections.contains(section.rawValue) {
+            sections.remove(section.rawValue)
+        } else {
+            sections.insert(section.rawValue)
+        }
+        exportIncludedSections = sections
+    }
+
     // MARK: - Initialization
 
     private init() {}

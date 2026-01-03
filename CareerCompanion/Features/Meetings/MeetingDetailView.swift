@@ -3,9 +3,11 @@ import SwiftUI
 /// Detailed view of a past or scheduled meeting
 struct MeetingDetailView: View {
     let meeting: Meeting
+    var managerName: String = ""
 
     @State private var showingActiveMeeting = false
     @State private var showingAgendaBuilder = false
+    @State private var showingExport = false
 
     var body: some View {
         ScrollView {
@@ -31,6 +33,16 @@ struct MeetingDetailView: View {
         .background(Colors.backgroundGrouped)
         .navigationTitle(meeting.status == .completed ? "Meeting Details" : "Upcoming 1:1")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showingExport = true
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                        .accessibilityLabel("Export meeting")
+                }
+            }
+        }
         .fullScreenCover(isPresented: $showingActiveMeeting) {
             NavigationStack {
                 ActiveMeetingView(meeting: meeting)
@@ -40,6 +52,12 @@ struct MeetingDetailView: View {
             NavigationStack {
                 AgendaBuilderView(meeting: meeting)
             }
+        }
+        .sheet(isPresented: $showingExport) {
+            ExportMeetingView(
+                meeting: meeting,
+                managerName: managerName.isEmpty ? "Person" : managerName
+            )
         }
     }
 }

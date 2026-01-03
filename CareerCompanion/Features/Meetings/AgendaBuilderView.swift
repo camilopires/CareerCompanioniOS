@@ -5,6 +5,7 @@ import SwiftData
 struct AgendaBuilderView: View {
     let meeting: Meeting
 
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: AgendaBuilderViewModel
     @StateObject private var aiManager = AIManager.shared
     @State private var showingShareSheet = false
@@ -13,6 +14,25 @@ struct AgendaBuilderView: View {
     @State private var aiSuggestions: [String] = []
     @State private var isLoadingAI = false
     @FocusState private var isNewItemFocused: Bool
+
+    // Prep section input fields
+    @State private var newGoal = ""
+    @State private var newProgress = ""
+    @State private var newMetric = ""
+
+    // AI improvement state
+    @State private var isImprovingSection = false
+    @State private var isImprovingAll = false
+    @State private var showingImprovePreview = false
+    @State private var showingBatchPreview = false
+    @State private var showingUpgrade = false
+    @State private var improvementPreview: NoteImprovementPreview?
+    @State private var batchPreview: BatchImprovementPreview?
+    @State private var currentImprovingSection: MeetingSectionType?
+
+    private var canAccessAI: Bool {
+        AppSettings.shared.canAccessAI
+    }
 
     init(meeting: Meeting) {
         self.meeting = meeting
@@ -35,6 +55,171 @@ struct AgendaBuilderView: View {
                         }
                     }
                 )
+            }
+
+            // Meeting Notes Section
+            Section {
+                TextField("What do you want to accomplish in this meeting?", text: $viewModel.meetingNotes, axis: .vertical)
+                    .lineLimit(3...6)
+                    .onChange(of: viewModel.meetingNotes) { _, newValue in
+                        viewModel.updateMeetingNotes(newValue)
+                    }
+            } header: {
+                Label("Meeting Goals", systemImage: "target")
+            }
+
+            // This Week's Progress Section
+            Section {
+                ForEach(Array(viewModel.thisWeekProgress.enumerated()), id: \.offset) { index, item in
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(Colors.success)
+                            .font(.caption)
+                        Text(item)
+                            .font(Typography.body)
+                        Spacer()
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            viewModel.removeProgress(at: index)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
+                }
+
+                HStack {
+                    TextField("Add progress item...", text: $newProgress)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            viewModel.addProgress(newProgress)
+                            newProgress = ""
+                        }
+
+                    if !newProgress.isEmpty {
+                        Button {
+                            viewModel.addProgress(newProgress)
+                            newProgress = ""
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundStyle(Color.accentColor)
+                        }
+                    }
+                }
+            } header: {
+                HStack {
+                    Label("This Week's Progress", systemImage: "chart.line.uptrend.xyaxis")
+                    Spacer()
+                    if !viewModel.thisWeekProgress.isEmpty {
+                        if currentImprovingSection == .thisWeekProgress {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                        } else if canAccessAI {
+                            Menu {
+                                ForEach(NoteImprovementType.allCases) { type in
+                                    Button {
+                                        Task { await improveSection(type: type, section: .thisWeekProgress) }
+                                    } label: {
+                                        Label(type.displayName, systemImage: type.icon)
+                                    }
+                                }
+                            } label: {
+                                Image(systemName: "sparkles")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.accentColor)
+                            }
+                        } else {
+                            Button {
+                                showingUpgrade = true
+                            } label: {
+                                HStack(spacing: 2) {
+                                    Image(systemName: "sparkles")
+                                        .font(.caption)
+                                    PremiumBadge()
+                                }
+                            }
+                        }
+                    }
+                }
+            } footer: {
+                Text("Updates and accomplishments to share")
+            }
+
+            // Key Metrics Section
+            Section {
+                ForEach(Array(viewModel.keyMetrics.enumerated()), id: \.offset) { index, item in
+                    HStack {
+                        Image(systemName: "number")
+                            .foregroundStyle(Color.accentColor)
+                            .font(.caption)
+                        Text(item)
+                            .font(Typography.body)
+                        Spacer()
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            viewModel.removeMetric(at: index)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
+                }
+
+                HStack {
+                    TextField("Add metric...", text: $newMetric)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            viewModel.addMetric(newMetric)
+                            newMetric = ""
+                        }
+
+                    if !newMetric.isEmpty {
+                        Button {
+                            viewModel.addMetric(newMetric)
+                            newMetric = ""
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundStyle(Color.accentColor)
+                        }
+                    }
+                }
+            } header: {
+                HStack {
+                    Label("Key Metrics", systemImage: "chart.bar")
+                    Spacer()
+                    if !viewModel.keyMetrics.isEmpty {
+                        if currentImprovingSection == .keyMetrics {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                        } else if canAccessAI {
+                            Menu {
+                                ForEach(NoteImprovementType.allCases) { type in
+                                    Button {
+                                        Task { await improveSection(type: type, section: .keyMetrics) }
+                                    } label: {
+                                        Label(type.displayName, systemImage: type.icon)
+                                    }
+                                }
+                            } label: {
+                                Image(systemName: "sparkles")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.accentColor)
+                            }
+                        } else {
+                            Button {
+                                showingUpgrade = true
+                            } label: {
+                                HStack(spacing: 2) {
+                                    Image(systemName: "sparkles")
+                                        .font(.caption)
+                                    PremiumBadge()
+                                }
+                            }
+                        }
+                    }
+                }
+            } footer: {
+                Text("Numbers and data points to discuss")
             }
 
             // Carried over action items
@@ -107,23 +292,71 @@ struct AgendaBuilderView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("Prepare Agenda")
+        .navigationTitle("Prepare for Meeting")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(action: { showingShareSheet = true }) {
-                    Image(systemName: "square.and.arrow.up")
-                        .accessibilityLabel("Share agenda")
+            ToolbarItem(placement: .topBarLeading) {
+                Button("Done") {
+                    dismiss()
                 }
-                .disabled(viewModel.agendaItems.isEmpty)
             }
 
             ToolbarItem(placement: .topBarTrailing) {
-                EditButton()
+                HStack(spacing: Spacing.sm) {
+                    // Improve All menu (AI)
+                    if canAccessAI && (!viewModel.thisWeekProgress.isEmpty || !viewModel.keyMetrics.isEmpty) {
+                        Menu {
+                            ForEach(NoteImprovementType.allCases) { type in
+                                Button {
+                                    Task { await improveAllSections(type: type) }
+                                } label: {
+                                    Label(type.displayName, systemImage: type.icon)
+                                }
+                            }
+                        } label: {
+                            Image(systemName: "sparkles")
+                                .accessibilityLabel("Improve all notes")
+                        }
+                        .disabled(isImprovingAll)
+                    }
+
+                    Button(action: { showingShareSheet = true }) {
+                        Image(systemName: "square.and.arrow.up")
+                            .accessibilityLabel("Share agenda")
+                    }
+                    .disabled(viewModel.agendaItems.isEmpty)
+                }
             }
         }
         .sheet(isPresented: $showingShareSheet) {
             ShareAgendaView(viewModel: viewModel)
+        }
+        .sheet(isPresented: $showingImprovePreview) {
+            if let preview = improvementPreview {
+                ImprovementPreviewSheet(
+                    preview: preview,
+                    onApply: {
+                        applyImprovement(preview)
+                    },
+                    onCancel: { }
+                )
+            }
+        }
+        .sheet(isPresented: $showingBatchPreview) {
+            if let preview = batchPreview {
+                BatchImprovementPreviewSheet(
+                    preview: preview,
+                    onApply: {
+                        applyBatchImprovements(preview)
+                    },
+                    onCancel: { }
+                )
+            }
+        }
+        .sheet(isPresented: $showingUpgrade) {
+            UpgradePromptSheet(feature: .aiSuggestions) {
+                showingUpgrade = false
+            }
         }
         .task {
             await viewModel.loadData()
@@ -175,6 +408,91 @@ struct AgendaBuilderView: View {
         )
 
         isLoadingAI = false
+    }
+
+    // MARK: - AI Improvement Functions
+
+    private func improveSection(type: NoteImprovementType, section: MeetingSectionType) async {
+        currentImprovingSection = section
+
+        let items: [String]
+        switch section {
+        case .thisWeekProgress:
+            items = viewModel.thisWeekProgress
+        case .keyMetrics:
+            items = viewModel.keyMetrics
+        default:
+            currentImprovingSection = nil
+            return
+        }
+
+        guard !items.isEmpty else {
+            currentImprovingSection = nil
+            return
+        }
+
+        let improved = await AIManager.shared.improveItems(items, type: type, section: section)
+
+        improvementPreview = NoteImprovementPreview(
+            sectionType: section,
+            improvementType: type,
+            originalContent: items,
+            improvedContent: improved
+        )
+
+        currentImprovingSection = nil
+        showingImprovePreview = true
+    }
+
+    private func improveAllSections(type: NoteImprovementType) async {
+        isImprovingAll = true
+
+        var improvements: [NoteImprovementPreview] = []
+
+        let sectionsToImprove: [(MeetingSectionType, [String])] = [
+            (.thisWeekProgress, viewModel.thisWeekProgress),
+            (.keyMetrics, viewModel.keyMetrics)
+        ]
+
+        for (section, items) in sectionsToImprove where !items.isEmpty {
+            let improved = await AIManager.shared.improveItems(items, type: type, section: section)
+            improvements.append(NoteImprovementPreview(
+                sectionType: section,
+                improvementType: type,
+                originalContent: items,
+                improvedContent: improved
+            ))
+        }
+
+        batchPreview = BatchImprovementPreview(improvements: improvements, improvementType: type)
+        isImprovingAll = false
+        showingBatchPreview = true
+    }
+
+    private func applyImprovement(_ preview: NoteImprovementPreview) {
+        switch preview.sectionType {
+        case .thisWeekProgress:
+            viewModel.thisWeekProgress = preview.improvedContent
+        case .keyMetrics:
+            viewModel.keyMetrics = preview.improvedContent
+        default:
+            break
+        }
+        Theme.successHaptic()
+    }
+
+    private func applyBatchImprovements(_ preview: BatchImprovementPreview) {
+        for improvement in preview.improvements where improvement.hasChanges {
+            switch improvement.sectionType {
+            case .thisWeekProgress:
+                viewModel.thisWeekProgress = improvement.improvedContent
+            case .keyMetrics:
+                viewModel.keyMetrics = improvement.improvedContent
+            default:
+                break
+            }
+        }
+        Theme.successHaptic()
     }
 }
 
@@ -268,51 +586,73 @@ private struct AgendaItemRow: View {
 
     @State private var isEditing = false
     @State private var editedTitle: String
+    @State private var editedNotes: String
 
     init(item: AgendaItem, onUpdate: @escaping (AgendaItem) -> Void) {
         self.item = item
         self.onUpdate = onUpdate
         self._editedTitle = State(initialValue: item.title)
+        self._editedNotes = State(initialValue: item.notes)
     }
 
     var body: some View {
-        HStack(spacing: Spacing.md) {
-            // Drag handle (implicit in edit mode)
-            Image(systemName: "line.3.horizontal")
-                .foregroundStyle(Colors.textTertiary)
-                .accessibilityHidden(true)
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            HStack(spacing: Spacing.md) {
+                // Drag handle
+                Image(systemName: "line.3.horizontal")
+                    .foregroundStyle(Colors.textTertiary)
+                    .accessibilityHidden(true)
 
-            if isEditing {
-                TextField("Agenda item", text: $editedTitle)
-                    .onSubmit {
-                        saveEdit()
+                if isEditing {
+                    VStack(alignment: .leading, spacing: Spacing.xs) {
+                        TextField("Agenda item", text: $editedTitle)
+                            .font(Typography.body)
+
+                        TextField("Add notes...", text: $editedNotes, axis: .vertical)
+                            .font(Typography.caption1)
+                            .foregroundStyle(Colors.textSecondary)
+                            .lineLimit(3...6)
                     }
 
-                Button("Done") {
-                    saveEdit()
-                }
-                .foregroundStyle(Color.accentColor)
-            } else {
-                Text(item.title)
-                    .font(Typography.body)
+                    Button("Done") {
+                        saveEdit()
+                    }
+                    .foregroundStyle(Color.accentColor)
+                } else {
+                    VStack(alignment: .leading, spacing: Spacing.xxs) {
+                        Text(item.title)
+                            .font(Typography.body)
 
-                Spacer()
+                        if !item.notes.isEmpty {
+                            Text(item.notes)
+                                .font(Typography.caption1)
+                                .foregroundStyle(Colors.textSecondary)
+                                .lineLimit(2)
+                        }
+                    }
 
-                Button(action: { isEditing = true }) {
-                    Image(systemName: "pencil")
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
                         .foregroundStyle(Colors.textTertiary)
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Edit item")
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if !isEditing {
+                isEditing = true
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityHint("Use edit mode to reorder agenda items")
+        .accessibilityHint("Tap to edit agenda item")
     }
 
     private func saveEdit() {
         var updated = item
         updated.title = editedTitle
+        updated.notes = editedNotes
         onUpdate(updated)
         isEditing = false
     }

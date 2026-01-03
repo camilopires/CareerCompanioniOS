@@ -416,7 +416,7 @@ private struct PrimaryActionsSection: View {
             .buttonStyle(PrimaryButtonStyle())
 
             Button(action: onPrepareAgenda) {
-                Label("Prepare", systemImage: "list.bullet.clipboard")
+                Label("Prepare for Meeting", systemImage: "list.bullet.clipboard")
             }
             .buttonStyle(SecondaryButtonStyle())
         }

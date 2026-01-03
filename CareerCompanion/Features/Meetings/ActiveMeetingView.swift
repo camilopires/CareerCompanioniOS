@@ -285,7 +285,7 @@ struct ActiveMeetingView: View {
 
     private func improveAllSections(type: NoteImprovementType) async {
         // Dismiss keyboard to commit any pending text in TextFields
-        await MainActor.run {
+        _ = await MainActor.run {
             UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         }
         // Brief delay to let bindings update
@@ -479,16 +479,25 @@ private struct MeetingTimer: View {
 
 private struct AgendaChecklistSection: View {
     @ObservedObject var viewModel: ActiveMeetingViewModel
+    @State private var newAgendaItem = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             Label("Agenda", systemImage: "list.bullet.clipboard")
                 .font(Typography.headline)
 
-            if viewModel.agendaItems.isEmpty {
-                CompactEmptyState(icon: "list.bullet", message: "No agenda items")
-            } else {
-                VStack(spacing: 0) {
+            VStack(spacing: 0) {
+                if viewModel.agendaItems.isEmpty {
+                    HStack {
+                        Image(systemName: "list.bullet")
+                            .foregroundStyle(Colors.textTertiary)
+                        Text("No agenda items")
+                            .font(Typography.callout)
+                            .foregroundStyle(Colors.textSecondary)
+                        Spacer()
+                    }
+                    .padding(Spacing.md)
+                } else {
                     ForEach($viewModel.agendaItems) { $item in
                         AgendaChecklistRow(item: $item)
 
@@ -497,10 +506,43 @@ private struct AgendaChecklistSection: View {
                                 .padding(.leading, Spacing.touchTarget)
                         }
                     }
+
+                    Divider()
+                        .padding(.leading, Spacing.touchTarget)
                 }
-                .background(Colors.backgroundSecondary)
-                .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusMedium))
+
+                // Inline add agenda item
+                HStack(spacing: Spacing.md) {
+                    Image(systemName: "plus.circle")
+                        .foregroundStyle(Colors.textTertiary)
+                        .font(.title3)
+
+                    TextField("Add agenda item...", text: $newAgendaItem)
+                        .font(Typography.body)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            addAgendaItem()
+                        }
+
+                    if !newAgendaItem.isEmpty {
+                        Button(action: addAgendaItem) {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundStyle(Color.accentColor)
+                        }
+                    }
+                }
+                .padding(Spacing.md)
             }
+            .background(Colors.backgroundSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: Spacing.cornerRadiusMedium))
+        }
+    }
+
+    private func addAgendaItem() {
+        guard !newAgendaItem.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        Task {
+            await viewModel.addAgendaItem(title: newAgendaItem)
+            newAgendaItem = ""
         }
     }
 }
@@ -515,10 +557,19 @@ private struct AgendaChecklistRow: View {
                     .foregroundStyle(item.isCompleted ? Colors.success : Colors.textTertiary)
                     .font(.title3)
 
-                Text(item.title)
-                    .font(Typography.body)
-                    .foregroundStyle(item.isCompleted ? Colors.textSecondary : Colors.textPrimary)
-                    .strikethrough(item.isCompleted)
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
+                    Text(item.title)
+                        .font(Typography.body)
+                        .foregroundStyle(item.isCompleted ? Colors.textSecondary : Colors.textPrimary)
+                        .strikethrough(item.isCompleted)
+
+                    if !item.notes.isEmpty {
+                        Text(item.notes)
+                            .font(Typography.caption1)
+                            .foregroundStyle(Colors.textSecondary)
+                            .lineLimit(2)
+                    }
+                }
 
                 Spacer()
             }

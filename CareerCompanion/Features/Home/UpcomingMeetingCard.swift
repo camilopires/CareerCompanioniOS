@@ -52,7 +52,7 @@ struct UpcomingMeetingCard: View {
                     // Quick actions
                     HStack(spacing: Spacing.md) {
                         NavigationLink(destination: AgendaBuilderView(meeting: meeting)) {
-                            Label("Prepare Agenda", systemImage: "list.bullet.clipboard")
+                            Label("Prepare for Meeting", systemImage: "list.bullet.clipboard")
                                 .font(Typography.callout)
                                 .foregroundStyle(Color.accentColor)
                         }

@@ -15,6 +15,12 @@ final class AgendaBuilderViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
 
+    // Meeting prep fields
+    @Published var thisWeekGoals: [String] = []
+    @Published var thisWeekProgress: [String] = []
+    @Published var keyMetrics: [String] = []
+    @Published var meetingNotes: String = ""
+
     // MARK: - Private Properties
 
     private var context: ModelContext { DataManager.shared.context }
@@ -53,6 +59,12 @@ final class AgendaBuilderViewModel: ObservableObject {
                 let items = foundMeeting.agendaItems.sorted { $0.order < $1.order }
                 agendaItems = items.map { $0.toAgendaItem() }
                 sdAgendaItems = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
+
+                // Load meeting prep fields
+                thisWeekGoals = foundMeeting.thisWeekGoals
+                thisWeekProgress = foundMeeting.thisWeekProgress
+                keyMetrics = foundMeeting.keyMetrics
+                meetingNotes = foundMeeting.notes
             }
 
             // Load incomplete action items from previous meetings
@@ -174,6 +186,69 @@ final class AgendaBuilderViewModel: ObservableObject {
                 item.order = index
                 await updateItem(item)
             }
+        }
+    }
+
+    // MARK: - Meeting Prep Fields
+
+    func addGoal(_ goal: String) {
+        guard !goal.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        thisWeekGoals.append(goal)
+        savePrepFields()
+        Theme.lightHaptic()
+    }
+
+    func removeGoal(at index: Int) {
+        guard thisWeekGoals.indices.contains(index) else { return }
+        thisWeekGoals.remove(at: index)
+        savePrepFields()
+    }
+
+    func addProgress(_ progress: String) {
+        guard !progress.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        thisWeekProgress.append(progress)
+        savePrepFields()
+        Theme.lightHaptic()
+    }
+
+    func removeProgress(at index: Int) {
+        guard thisWeekProgress.indices.contains(index) else { return }
+        thisWeekProgress.remove(at: index)
+        savePrepFields()
+    }
+
+    func addMetric(_ metric: String) {
+        guard !metric.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        keyMetrics.append(metric)
+        savePrepFields()
+        Theme.lightHaptic()
+    }
+
+    func removeMetric(at index: Int) {
+        guard keyMetrics.indices.contains(index) else { return }
+        keyMetrics.remove(at: index)
+        savePrepFields()
+    }
+
+    func updateMeetingNotes(_ notes: String) {
+        meetingNotes = notes
+        savePrepFields()
+    }
+
+    private func savePrepFields() {
+        guard !AppSettings.shared.isDemoMode else { return }
+
+        do {
+            if let sdMeeting = sdMeeting {
+                sdMeeting.thisWeekGoals = thisWeekGoals
+                sdMeeting.thisWeekProgress = thisWeekProgress
+                sdMeeting.keyMetrics = keyMetrics
+                sdMeeting.notes = meetingNotes
+                sdMeeting.updatedAt = Date()
+                try DataManager.shared.save()
+            }
+        } catch {
+            self.error = error
         }
     }
 

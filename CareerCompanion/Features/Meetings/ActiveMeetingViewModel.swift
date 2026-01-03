@@ -141,6 +141,43 @@ final class ActiveMeetingViewModel: ObservableObject {
         return nil
     }
 
+    // MARK: - Agenda Items
+
+    func addAgendaItem(title: String) async {
+        let newItem = AgendaItem(
+            meetingID: meeting.id,
+            title: title,
+            order: agendaItems.count
+        )
+
+        // In demo mode, only update in-memory
+        if AppSettings.shared.isDemoMode {
+            agendaItems.append(newItem)
+            Theme.lightHaptic()
+            return
+        }
+
+        do {
+            let sdItem = SDAgendaItem(
+                id: newItem.id,
+                meeting: sdMeeting,
+                title: newItem.title,
+                notes: newItem.notes,
+                isCompleted: newItem.isCompleted,
+                order: newItem.order,
+                createdAt: newItem.createdAt
+            )
+            context.insert(sdItem)
+            try DataManager.shared.save()
+
+            sdAgendaItems[sdItem.id] = sdItem
+            agendaItems.append(newItem)
+            Theme.lightHaptic()
+        } catch {
+            self.error = error
+        }
+    }
+
     // MARK: - Action Items
 
     func addActionItem(_ item: ActionItem) {

@@ -211,5 +211,35 @@ final class MeetingsViewModel: ObservableObject {
         updated.status = .completed
         updated.updatedAt = Date()
         await updateMeeting(updated)
+
+        // Auto-schedule next meeting if this is a recurring meeting
+        await scheduleNextRecurringMeeting(from: meeting)
+    }
+
+    /// Creates the next occurrence of a recurring meeting
+    private func scheduleNextRecurringMeeting(from meeting: Meeting) async {
+        guard let rule = meeting.recurrence else { return }
+
+        // Calculate next meeting date
+        let nextDate = rule.nextDate(from: meeting.date)
+
+        // Create new meeting with same properties
+        let nextMeeting = Meeting(
+            managerID: meeting.managerID,
+            date: nextDate,
+            perspective: meeting.perspective,
+            meetingType: meeting.meetingType,
+            recurrence: meeting.recurrence
+        )
+
+        // Save to CloudKit
+        do {
+            let saved = try await CloudKitManager.shared.save(nextMeeting)
+            await MainActor.run {
+                allMeetings.append(saved)
+            }
+        } catch {
+            print("Failed to schedule next recurring meeting: \(error)")
+        }
     }
 }

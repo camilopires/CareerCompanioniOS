@@ -31,6 +31,16 @@ final class AppSettings {
         "Coffee Chat"
     ]
 
+    /// Default colors for meeting types (hex strings)
+    static let defaultMeetingTypeColors: [String: String] = [
+        "1:1": "007AFF",              // Blue
+        "Career Development": "AF52DE", // Purple
+        "Project Sync": "FF9500",      // Orange
+        "Feedback Session": "34C759",  // Green
+        "Mentorship": "5856D6",        // Indigo
+        "Coffee Chat": "FF2D55"        // Pink
+    ]
+
     // MARK: - User Role
 
     /// Current user role - Individual Contributor or Manager
@@ -242,6 +252,46 @@ final class AppSettings {
     func removeCustomMeetingType(_ type: String) {
         guard !Self.defaultMeetingTypes.contains(type) else { return }
         customMeetingTypes.removeAll { $0 == type }
+    }
+
+    // MARK: - Meeting Type Colors (v2.8)
+
+    /// User-customized meeting type colors (stored as hex strings)
+    private var customMeetingTypeColors: [String: String] {
+        get { UserDefaults.standard.dictionary(forKey: "customMeetingTypeColors") as? [String: String] ?? [:] }
+        set { UserDefaults.standard.set(newValue, forKey: "customMeetingTypeColors") }
+    }
+
+    /// Available colors for meeting types
+    static let availableMeetingColors: [(name: String, hex: String)] = [
+        ("Blue", "007AFF"),
+        ("Purple", "AF52DE"),
+        ("Orange", "FF9500"),
+        ("Green", "34C759"),
+        ("Indigo", "5856D6"),
+        ("Pink", "FF2D55"),
+        ("Teal", "5AC8FA"),
+        ("Red", "FF3B30"),
+        ("Yellow", "FFCC00"),
+        ("Mint", "00C7BE")
+    ]
+
+    /// Get the color for a meeting type (checks custom first, then defaults)
+    func colorForMeetingType(_ type: String) -> Color {
+        let hex = customMeetingTypeColors[type] ?? Self.defaultMeetingTypeColors[type] ?? "007AFF"
+        return Color(hex: hex)
+    }
+
+    /// Get the hex color string for a meeting type
+    func hexColorForMeetingType(_ type: String) -> String {
+        customMeetingTypeColors[type] ?? Self.defaultMeetingTypeColors[type] ?? "007AFF"
+    }
+
+    /// Set the color for a meeting type
+    func setColorForMeetingType(_ type: String, hex: String) {
+        var colors = customMeetingTypeColors
+        colors[type] = hex
+        customMeetingTypeColors = colors
     }
 
     // MARK: - Initialization

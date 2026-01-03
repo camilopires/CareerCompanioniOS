@@ -5,6 +5,8 @@ struct ManageTypesView: View {
     @State private var showingAddRelationshipType = false
     @State private var showingAddMeetingType = false
     @State private var newTypeName = ""
+    @State private var selectedMeetingTypeForColor: String?
+    @State private var refreshID = UUID()
 
     var body: some View {
         List {
@@ -66,24 +68,38 @@ struct ManageTypesView: View {
             // MARK: - Meeting Types Section
             Section {
                 ForEach(AppSettings.shared.allMeetingTypes, id: \.self) { type in
-                    HStack {
-                        Image(systemName: iconForMeetingType(type))
-                            .foregroundColor(.blue)
-                            .frame(width: 24)
+                    Button {
+                        selectedMeetingTypeForColor = type
+                    } label: {
+                        HStack {
+                            // Color indicator
+                            Circle()
+                                .fill(AppSettings.shared.colorForMeetingType(type))
+                                .frame(width: 12, height: 12)
 
-                        Text(type)
-                            .font(.body)
+                            Image(systemName: iconForMeetingType(type))
+                                .foregroundColor(AppSettings.shared.colorForMeetingType(type))
+                                .frame(width: 24)
 
-                        Spacer()
+                            Text(type)
+                                .font(.body)
+                                .foregroundStyle(Colors.textPrimary)
 
-                        if isDefaultMeetingType(type) {
-                            Text("Default")
+                            Spacer()
+
+                            if isDefaultMeetingType(type) {
+                                Text("Default")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.secondary.opacity(0.15))
+                                    .cornerRadius(4)
+                            }
+
+                            Image(systemName: "chevron.right")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.secondary.opacity(0.15))
-                                .cornerRadius(4)
+                                .foregroundStyle(Colors.textTertiary)
                         }
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -106,9 +122,10 @@ struct ManageTypesView: View {
             } header: {
                 Text("Meeting Types")
             } footer: {
-                Text("Meeting types help categorize different kinds of 1:1 conversations.")
+                Text("Tap a meeting type to change its color.")
             }
         }
+        .id(refreshID)
         .navigationTitle("Manage Types")
         .navigationBarTitleDisplayMode(.inline)
         .alert("Add Relationship Type", isPresented: $showingAddRelationshipType) {
@@ -128,6 +145,11 @@ struct ManageTypesView: View {
             }
         } message: {
             Text("Enter a name for the new meeting type.")
+        }
+        .sheet(item: $selectedMeetingTypeForColor) { type in
+            MeetingTypeColorPicker(meetingType: type) {
+                refreshID = UUID()
+            }
         }
     }
 
@@ -186,8 +208,104 @@ struct ManageTypesView: View {
     }
 }
 
+// MARK: - String Identifiable Extension
+
+extension String: @retroactive Identifiable {
+    public var id: String { self }
+}
+
+// MARK: - Meeting Type Color Picker
+
+struct MeetingTypeColorPicker: View {
+    let meetingType: String
+    let onColorChanged: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedHex: String
+
+    init(meetingType: String, onColorChanged: @escaping () -> Void) {
+        self.meetingType = meetingType
+        self.onColorChanged = onColorChanged
+        self._selectedHex = State(initialValue: AppSettings.shared.hexColorForMeetingType(meetingType))
+    }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    // Preview of the meeting type badge
+                    HStack {
+                        Spacer()
+                        Text(meetingType)
+                            .font(Typography.callout)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color(hex: selectedHex))
+                            .cornerRadius(6)
+                        Spacer()
+                    }
+                    .listRowBackground(Color.clear)
+                    .padding(.vertical, Spacing.md)
+                } header: {
+                    Text("Preview")
+                }
+
+                Section {
+                    ForEach(AppSettings.availableMeetingColors, id: \.hex) { color in
+                        Button {
+                            selectedHex = color.hex
+                        } label: {
+                            HStack {
+                                Circle()
+                                    .fill(Color(hex: color.hex))
+                                    .frame(width: 24, height: 24)
+
+                                Text(color.name)
+                                    .foregroundStyle(Colors.textPrimary)
+
+                                Spacer()
+
+                                if selectedHex == color.hex {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(Color.accentColor)
+                                        .fontWeight(.semibold)
+                                }
+                            }
+                        }
+                    }
+                } header: {
+                    Text("Colors")
+                }
+            }
+            .navigationTitle("Choose Color")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        AppSettings.shared.setColorForMeetingType(meetingType, hex: selectedHex)
+                        onColorChanged()
+                        dismiss()
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium])
+    }
+}
+
 #Preview {
     NavigationStack {
         ManageTypesView()
     }
+}
+
+#Preview("Color Picker") {
+    MeetingTypeColorPicker(meetingType: "1:1") {}
 }

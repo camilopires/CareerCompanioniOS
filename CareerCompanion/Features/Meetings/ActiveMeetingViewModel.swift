@@ -167,6 +167,9 @@ final class ActiveMeetingViewModel: ObservableObject {
             // Create achievements from "what went well" items
             await createAchievementsFromWins()
 
+            // Auto-schedule next meeting if this is a recurring meeting
+            await scheduleNextRecurringMeeting(from: updatedMeeting)
+
             Theme.successHaptic()
 
         } catch {
@@ -180,5 +183,29 @@ final class ActiveMeetingViewModel: ObservableObject {
     private func createAchievementsFromWins() async {
         // Optionally prompt user to convert wins to achievements
         // For now, we'll just save them as meeting data
+    }
+
+    /// Creates the next occurrence of a recurring meeting
+    private func scheduleNextRecurringMeeting(from meeting: Meeting) async {
+        guard let rule = meeting.recurrence else { return }
+
+        // Calculate next meeting date
+        let nextDate = rule.nextDate(from: meeting.date)
+
+        // Create new meeting with same properties
+        let nextMeeting = Meeting(
+            managerID: meeting.managerID,
+            date: nextDate,
+            perspective: meeting.perspective,
+            meetingType: meeting.meetingType,
+            recurrence: meeting.recurrence
+        )
+
+        // Save to CloudKit
+        do {
+            _ = try await CloudKitManager.shared.save(nextMeeting)
+        } catch {
+            print("Failed to schedule next recurring meeting: \(error)")
+        }
     }
 }

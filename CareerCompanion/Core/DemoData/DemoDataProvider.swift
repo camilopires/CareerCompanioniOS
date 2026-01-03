@@ -63,12 +63,13 @@ struct DemoDataProvider {
 
         return [
             // Sarah Johnson's meetings (My Manager)
-            // Upcoming meeting - next week
+            // Upcoming meeting - next week (recurring weekly)
             Meeting(
                 managerID: manager1ID,
                 date: calendar.date(byAdding: .day, value: 7, to: now)!,
                 status: .scheduled,
-                meetingType: "1:1"
+                meetingType: "1:1",
+                recurrence: .weekly
             ),
             // Completed meeting - last week
             Meeting(
@@ -129,12 +130,13 @@ struct DemoDataProvider {
             ),
 
             // Michael Chen's meetings (My Manager)
-            // Upcoming meeting - in 3 days
+            // Upcoming meeting - in 3 days (recurring biweekly)
             Meeting(
                 managerID: manager2ID,
                 date: calendar.date(byAdding: .day, value: 3, to: now)!,
                 status: .scheduled,
-                meetingType: "1:1"
+                meetingType: "1:1",
+                recurrence: .biweekly
             ),
             // Completed meeting - 5 days ago
             Meeting(
@@ -175,7 +177,8 @@ struct DemoDataProvider {
                 managerID: mentor1ID,
                 date: calendar.date(byAdding: .day, value: 10, to: now)!,
                 status: .scheduled,
-                meetingType: "Mentorship"
+                meetingType: "Mentorship",
+                recurrence: .monthly
             ),
             Meeting(
                 managerID: mentor1ID,
@@ -196,6 +199,16 @@ struct DemoDataProvider {
                 date: calendar.date(byAdding: .day, value: 5, to: now)!,
                 status: .scheduled,
                 meetingType: "Project Sync"
+            ),
+            Meeting(
+                managerID: peer1ID,
+                date: calendar.date(byAdding: .day, value: -3, to: now)!,
+                status: .completed,
+                meetingType: "Coffee Chat",
+                notes: "Informal catch-up about cross-team collaboration opportunities.",
+                wentWell: ["Great discussion about potential collaboration"],
+                weekSentiment: 4,
+                meetingSentiment: 5
             ),
 
             // Casey Martinez's meetings (Direct Report - for manager mode)

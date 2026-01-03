@@ -12,6 +12,7 @@ struct AddGoalView: View {
     @State private var priority: GoalPriority = .primary
     @State private var successMetrics = ""
     @State private var trackingMethod = ""
+    @State private var showDemoExitPrompt = false
 
     let onAdd: (CareerGoal) -> Void
 
@@ -76,11 +77,26 @@ struct AddGoalView: View {
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        addGoal()
+                        if AppSettings.shared.isDemoMode {
+                            showDemoExitPrompt = true
+                        } else {
+                            addGoal()
+                        }
                     }
                     .disabled(!isValid)
                     .accessibilityHint(isValid ? "Creates new goal" : "Enter a title to enable this button")
                 }
+            }
+            .alert("Exit Demo Mode?", isPresented: $showDemoExitPrompt) {
+                Button("Stay in Demo", role: .cancel) {
+                    addGoal()
+                }
+                Button("Exit Demo Mode") {
+                    AppSettings.shared.isDemoMode = false
+                    addGoal()
+                }
+            } message: {
+                Text("You're creating real data. You can turn demo mode back on in Settings.")
             }
         }
     }

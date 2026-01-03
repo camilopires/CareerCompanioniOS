@@ -6,22 +6,30 @@ struct ActionItemsListView: View {
     @State private var showingAddItem = false
     @State private var selectedFilter: ActionItemFilter = .open
 
-    var body: some View {
-        VStack(spacing: 0) {
-            // Filter picker
-            Picker("Filter", selection: $selectedFilter) {
-                ForEach(ActionItemFilter.allCases) { filter in
-                    Text(filter.displayName).tag(filter)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding()
+    private var isDemoMode: Bool { AppSettings.shared.isDemoMode }
 
-            // List
+    var body: some View {
+        List {
+            // Filter picker section
+            Section {
+                Picker("Filter", selection: $selectedFilter) {
+                    ForEach(ActionItemFilter.allCases) { filter in
+                        Text(filter.displayName).tag(filter)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+            }
+
+            // Content section
             if viewModel.filteredItems(for: selectedFilter).isEmpty {
-                EmptyStateForFilter(filter: selectedFilter)
+                Section {
+                    EmptyStateForFilter(filter: selectedFilter)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                }
             } else {
-                List {
+                Section {
                     ForEach(viewModel.filteredItems(for: selectedFilter)) { item in
                         NavigationLink(destination: ActionItemDetailView(item: item)) {
                             ActionItemListRow(
@@ -40,14 +48,15 @@ struct ActionItemsListView: View {
                         }
                     }
                 }
-                .listStyle(.plain)
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("Action Items")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: { showingAddItem = true }) {
                     Image(systemName: "plus")
+                        .accessibilityLabel("Add action item")
                 }
             }
         }
@@ -63,6 +72,12 @@ struct ActionItemsListView: View {
         }
         .task {
             await viewModel.loadItems()
+        }
+        .onChange(of: isDemoMode) { _, _ in
+            // Reload when demo mode changes
+            Task {
+                await viewModel.loadItems()
+            }
         }
         .onChange(of: selectedFilter) { _, newValue in
             let count = viewModel.filteredItems(for: newValue).count

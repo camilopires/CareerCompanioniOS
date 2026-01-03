@@ -23,6 +23,7 @@ struct Meeting: CloudKitRecordable, Codable {
     var weekSentiment: Int?
     var meetingSentiment: Int?
     var calendarEventID: String?
+    var recurrence: RecurrenceRule?  // Optional recurrence pattern for repeating meetings
     let createdAt: Date
     var updatedAt: Date
 
@@ -53,6 +54,11 @@ struct Meeting: CloudKitRecordable, Codable {
         calendarEventID != nil
     }
 
+    /// Whether the meeting has a recurrence pattern
+    var isRecurring: Bool {
+        recurrence != nil
+    }
+
     // MARK: - Initialization
 
     init(
@@ -74,6 +80,7 @@ struct Meeting: CloudKitRecordable, Codable {
         weekSentiment: Int? = nil,
         meetingSentiment: Int? = nil,
         calendarEventID: String? = nil,
+        recurrence: RecurrenceRule? = nil,
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
@@ -95,6 +102,7 @@ struct Meeting: CloudKitRecordable, Codable {
         self.weekSentiment = weekSentiment
         self.meetingSentiment = meetingSentiment
         self.calendarEventID = calendarEventID
+        self.recurrence = recurrence
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -146,6 +154,14 @@ struct Meeting: CloudKitRecordable, Codable {
         self.meetingType = record.string(for: "meetingType") ?? "1:1"
 
         self.calendarEventID = record.string(for: "calendarEventID")
+
+        // Decode recurrence from JSON data
+        if let recurrenceData = record["recurrenceData"] as? Data {
+            self.recurrence = try? JSONDecoder().decode(RecurrenceRule.self, from: recurrenceData)
+        } else {
+            self.recurrence = nil
+        }
+
         self.createdAt = createdAt
         self.updatedAt = record.date(for: "updatedAt") ?? createdAt
     }
@@ -170,6 +186,13 @@ struct Meeting: CloudKitRecordable, Codable {
         record["weekSentiment"] = weekSentiment ?? 0
         record["meetingSentiment"] = meetingSentiment ?? 0
         record["calendarEventID"] = calendarEventID
+
+        // Encode recurrence as JSON data
+        if let recurrence = recurrence,
+           let recurrenceData = try? JSONEncoder().encode(recurrence) {
+            record["recurrenceData"] = recurrenceData
+        }
+
         record["createdAt"] = createdAt
         record["updatedAt"] = updatedAt
         return record

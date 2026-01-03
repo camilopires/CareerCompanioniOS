@@ -3,6 +3,7 @@ import SwiftUI
 /// Bottom sheet that appears during demo mode to explain the sample data
 /// and provide a way to start fresh with real data
 struct DemoModeSheet: View {
+    @Environment(\.dismiss) private var dismiss
     let onStartFresh: () -> Void
 
     var body: some View {
@@ -11,7 +12,7 @@ struct DemoModeSheet: View {
             Image(systemName: "sparkles")
                 .font(.system(size: 50))
                 .foregroundStyle(.purple)
-                .padding(.top, Spacing.md)
+                .padding(.top, Spacing.lg)
 
             // Title
             Text("Exploring Sample Data")
@@ -19,31 +20,41 @@ struct DemoModeSheet: View {
                 .fontWeight(.semibold)
 
             // Description
-            Text("Take a look around! This is sample data to show you how the app works. Tap around to explore meetings, action items, and career goals.")
+            Text("This is sample data to help you explore the app. Swipe down or tap below to start exploring.")
                 .font(Typography.body)
                 .foregroundStyle(Colors.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, Spacing.md)
 
-            // Start Fresh button
-            Button(action: onStartFresh) {
-                Text("Start Fresh")
+            Spacer()
+
+            // Continue Exploring button (primary)
+            Button {
+                dismiss()
+            } label: {
+                Text("Continue Exploring")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(PrimaryButtonStyle())
             .padding(.horizontal, Spacing.md)
-            .padding(.top, Spacing.sm)
+
+            // Exit Demo Mode button (secondary)
+            Button(action: onStartFresh) {
+                Text("Exit Demo Mode")
+                    .font(Typography.callout)
+                    .foregroundStyle(Colors.textSecondary)
+            }
+            .padding(.bottom, Spacing.sm)
 
             // Hint
-            Text("You can re-enable demo mode anytime in Settings")
+            Text("You can turn demo mode on/off in Settings")
                 .font(Typography.caption1)
                 .foregroundStyle(Colors.textTertiary)
-                .padding(.bottom, Spacing.md)
+                .padding(.bottom, Spacing.lg)
         }
         .padding()
-        .presentationDetents([.height(320)])
+        .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
-        .interactiveDismissDisabled()
     }
 }
 

@@ -5,6 +5,7 @@ import SwiftUI
 struct ManagerDashboardView: View {
     @StateObject private var viewModel = ManagerDashboardViewModel()
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var isDemoMode = AppSettings.shared.isDemoMode
 
     private var isRegularWidth: Bool {
         horizontalSizeClass == .regular
@@ -59,6 +60,15 @@ struct ManagerDashboardView: View {
         }
         .task {
             await viewModel.loadData()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+            let newValue = AppSettings.shared.isDemoMode
+            if newValue != isDemoMode {
+                isDemoMode = newValue
+                Task {
+                    await viewModel.loadData()
+                }
+            }
         }
     }
 }

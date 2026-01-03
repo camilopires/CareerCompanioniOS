@@ -10,6 +10,7 @@ struct AddPersonView: View {
     @State private var newTag = ""
     @State private var showingAddCustomType = false
     @State private var customTypeName = ""
+    @State private var showDemoExitPrompt = false
 
     /// Optional callback when a person is successfully added
     var onPersonAdded: ((Manager) -> Void)?
@@ -111,7 +112,11 @@ struct AddPersonView: View {
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        savePerson()
+                        if AppSettings.shared.isDemoMode {
+                            showDemoExitPrompt = true
+                        } else {
+                            savePerson()
+                        }
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
@@ -127,6 +132,17 @@ struct AddPersonView: View {
                 }
             } message: {
                 Text("Enter a name for the new relationship type.")
+            }
+            .alert("Exit Demo Mode?", isPresented: $showDemoExitPrompt) {
+                Button("Stay in Demo", role: .cancel) {
+                    savePerson()
+                }
+                Button("Exit Demo Mode") {
+                    AppSettings.shared.isDemoMode = false
+                    savePerson()
+                }
+            } message: {
+                Text("You're creating real data. You can turn demo mode back on in Settings.")
             }
             .onAppear {
                 // Pre-select based on current user role
@@ -144,13 +160,6 @@ struct AddPersonView: View {
             relationshipType: selectedRelationshipType,
             tags: tags
         )
-
-        // In demo mode, just call callback and dismiss
-        if AppSettings.shared.isDemoMode {
-            onPersonAdded?(person)
-            dismiss()
-            return
-        }
 
         Task {
             let savedPerson = try? await CloudKitManager.shared.save(person)

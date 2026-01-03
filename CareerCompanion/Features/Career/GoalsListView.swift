@@ -7,28 +7,36 @@ struct GoalsListView: View {
     @State private var showingUpgrade = false
     @State private var selectedFilter: GoalFilter = .active
 
-    var body: some View {
-        VStack(spacing: 0) {
-            // Filter
-            Picker("Filter", selection: $selectedFilter) {
-                ForEach(GoalFilter.allCases) { filter in
-                    Text(filter.displayName).tag(filter)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding()
+    private var isDemoMode: Bool { AppSettings.shared.isDemoMode }
 
-            // List
-            if viewModel.filteredGoals(for: selectedFilter).isEmpty {
-                EmptyStateForGoalFilter(filter: selectedFilter, onAdd: {
-                    if AppSettings.shared.canAddMoreGoals {
-                        showingAddGoal = true
-                    } else {
-                        showingUpgrade = true
+    var body: some View {
+        List {
+            // Filter section
+            Section {
+                Picker("Filter", selection: $selectedFilter) {
+                    ForEach(GoalFilter.allCases) { filter in
+                        Text(filter.displayName).tag(filter)
                     }
-                })
+                }
+                .pickerStyle(.segmented)
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+            }
+
+            // Content section
+            if viewModel.filteredGoals(for: selectedFilter).isEmpty {
+                Section {
+                    EmptyStateForGoalFilter(filter: selectedFilter, onAdd: {
+                        if AppSettings.shared.canAddMoreGoals {
+                            showingAddGoal = true
+                        } else {
+                            showingUpgrade = true
+                        }
+                    })
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
+                }
             } else {
-                List {
+                Section {
                     ForEach(viewModel.filteredGoals(for: selectedFilter)) { goal in
                         NavigationLink(destination: GoalDetailView(goal: goal)) {
                             GoalListRow(goal: goal)
@@ -38,9 +46,9 @@ struct GoalsListView: View {
                         Task { await viewModel.deleteGoals(at: indexSet, filter: selectedFilter) }
                     }
                 }
-                .listStyle(.plain)
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("Career Goals")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -52,6 +60,7 @@ struct GoalsListView: View {
                     }
                 }) {
                     Image(systemName: "plus")
+                        .accessibilityLabel("Add goal")
                 }
             }
         }
@@ -63,8 +72,17 @@ struct GoalsListView: View {
         .sheet(isPresented: $showingUpgrade) {
             UpgradeView()
         }
+        .refreshable {
+            await viewModel.loadGoals()
+        }
         .task {
             await viewModel.loadGoals()
+        }
+        .onChange(of: isDemoMode) { _, _ in
+            // Reload when demo mode changes
+            Task {
+                await viewModel.loadGoals()
+            }
         }
         .onChange(of: selectedFilter) { _, newValue in
             let count = viewModel.filteredGoals(for: newValue).count

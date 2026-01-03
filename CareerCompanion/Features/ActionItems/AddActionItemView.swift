@@ -10,6 +10,7 @@ struct AddActionItemView: View {
     @State private var dueDate = Date().addingTimeInterval(86400 * 7)
     @State private var priority: Priority = .medium
     @State private var owner: Owner = .me
+    @State private var showDemoExitPrompt = false
 
     let onAdd: (ActionItem) -> Void
 
@@ -64,11 +65,26 @@ struct AddActionItemView: View {
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        addItem()
+                        if AppSettings.shared.isDemoMode {
+                            showDemoExitPrompt = true
+                        } else {
+                            addItem()
+                        }
                     }
                     .disabled(!isValid)
                     .accessibilityHint(isValid ? "Creates new action item" : "Enter a title to enable this button")
                 }
+            }
+            .alert("Exit Demo Mode?", isPresented: $showDemoExitPrompt) {
+                Button("Stay in Demo", role: .cancel) {
+                    addItem()
+                }
+                Button("Exit Demo Mode") {
+                    AppSettings.shared.isDemoMode = false
+                    addItem()
+                }
+            } message: {
+                Text("You're creating real data. You can turn demo mode back on in Settings.")
             }
         }
     }

@@ -194,6 +194,69 @@ struct StandardTextFieldStyle: TextFieldStyle {
     }
 }
 
+// MARK: - Demo Mode Indicator
+
+/// Floating pill indicator for demo mode - iOS style
+struct DemoModeIndicator: View {
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(Color.orange)
+                    .frame(width: 6, height: 6)
+
+                Text("Demo Mode")
+                    .font(.system(size: 12, weight: .medium))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(.ultraThinMaterial)
+            .clipShape(Capsule())
+            .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+/// View modifier to show demo mode indicator as floating pill
+struct DemoModeBannerModifier: ViewModifier {
+    @State private var showExitConfirmation = false
+    @State private var isDemoMode = AppSettings.shared.isDemoMode
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(alignment: .top) {
+                if isDemoMode {
+                    DemoModeIndicator {
+                        showExitConfirmation = true
+                    }
+                    .padding(.top, 4)
+                }
+            }
+            .alert("Exit Demo Mode?", isPresented: $showExitConfirmation) {
+                Button("Cancel", role: .cancel) {}
+                Button("Exit Demo Mode") {
+                    AppSettings.shared.isDemoMode = false
+                    isDemoMode = false
+                }
+            } message: {
+                Text("Sample data will be cleared. You can turn demo mode back on in Settings.")
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+                isDemoMode = AppSettings.shared.isDemoMode
+            }
+    }
+}
+
+extension View {
+    /// Adds a demo mode indicator when in demo mode
+    func demoModeBanner() -> some View {
+        modifier(DemoModeBannerModifier())
+    }
+}
+
 // MARK: - Preview
 
 #Preview("Theme Components") {

@@ -158,6 +158,7 @@ struct SetupView: View {
 
     @State private var selectedRole: UserRole = .individualContributor
     @State private var notificationsEnabled = true
+    @State private var showingAddPerson = false
 
     var body: some View {
         NavigationStack {
@@ -206,30 +207,39 @@ struct SetupView: View {
                 }
 
                 Section {
-                    HStack(spacing: Spacing.md) {
-                        Image(systemName: "person.badge.plus")
-                            .font(.title)
-                            .foregroundStyle(Color.accentColor)
-
-                        VStack(alignment: .leading, spacing: Spacing.xxs) {
-                            Text("Add People Later")
-                                .font(Typography.headline)
-
-                            Text("You can add managers or team members anytime from Settings.")
-                                .font(Typography.caption1)
-                                .foregroundStyle(Colors.textSecondary)
-                        }
+                    // Add People button
+                    Button {
+                        showingAddPerson = true
+                    } label: {
+                        Label("Add People", systemImage: "person.badge.plus")
                     }
-                    .padding(.vertical, Spacing.xs)
+
+                    // Later button
+                    Button {
+                        completeSetup()
+                    } label: {
+                        Text("Later")
+                            .foregroundStyle(Colors.textSecondary)
+                    }
+                } header: {
+                    Text("Get Started")
+                } footer: {
+                    Text("Add your manager or team members to start tracking 1:1s.")
                 }
             }
             .navigationTitle("Quick Setup")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") {
                         completeSetup()
                     }
+                }
+            }
+            .sheet(isPresented: $showingAddPerson) {
+                AddPersonView { _ in
+                    // Person added successfully, complete setup
+                    completeSetup()
                 }
             }
         }

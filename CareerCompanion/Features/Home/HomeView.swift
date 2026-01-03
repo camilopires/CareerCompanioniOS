@@ -18,14 +18,6 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("Home")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(destination: SettingsView()) {
-                        Image(systemName: "gearshape")
-                            .accessibilityLabel("Settings")
-                    }
-                }
-            }
         }
     }
 }

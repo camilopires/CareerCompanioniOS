@@ -18,6 +18,8 @@
 		A1000003006 /* CareerGoal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003006 /* CareerGoal.swift */; };
 		A1000003007 /* Achievement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003007 /* Achievement.swift */; };
 		A1000003008 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003008 /* AppSettings.swift */; };
+		A1000003009 /* RecurrenceRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003009 /* RecurrenceRule.swift */; };
+		A1000006009 /* CustomRecurrencePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000006009 /* CustomRecurrencePicker.swift */; };
 		A1000004001 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004001 /* Colors.swift */; };
 		A1000004002 /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004002 /* Typography.swift */; };
 		A1000004003 /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004003 /* Spacing.swift */; };
@@ -86,6 +88,7 @@
 		B1000003003 /* Meeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003003 /* Meeting.swift */; };
 		B1000003005 /* ActionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003005 /* ActionItem.swift */; };
 		B1000003006 /* CareerGoal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003006 /* CareerGoal.swift */; };
+		B1000003009 /* RecurrenceRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003009 /* RecurrenceRule.swift */; };
 		B1000009001 /* CareerCompanionWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B3000001001 /* CareerCompanionWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		W1000001001 /* CareerCompanionWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001001 /* CareerCompanionWatchApp.swift */; };
 		W1000001002 /* WatchHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001002 /* WatchHomeView.swift */; };
@@ -100,6 +103,7 @@
 		W1000003003 /* Meeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003003 /* Meeting.swift */; };
 		W1000003005 /* ActionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003005 /* ActionItem.swift */; };
 		W1000003008 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003008 /* AppSettings.swift */; };
+		W1000003009 /* RecurrenceRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003009 /* RecurrenceRule.swift */; };
 		W100000A001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = W200000A001 /* Assets.xcassets */; };
 		W1000010001 /* CareerCompanion/Core/DemoData/DemoDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200010001 /* CareerCompanion/Core/DemoData/DemoDataProvider.swift */; };
 /* End PBXBuildFile section */
@@ -140,6 +144,7 @@
 		A2000003006 /* CareerGoal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerGoal.swift; sourceTree = "<group>"; };
 		A2000003007 /* Achievement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievement.swift; sourceTree = "<group>"; };
 		A2000003008 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		A2000003009 /* RecurrenceRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurrenceRule.swift; sourceTree = "<group>"; };
 		A2000004001 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		A2000004002 /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
 		A2000004003 /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
@@ -163,6 +168,7 @@
 		A2000006006 /* ActiveMeetingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveMeetingView.swift; sourceTree = "<group>"; };
 		A2000006007 /* ActiveMeetingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveMeetingViewModel.swift; sourceTree = "<group>"; };
 		A2000006008 /* MeetingDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingDetailView.swift; sourceTree = "<group>"; };
+		A2000006009 /* CustomRecurrencePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRecurrencePicker.swift; sourceTree = "<group>"; };
 		A2000007001 /* ActionItemsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionItemsListView.swift; sourceTree = "<group>"; };
 		A2000007002 /* ActionItemsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionItemsViewModel.swift; sourceTree = "<group>"; };
 		A2000007003 /* ActionItemDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionItemDetailView.swift; sourceTree = "<group>"; };
@@ -342,6 +348,7 @@
 				A2000003006 /* CareerGoal.swift */,
 				A2000003007 /* Achievement.swift */,
 				A2000003008 /* AppSettings.swift */,
+				A2000003009 /* RecurrenceRule.swift */,
 				A200012001 /* PremiumFeatures.swift */,
 			);
 			path = Models;
@@ -383,6 +390,7 @@
 				A2000006006 /* ActiveMeetingView.swift */,
 				A2000006007 /* ActiveMeetingViewModel.swift */,
 				A2000006008 /* MeetingDetailView.swift */,
+				A2000006009 /* CustomRecurrencePicker.swift */,
 			);
 			path = Meetings;
 			sourceTree = "<group>";
@@ -688,6 +696,8 @@
 				A1000009003 /* DemoModeSheet.swift in Sources */,
 				A1000009004 /* SplashScreenView.swift in Sources */,
 				A1000003008 /* AppSettings.swift in Sources */,
+				A1000003009 /* RecurrenceRule.swift in Sources */,
+				A1000006009 /* CustomRecurrencePicker.swift in Sources */,
 				A1000005006 /* ICDashboardView.swift in Sources */,
 				A1000005007 /* ManagerDashboardView.swift in Sources */,
 				A100010001 /* CareerCompanion/Core/DemoData/DemoDataProvider.swift in Sources */,
@@ -725,6 +735,7 @@
 				B1000003003 /* Meeting.swift in Sources */,
 				B1000003005 /* ActionItem.swift in Sources */,
 				B1000003006 /* CareerGoal.swift in Sources */,
+				B1000003009 /* RecurrenceRule.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -745,6 +756,7 @@
 				W1000003003 /* Meeting.swift in Sources */,
 				W1000003005 /* ActionItem.swift in Sources */,
 				W1000003008 /* AppSettings.swift in Sources */,
+				W1000003009 /* RecurrenceRule.swift in Sources */,
 				W1000010001 /* CareerCompanion/Core/DemoData/DemoDataProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

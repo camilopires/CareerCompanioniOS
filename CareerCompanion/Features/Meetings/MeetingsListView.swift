@@ -4,6 +4,7 @@ import SwiftUI
 struct MeetingsListView: View {
     @StateObject private var viewModel = MeetingsViewModel()
     @State private var showingNewMeeting = false
+    @State private var isDemoMode = AppSettings.shared.isDemoMode
 
     var body: some View {
         Group {
@@ -36,6 +37,15 @@ struct MeetingsListView: View {
         }
         .task {
             await viewModel.loadMeetings()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+            let newValue = AppSettings.shared.isDemoMode
+            if newValue != isDemoMode {
+                isDemoMode = newValue
+                Task {
+                    await viewModel.loadMeetings()
+                }
+            }
         }
     }
 }
@@ -164,7 +174,7 @@ struct MeetingRowView: View {
                 HStack {
                     Text(meeting.formattedDate)
                         .font(Typography.body)
-                        .foregroundStyle(Colors.textPrimary)
+                        .foregroundStyle(meeting.isPast ? Colors.textSecondary : Colors.textPrimary)
 
                     if !managerName.isEmpty {
                         Text("with \(managerName)")
@@ -174,13 +184,13 @@ struct MeetingRowView: View {
                 }
 
                 HStack(spacing: Spacing.sm) {
-                    // Meeting type badge
+                    // Meeting type badge with custom color
                     Text(meeting.meetingType)
                         .font(Typography.caption2)
                         .foregroundStyle(.white)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.blue.opacity(0.8))
+                        .background(meeting.isPast ? Color.gray.opacity(0.6) : AppSettings.shared.colorForMeetingType(meeting.meetingType))
                         .cornerRadius(4)
 
                     Label(meeting.status.displayName, systemImage: meeting.status.icon)
@@ -191,6 +201,14 @@ struct MeetingRowView: View {
                         Text(sentiment.emoji)
                             .font(.caption)
                     }
+
+                    // Recurrence indicator
+                    if meeting.isRecurring {
+                        Image(systemName: "repeat")
+                            .font(.caption2)
+                            .foregroundStyle(Colors.textTertiary)
+                            .accessibilityLabel("Recurring")
+                    }
                 }
             }
 
@@ -199,8 +217,9 @@ struct MeetingRowView: View {
             // Chevron is provided by NavigationLink
         }
         .padding(.vertical, Spacing.xxs)
+        .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(meeting.formattedDate)\(managerName.isEmpty ? "" : " with \(managerName)"), \(meeting.meetingType), \(meeting.status.displayName)")
+        .accessibilityLabel("\(meeting.formattedDate)\(managerName.isEmpty ? "" : " with \(managerName)"), \(meeting.meetingType), \(meeting.status.displayName)\(meeting.isRecurring ? ", recurring" : "")")
     }
 }
 
@@ -237,10 +256,12 @@ struct AddMeetingView: View {
     @State private var date = Date().addingTimeInterval(86400 * 7) // Default to 1 week from now
     @State private var selectedManagerID: UUID?
     @State private var meetingType: String = "1:1"
+    @State private var recurrence: RecurrenceRule? = nil
     @State private var showingAddMeetingType = false
     @State private var newMeetingTypeName = ""
     @State private var showingAddPerson = false
     @State private var localManagers: [Manager]
+    @State private var showDemoExitPrompt = false
 
     let onCreate: (Meeting) -> Void
 
@@ -269,6 +290,9 @@ struct AddMeetingView: View {
                             .foregroundColor(.accentColor)
                     }
                 }
+
+                // Recurrence picker
+                RecurrencePickerSection(recurrence: $recurrence)
 
                 Section {
                     if localManagers.isEmpty {
@@ -317,18 +341,11 @@ struct AddMeetingView: View {
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
-                        guard let managerID = selectedManagerID else { return }
-                        let perspective: MeetingPerspective = AppSettings.shared.userRole == .individualContributor
-                            ? .asEmployee
-                            : .asManager
-                        let meeting = Meeting(
-                            managerID: managerID,
-                            date: date,
-                            perspective: perspective,
-                            meetingType: meetingType
-                        )
-                        onCreate(meeting)
-                        dismiss()
+                        if AppSettings.shared.isDemoMode {
+                            showDemoExitPrompt = true
+                        } else {
+                            createMeeting()
+                        }
                     }
                     .disabled(selectedManagerID == nil)
                     .accessibilityHint(selectedManagerID != nil ? "Creates new meeting" : "Select a person to enable this button")
@@ -359,7 +376,34 @@ struct AddMeetingView: View {
             } message: {
                 Text("Enter a name for the new meeting type.")
             }
+            .alert("Exit Demo Mode?", isPresented: $showDemoExitPrompt) {
+                Button("Stay in Demo", role: .cancel) {
+                    createMeeting()
+                }
+                Button("Exit Demo Mode") {
+                    AppSettings.shared.isDemoMode = false
+                    createMeeting()
+                }
+            } message: {
+                Text("You're creating real data. You can turn demo mode back on in Settings.")
+            }
         }
+    }
+
+    private func createMeeting() {
+        guard let managerID = selectedManagerID else { return }
+        let perspective: MeetingPerspective = AppSettings.shared.userRole == .individualContributor
+            ? .asEmployee
+            : .asManager
+        let meeting = Meeting(
+            managerID: managerID,
+            date: date,
+            perspective: perspective,
+            meetingType: meetingType,
+            recurrence: recurrence
+        )
+        onCreate(meeting)
+        dismiss()
     }
 }
 

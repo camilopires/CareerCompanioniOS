@@ -116,11 +116,11 @@ struct SettingsView: View {
                     Label("About", systemImage: "info.circle")
                 }
 
-                Link(destination: URL(string: "https://apple.com/feedback")!) {
+                Link(destination: URL(string: "mailto:dev@camilopires.co.uk?subject=Career%20Companion%20Feedback")!) {
                     Label("Send Feedback", systemImage: "envelope")
                 }
 
-                Link(destination: URL(string: "https://apple.com/privacy")!) {
+                Link(destination: URL(string: "https://camilopires.co.uk/projects/careercompanion-privacy/")!) {
                     Label("Privacy Policy", systemImage: "hand.raised")
                 }
             }
@@ -474,9 +474,9 @@ struct AISettingsSection: View {
             }
         } footer: {
             if aiManager.isAvailable {
-                Text("Get intelligent suggestions for agenda items, achievement descriptions, and meeting summaries. All processing happens on-device for privacy.")
+                Text("Powered by Apple Intelligence. Get intelligent suggestions for agenda items, achievement descriptions, and meeting summaries. All processing happens on-device for privacy.")
             } else {
-                Text("AI features require iOS 18 or later with Apple Intelligence support.")
+                Text("Requires iOS 18 or later with Apple Intelligence support.")
             }
         }
     }

@@ -9,12 +9,14 @@ struct CareerCompanionApp: App {
     @State private var showDemoSheet = false
     @State private var showSetupView = false
     @State private var showSplash = true
+    @State private var refreshID = UUID()
 
     var body: some Scene {
         WindowGroup {
             ZStack {
                 if hasCompletedOnboarding {
                     AdaptiveRootView()
+                        .id(refreshID)
                         .environmentObject(cloudKitManager)
                         .sheet(isPresented: $showDemoSheet) {
                             DemoModeSheet(onStartFresh: startFresh)
@@ -47,6 +49,15 @@ struct CareerCompanionApp: App {
                     }
                     .transition(.opacity)
                     .zIndex(1)
+                }
+            }
+            .demoModeBanner()
+            .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+                let newValue = AppSettings.shared.isDemoMode
+                if newValue != isDemoMode {
+                    isDemoMode = newValue
+                    // Force complete view refresh to reload data
+                    refreshID = UUID()
                 }
             }
         }
@@ -458,6 +469,7 @@ struct MainTabView: View {
         case home
         case meetings
         case career
+        case settings
     }
 
     var body: some View {
@@ -468,17 +480,29 @@ struct MainTabView: View {
                 }
                 .tag(Tab.home)
 
-            MeetingsListView()
-                .tabItem {
-                    Label("1:1s", systemImage: "person.2.fill")
-                }
-                .tag(Tab.meetings)
+            NavigationStack {
+                MeetingsListView()
+            }
+            .tabItem {
+                Label("1:1s", systemImage: "person.2.fill")
+            }
+            .tag(Tab.meetings)
 
-            CareerHomeView()
-                .tabItem {
-                    Label("Career", systemImage: "star.fill")
-                }
-                .tag(Tab.career)
+            NavigationStack {
+                CareerHomeView()
+            }
+            .tabItem {
+                Label("Career", systemImage: "star.fill")
+            }
+            .tag(Tab.career)
+
+            NavigationStack {
+                SettingsView()
+            }
+            .tabItem {
+                Label("Settings", systemImage: "gearshape.fill")
+            }
+            .tag(Tab.settings)
         }
         .tint(Colors.primary)
     }

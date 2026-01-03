@@ -165,6 +165,14 @@ final class MeetingsViewModel: ObservableObject {
                 }
             }
 
+            // Ensure manager is in managers array for immediate UI display
+            if let sdManager = sdManager {
+                let manager = sdManager.toManager()
+                if !managers.contains(where: { $0.id == manager.id }) {
+                    managers.append(manager)
+                }
+            }
+
             // Create SDMeeting
             let sdMeeting = SDMeeting(
                 id: meetingToSave.id,

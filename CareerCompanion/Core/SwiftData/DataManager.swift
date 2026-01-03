@@ -12,6 +12,7 @@ final class DataManager: ObservableObject {
     var context: ModelContext { container.mainContext }
 
     @Published private(set) var isCloudKitAvailable = false
+    @Published private(set) var isUsingCloudKit = false
     @Published private(set) var lastSyncDate: Date?
 
     // MARK: - Initialization
@@ -26,18 +27,38 @@ final class DataManager: ObservableObject {
             SDAgendaItem.self
         ])
 
-        // Configure with CloudKit sync to private database
-        let config = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: false,
-            cloudKitDatabase: .private("iCloud.com.careercompanion.app")
-        )
+        // Try CloudKit first, fall back to local-only if it fails
+        var createdContainer: ModelContainer?
 
+        // Try with CloudKit sync (using the bundle identifier-based container)
         do {
-            container = try ModelContainer(for: schema, configurations: [config])
+            let cloudConfig = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: false,
+                cloudKitDatabase: .automatic
+            )
+            createdContainer = try ModelContainer(for: schema, configurations: [cloudConfig])
+            isUsingCloudKit = true
         } catch {
-            fatalError("Failed to create ModelContainer: \(error)")
+            print("CloudKit ModelContainer failed: \(error). Falling back to local storage.")
         }
+
+        // Fall back to local-only storage
+        if createdContainer == nil {
+            do {
+                let localConfig = ModelConfiguration(
+                    schema: schema,
+                    isStoredInMemoryOnly: false,
+                    cloudKitDatabase: .none
+                )
+                createdContainer = try ModelContainer(for: schema, configurations: [localConfig])
+                isUsingCloudKit = false
+            } catch {
+                fatalError("Failed to create local ModelContainer: \(error)")
+            }
+        }
+
+        container = createdContainer!
 
         Task {
             await checkCloudKitStatus()

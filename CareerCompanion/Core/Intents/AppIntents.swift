@@ -1,5 +1,6 @@
 import AppIntents
 import Foundation
+import SwiftData
 
 // MARK: - Check Next Meeting Intent
 
@@ -9,15 +10,16 @@ struct CheckNextMeetingIntent: AppIntent {
 
     static var openAppWhenRun: Bool = false
 
+    @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let nextMeeting = await fetchNextMeeting()
+        let nextMeeting = fetchNextMeeting()
 
         if let meeting = nextMeeting {
             let dateFormatter = DateFormatter()
             dateFormatter.dateStyle = .medium
             dateFormatter.timeStyle = .short
 
-            let managerName = await fetchManagerName(for: meeting.managerID)
+            let managerName = fetchManagerName(for: meeting.managerID)
             let dateString = dateFormatter.string(from: meeting.date)
 
             return .result(dialog: "Your next 1:1 with \(managerName) is on \(dateString).")
@@ -26,7 +28,8 @@ struct CheckNextMeetingIntent: AppIntent {
         }
     }
 
-    private func fetchNextMeeting() async -> Meeting? {
+    @MainActor
+    private func fetchNextMeeting() -> Meeting? {
         if AppSettings.shared.isDemoMode {
             return DemoDataProvider.meetings
                 .filter { $0.status == .scheduled && $0.date > Date() }
@@ -35,27 +38,33 @@ struct CheckNextMeetingIntent: AppIntent {
         }
 
         do {
-            let meetings: [Meeting] = try await CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "status == %@ AND date > %@",
-                                       MeetingStatus.scheduled.rawValue,
-                                       Date() as NSDate),
-                sortDescriptors: [NSSortDescriptor(key: "date", ascending: true)]
+            let now = Date()
+            let predicate = #Predicate<SDMeeting> { meeting in
+                meeting.statusRaw == "scheduled" && meeting.date > now
+            }
+            let descriptor = FetchDescriptor<SDMeeting>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\.date)]
             )
-            return meetings.first
+            let meetings = try DataManager.shared.context.fetch(descriptor)
+            return meetings.first?.toMeeting()
         } catch {
             return nil
         }
     }
 
-    private func fetchManagerName(for managerID: UUID) async -> String {
+    @MainActor
+    private func fetchManagerName(for managerID: UUID) -> String {
         if AppSettings.shared.isDemoMode {
             return DemoDataProvider.managers.first { $0.id == managerID }?.name ?? "your manager"
         }
 
         do {
-            let managers: [Manager] = try await CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "id == %@", managerID.uuidString)
-            )
+            let predicate = #Predicate<SDManager> { manager in
+                manager.id == managerID
+            }
+            let descriptor = FetchDescriptor<SDManager>(predicate: predicate)
+            let managers = try DataManager.shared.context.fetch(descriptor)
             return managers.first?.name ?? "your manager"
         } catch {
             return "your manager"
@@ -71,8 +80,9 @@ struct CheckActionItemsIntent: AppIntent {
 
     static var openAppWhenRun: Bool = false
 
+    @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let items = await fetchOpenActionItems()
+        let items = fetchOpenActionItems()
 
         if items.isEmpty {
             return .result(dialog: "You have no open action items. Great job staying on top of things!")
@@ -94,15 +104,18 @@ struct CheckActionItemsIntent: AppIntent {
         }
     }
 
-    private func fetchOpenActionItems() async -> [ActionItem] {
+    @MainActor
+    private func fetchOpenActionItems() -> [ActionItem] {
         if AppSettings.shared.isDemoMode {
             return DemoDataProvider.actionItems.filter { $0.status != .completed }
         }
 
         do {
-            return try await CloudKitManager.shared.fetch(
-                predicate: NSPredicate(format: "status != %@", ActionItemStatus.completed.rawValue)
-            )
+            let predicate = #Predicate<SDActionItem> { item in
+                item.statusRaw != "completed"
+            }
+            let descriptor = FetchDescriptor<SDActionItem>(predicate: predicate)
+            return try DataManager.shared.context.fetch(descriptor).map { $0.toActionItem() }
         } catch {
             return []
         }
@@ -125,15 +138,16 @@ struct AddActionItemIntent: AppIntent {
         Summary("Add action item \(\.$title) with \(\.$priority) priority")
     }
 
+    @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let newItem = ActionItem(
-            title: title,
-            priority: priority.toPriority
-        )
-
         if !AppSettings.shared.isDemoMode {
             do {
-                try await CloudKitManager.shared.save(newItem)
+                let sdItem = SDActionItem(
+                    title: title,
+                    priority: priority.toPriority
+                )
+                DataManager.shared.context.insert(sdItem)
+                try DataManager.shared.save()
             } catch {
                 return .result(dialog: "Failed to add action item. Please try again.")
             }
@@ -159,16 +173,17 @@ struct LogAchievementIntent: AppIntent {
         Summary("Log achievement \(\.$title)")
     }
 
+    @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let achievement = Achievement(
-            title: title,
-            achievementDescription: achievementDescription ?? "",
-            dateAchieved: Date()
-        )
-
         if !AppSettings.shared.isDemoMode {
             do {
-                try await CloudKitManager.shared.save(achievement)
+                let sdAchievement = SDAchievement(
+                    title: title,
+                    achievementDescription: achievementDescription ?? "",
+                    dateAchieved: Date()
+                )
+                DataManager.shared.context.insert(sdAchievement)
+                try DataManager.shared.save()
             } catch {
                 return .result(dialog: "Failed to log achievement. Please try again.")
             }

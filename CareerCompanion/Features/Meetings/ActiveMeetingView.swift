@@ -284,6 +284,13 @@ struct ActiveMeetingView: View {
     // MARK: - AI Helper Functions
 
     private func improveAllSections(type: NoteImprovementType) async {
+        // Dismiss keyboard to commit any pending text in TextFields
+        await MainActor.run {
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        }
+        // Brief delay to let bindings update
+        try? await Task.sleep(nanoseconds: 100_000_000)
+
         isImprovingAll = true
 
         var improvements: [NoteImprovementPreview] = []
@@ -675,6 +682,12 @@ struct FeedbackListSection: View {
     }
 
     private func improveSection(type: NoteImprovementType, section: MeetingSectionType) async {
+        // Commit any pending text before AI processing
+        if !newItem.trimmingCharacters(in: .whitespaces).isEmpty {
+            items.wrappedValue.append(newItem)
+            newItem = ""
+        }
+
         isProcessing = true
 
         let improved = await AIManager.shared.improveItems(

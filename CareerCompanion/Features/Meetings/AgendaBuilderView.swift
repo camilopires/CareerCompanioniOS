@@ -282,12 +282,24 @@ struct AgendaBuilderView: View {
             if !viewModel.carriedOverItems.isEmpty {
                 Section {
                     ForEach(viewModel.carriedOverItems) { item in
-                        CarriedOverItemRow(item: item)
+                        CarriedOverItemRow(
+                            item: item,
+                            onPostpone: {
+                                Task {
+                                    await viewModel.postponeActionItem(item)
+                                }
+                            },
+                            onMarkComplete: {
+                                Task {
+                                    await viewModel.completeActionItem(item)
+                                }
+                            }
+                        )
                     }
                 } header: {
                     Label("Action Items to Review", systemImage: "arrow.uturn.forward")
                 } footer: {
-                    Text("These items will be automatically added to your agenda")
+                    Text("These have been added to your agenda above")
                 }
             }
         }
@@ -656,6 +668,8 @@ private struct AgendaItemRow: View {
 
 private struct CarriedOverItemRow: View {
     let item: ActionItem
+    let onPostpone: () -> Void
+    let onMarkComplete: () -> Void
 
     var body: some View {
         HStack(spacing: Spacing.sm) {
@@ -671,6 +685,25 @@ private struct CarriedOverItemRow: View {
                         .font(Typography.caption1)
                         .foregroundStyle(item.isOverdue ? Colors.error : Colors.textSecondary)
                 }
+            }
+
+            Spacer()
+
+            Menu {
+                Button {
+                    onPostpone()
+                } label: {
+                    Label("Postpone to Next 1:1", systemImage: "arrow.right.circle")
+                }
+
+                Button {
+                    onMarkComplete()
+                } label: {
+                    Label("Mark Complete", systemImage: "checkmark.circle")
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .foregroundStyle(Colors.textSecondary)
             }
         }
     }

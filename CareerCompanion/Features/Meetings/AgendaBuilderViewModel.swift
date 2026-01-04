@@ -77,11 +77,73 @@ final class AgendaBuilderViewModel: ObservableObject {
                 .filter { $0.meeting?.id != meeting.id }
                 .map { $0.toActionItem() }
 
+            // Auto-add carried over items as agenda items (if not already added)
+            await autoAddCarriedOverItems()
+
         } catch {
             self.error = error
         }
 
         isLoading = false
+    }
+
+    /// Automatically adds carried over action items as agenda items
+    private func autoAddCarriedOverItems() async {
+        for actionItem in carriedOverItems {
+            let agendaTitle = "Review: \(actionItem.title)"
+
+            // Check if already added (by matching title)
+            let alreadyExists = agendaItems.contains { $0.title == agendaTitle }
+            guard !alreadyExists else { continue }
+
+            // Add as new agenda item
+            await addItem(title: agendaTitle)
+        }
+    }
+
+    // MARK: - Carried Over Item Actions
+
+    /// Postpone action item to next 1:1 (removes from this meeting's agenda but keeps item open)
+    func postponeActionItem(_ item: ActionItem) async {
+        // Remove the auto-added agenda item for this action item
+        let agendaTitle = "Review: \(item.title)"
+        if let index = agendaItems.firstIndex(where: { $0.title == agendaTitle }) {
+            await deleteItems(at: IndexSet(integer: index))
+        }
+
+        // Remove from carried over items list (it will reappear in the next meeting)
+        carriedOverItems.removeAll { $0.id == item.id }
+        Theme.lightHaptic()
+    }
+
+    /// Mark action item as complete (removes from this and future meetings)
+    func completeActionItem(_ item: ActionItem) async {
+        // Remove the auto-added agenda item
+        let agendaTitle = "Review: \(item.title)"
+        if let index = agendaItems.firstIndex(where: { $0.title == agendaTitle }) {
+            await deleteItems(at: IndexSet(integer: index))
+        }
+
+        // Remove from carried over items list
+        carriedOverItems.removeAll { $0.id == item.id }
+
+        // Mark action item as completed in SwiftData
+        if !AppSettings.shared.isDemoMode {
+            do {
+                let itemID = item.id
+                let predicate = #Predicate<SDActionItem> { $0.id == itemID }
+                var descriptor = FetchDescriptor<SDActionItem>(predicate: predicate)
+                descriptor.fetchLimit = 1
+                if let sdItem = try context.fetch(descriptor).first {
+                    sdItem.statusRaw = ActionItemStatus.completed.rawValue
+                    try DataManager.shared.save()
+                }
+            } catch {
+                self.error = error
+            }
+        }
+
+        Theme.successHaptic()
     }
 
     // MARK: - Agenda Management

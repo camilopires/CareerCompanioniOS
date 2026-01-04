@@ -41,6 +41,62 @@ struct AgendaBuilderView: View {
 
     var body: some View {
         List {
+            // Agenda items (at top)
+            Section {
+                ForEach(viewModel.agendaItems) { item in
+                    AgendaItemRow(
+                        item: item,
+                        onUpdate: { updated in
+                            Task {
+                                await viewModel.updateItem(updated)
+                            }
+                        }
+                    )
+                }
+                .onMove { from, to in
+                    viewModel.moveItems(from: from, to: to)
+                }
+                .onDelete { indexSet in
+                    Task {
+                        await viewModel.deleteItems(at: indexSet)
+                    }
+                }
+
+                // Add new item inline
+                HStack {
+                    TextField("Add agenda item...", text: $newItemTitle)
+                        .focused($isNewItemFocused)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            addNewItem()
+                        }
+
+                    if !newItemTitle.isEmpty {
+                        Button(action: addNewItem) {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundStyle(Color.accentColor)
+                        }
+                    }
+                }
+            } header: {
+                Label("Agenda", systemImage: "list.bullet")
+            }
+
+            // Quick add templates
+            Section {
+                ForEach(AgendaTemplate.allCases) { template in
+                    Button(action: {
+                        Task {
+                            await viewModel.addTemplate(template)
+                        }
+                    }) {
+                        Label(template.title, systemImage: template.icon)
+                    }
+                }
+            } header: {
+                Text("Quick Add")
+            }
+
             // AI Suggestions section
             if aiManager.isAvailable && aiManager.isEnabled {
                 AISuggestionsSection(
@@ -57,7 +113,7 @@ struct AgendaBuilderView: View {
                 )
             }
 
-            // Meeting Notes Section
+            // Meeting Goals Section
             Section {
                 TextField("What do you want to accomplish in this meeting?", text: $viewModel.meetingNotes, axis: .vertical)
                     .lineLimit(3...6)
@@ -234,73 +290,11 @@ struct AgendaBuilderView: View {
                     Text("These items will be automatically added to your agenda")
                 }
             }
-
-            // Agenda items
-            Section {
-                ForEach(viewModel.agendaItems) { item in
-                    AgendaItemRow(
-                        item: item,
-                        onUpdate: { updated in
-                            Task {
-                                await viewModel.updateItem(updated)
-                            }
-                        }
-                    )
-                }
-                .onMove { from, to in
-                    viewModel.moveItems(from: from, to: to)
-                }
-                .onDelete { indexSet in
-                    Task {
-                        await viewModel.deleteItems(at: indexSet)
-                    }
-                }
-
-                // Add new item inline
-                HStack {
-                    TextField("Add agenda item...", text: $newItemTitle)
-                        .focused($isNewItemFocused)
-                        .submitLabel(.done)
-                        .onSubmit {
-                            addNewItem()
-                        }
-
-                    if !newItemTitle.isEmpty {
-                        Button(action: addNewItem) {
-                            Image(systemName: "plus.circle.fill")
-                                .foregroundStyle(Color.accentColor)
-                        }
-                    }
-                }
-            } header: {
-                Label("Agenda", systemImage: "list.bullet")
-            }
-
-            // Quick add templates
-            Section {
-                ForEach(AgendaTemplate.allCases) { template in
-                    Button(action: {
-                        Task {
-                            await viewModel.addTemplate(template)
-                        }
-                    }) {
-                        Label(template.title, systemImage: template.icon)
-                    }
-                }
-            } header: {
-                Text("Quick Add")
-            }
         }
         .listStyle(.insetGrouped)
         .navigationTitle("Prepare for Meeting")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button("Done") {
-                    dismiss()
-                }
-            }
-
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: Spacing.sm) {
                     // Improve All menu (AI)

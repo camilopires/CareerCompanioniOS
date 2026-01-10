@@ -58,15 +58,24 @@ struct DemoDataProvider {
 
     /// Sample meetings for demo mode (with various people and meeting types)
     static var meetings: [Meeting] {
-        let now = Date()
         let calendar = Calendar.current
+
+        // Helper to create a date with a specific time (not current time)
+        func meetingDate(daysFromNow days: Int, hour: Int, minute: Int = 0) -> Date {
+            let today = calendar.startOfDay(for: Date())
+            var components = DateComponents()
+            components.day = days
+            components.hour = hour
+            components.minute = minute
+            return calendar.date(byAdding: components, to: today)!
+        }
 
         return [
             // Sarah Johnson's meetings (My Manager)
             // Upcoming meeting - next week (recurring weekly)
             Meeting(
                 managerID: manager1ID,
-                date: calendar.date(byAdding: .day, value: 7, to: now)!,
+                date: meetingDate(daysFromNow: 7, hour: 10, minute: 0),
                 status: .scheduled,
                 meetingType: "1:1",
                 recurrence: .weekly
@@ -74,7 +83,7 @@ struct DemoDataProvider {
             // Completed meeting - last week
             Meeting(
                 managerID: manager1ID,
-                date: calendar.date(byAdding: .day, value: -7, to: now)!,
+                date: meetingDate(daysFromNow: -7, hour: 10, minute: 0),
                 status: .completed,
                 meetingType: "1:1",
                 notes: "Great discussion about Q4 priorities and team structure.",
@@ -115,7 +124,7 @@ struct DemoDataProvider {
             // Completed meeting - two weeks ago
             Meeting(
                 managerID: manager1ID,
-                date: calendar.date(byAdding: .day, value: -14, to: now)!,
+                date: meetingDate(daysFromNow: -14, hour: 10, minute: 0),
                 status: .completed,
                 meetingType: "Career Development",
                 notes: "Sprint retrospective and planning for the next quarter.",
@@ -133,7 +142,7 @@ struct DemoDataProvider {
             // Upcoming meeting - in 3 days (recurring biweekly)
             Meeting(
                 managerID: manager2ID,
-                date: calendar.date(byAdding: .day, value: 3, to: now)!,
+                date: meetingDate(daysFromNow: 3, hour: 14, minute: 30),
                 status: .scheduled,
                 meetingType: "1:1",
                 recurrence: .biweekly
@@ -141,7 +150,7 @@ struct DemoDataProvider {
             // Completed meeting - 5 days ago
             Meeting(
                 managerID: manager2ID,
-                date: calendar.date(byAdding: .day, value: -5, to: now)!,
+                date: meetingDate(daysFromNow: -5, hour: 14, minute: 30),
                 status: .completed,
                 meetingType: "Feedback Session",
                 notes: "Discussed career growth and upcoming project assignments.",
@@ -175,14 +184,14 @@ struct DemoDataProvider {
             // Alex Rivera's meetings (Mentor)
             Meeting(
                 managerID: mentor1ID,
-                date: calendar.date(byAdding: .day, value: 10, to: now)!,
+                date: meetingDate(daysFromNow: 10, hour: 11, minute: 0),
                 status: .scheduled,
                 meetingType: "Mentorship",
                 recurrence: .monthly
             ),
             Meeting(
                 managerID: mentor1ID,
-                date: calendar.date(byAdding: .day, value: -10, to: now)!,
+                date: meetingDate(daysFromNow: -10, hour: 11, minute: 0),
                 status: .completed,
                 meetingType: "Mentorship",
                 notes: "Discussed career path options and system design interview prep.",
@@ -196,13 +205,13 @@ struct DemoDataProvider {
             // Jordan Lee's meetings (Peer)
             Meeting(
                 managerID: peer1ID,
-                date: calendar.date(byAdding: .day, value: 5, to: now)!,
+                date: meetingDate(daysFromNow: 5, hour: 15, minute: 0),
                 status: .scheduled,
                 meetingType: "Project Sync"
             ),
             Meeting(
                 managerID: peer1ID,
-                date: calendar.date(byAdding: .day, value: -3, to: now)!,
+                date: meetingDate(daysFromNow: -3, hour: 16, minute: 0),
                 status: .completed,
                 meetingType: "Coffee Chat",
                 notes: "Informal catch-up about cross-team collaboration opportunities.",
@@ -214,14 +223,14 @@ struct DemoDataProvider {
             // Casey Martinez's meetings (Direct Report - for manager mode)
             Meeting(
                 managerID: report1ID,
-                date: calendar.date(byAdding: .day, value: 2, to: now)!,
+                date: meetingDate(daysFromNow: 2, hour: 9, minute: 30),
                 status: .scheduled,
                 perspective: .asManager,
                 meetingType: "1:1"
             ),
             Meeting(
                 managerID: report1ID,
-                date: calendar.date(byAdding: .day, value: -8, to: now)!,
+                date: meetingDate(daysFromNow: -8, hour: 9, minute: 30),
                 status: .completed,
                 perspective: .asManager,
                 meetingType: "1:1",

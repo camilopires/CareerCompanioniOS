@@ -70,6 +70,7 @@ private struct StatusBadge: View {
         case .inProgress: return .green.opacity(0.2)
         case .completed: return .gray.opacity(0.2)
         case .cancelled: return .red.opacity(0.2)
+        case .skipped: return .orange.opacity(0.2)
         }
     }
 
@@ -79,6 +80,7 @@ private struct StatusBadge: View {
         case .inProgress: return .green
         case .completed: return .gray
         case .cancelled: return .red
+        case .skipped: return .orange
         }
     }
 }

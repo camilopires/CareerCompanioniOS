@@ -145,22 +145,38 @@ final class AppSettings {
 
     /// Whether user can add more people (premium or under limit)
     var canAddMorePeople: Bool {
-        cachedHasPremiumAccess || cachedPeopleCount < PremiumFeatures.maxFreePeople
+        #if os(watchOS)
+        return true
+        #else
+        return cachedHasPremiumAccess || cachedPeopleCount < PremiumFeatures.maxFreePeople
+        #endif
     }
 
     /// Whether user can add more action items (premium or under limit)
     var canAddMoreActionItems: Bool {
-        cachedHasPremiumAccess || cachedActionItemCount < PremiumFeatures.maxFreeActionItems
+        #if os(watchOS)
+        return true
+        #else
+        return cachedHasPremiumAccess || cachedActionItemCount < PremiumFeatures.maxFreeActionItems
+        #endif
     }
 
     /// Whether user can add more career goals (premium or under limit)
     var canAddMoreGoals: Bool {
-        cachedHasPremiumAccess || cachedGoalCount < PremiumFeatures.maxFreeGoals
+        #if os(watchOS)
+        return true
+        #else
+        return cachedHasPremiumAccess || cachedGoalCount < PremiumFeatures.maxFreeGoals
+        #endif
     }
 
     /// Whether user can add more achievements (premium or under limit)
     var canAddMoreAchievements: Bool {
-        cachedHasPremiumAccess || cachedAchievementCount < PremiumFeatures.maxFreeAchievements
+        #if os(watchOS)
+        return true
+        #else
+        return cachedHasPremiumAccess || cachedAchievementCount < PremiumFeatures.maxFreeAchievements
+        #endif
     }
 
     /// Whether user can access weekly goals and metrics sections
@@ -278,8 +294,12 @@ final class AppSettings {
 
     /// Get the color for a meeting type (checks custom first, then defaults)
     func colorForMeetingType(_ type: String) -> Color {
+        #if os(watchOS)
+        return .blue
+        #else
         let hex = customMeetingTypeColors[type] ?? Self.defaultMeetingTypeColors[type] ?? "007AFF"
         return Color(hex: hex)
+        #endif
     }
 
     /// Get the hex color string for a meeting type

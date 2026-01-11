@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>
-		<string>iCloud.$(PRODUCT_BUNDLE_IDENTIFIER:identifier).CareerCompanion</string>
+		<string>iCloud.com.careercompanion.app</string>
 	</array>
 	<key>com.apple.developer.icloud-services</key>
 	<array>
@@ -12,7 +12,7 @@
 	</array>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.$(PRODUCT_BUNDLE_IDENTIFIER:identifier).CareerCompanion</string>
+		<string>group.com.careercompanion.app</string>
 	</array>
 </dict>
 </plist>

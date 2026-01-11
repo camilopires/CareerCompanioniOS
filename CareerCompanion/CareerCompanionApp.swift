@@ -112,78 +112,128 @@ struct iPadSidebarView: View {
             case .settings: return "gearshape.fill"
             }
         }
+
+        /// Whether this tab uses a full-screen layout (no detail pane)
+        var usesFullScreenLayout: Bool {
+            switch self {
+            case .home, .settings:
+                return true
+            case .meetings, .actionItems, .career:
+                return false
+            }
+        }
     }
 
     var body: some View {
-        NavigationSplitView(columnVisibility: .constant(.all)) {
-            // Sidebar
-            List(SidebarItem.allCases, selection: $sidebarSelection) { item in
-                Label(item.rawValue, systemImage: item.icon)
-                    .tag(item)
-            }
-            .navigationTitle("Career Companion")
-        } content: {
-            // Content (list) pane
-            switch sidebarSelection {
-            case .home:
-                HomeView()
-            case .meetings:
-                iPadMeetingsListView(selectedMeeting: $selectedMeeting)
-            case .actionItems:
-                iPadActionItemsListView(selectedActionItem: $selectedActionItem)
-            case .career:
-                iPadCareerView(selectedGoal: $selectedGoal)
-            case .settings:
-                SettingsView()
-            case .none:
-                ContentUnavailableView(
-                    "Select a Section",
-                    systemImage: "sidebar.left",
-                    description: Text("Choose a section from the sidebar")
-                )
-            }
-        } detail: {
-            // Detail pane
-            switch sidebarSelection {
-            case .meetings:
-                if let meeting = selectedMeeting {
-                    MeetingDetailView(meeting: meeting)
-                } else {
-                    ContentUnavailableView(
-                        "Select a Meeting",
-                        systemImage: "person.2",
-                        description: Text("Choose a meeting from the list")
-                    )
+        Group {
+            if sidebarSelection?.usesFullScreenLayout == true {
+                // Two-column layout for Home and Settings (full-screen content)
+                NavigationSplitView {
+                    sidebarContent
+                } detail: {
+                    fullScreenContent
                 }
-            case .actionItems:
-                if let actionItem = selectedActionItem {
-                    ActionItemDetailView(item: actionItem)
-                } else {
-                    ContentUnavailableView(
-                        "Select an Action Item",
-                        systemImage: "checklist",
-                        description: Text("Choose an action item from the list")
-                    )
+                .navigationSplitViewStyle(.balanced)
+            } else {
+                // Three-column layout for tabs with detail views
+                NavigationSplitView(columnVisibility: .constant(.all)) {
+                    sidebarContent
+                } content: {
+                    listContent
+                } detail: {
+                    detailContent
                 }
-            case .career:
-                if let goal = selectedGoal {
-                    GoalDetailView(goal: goal)
-                } else {
-                    ContentUnavailableView(
-                        "Select a Goal",
-                        systemImage: "star",
-                        description: Text("Choose a goal from the list")
-                    )
-                }
-            default:
-                ContentUnavailableView(
-                    "No Detail View",
-                    systemImage: "doc.text",
-                    description: Text("Select an item to view details")
-                )
             }
         }
         .tint(Colors.primary)
+    }
+
+    // MARK: - Sidebar Content
+
+    private var sidebarContent: some View {
+        List(SidebarItem.allCases, selection: $sidebarSelection) { item in
+            Label(item.rawValue, systemImage: item.icon)
+                .tag(item)
+        }
+        .navigationTitle("Career Companion")
+    }
+
+    // MARK: - Full Screen Content (for Home and Settings)
+
+    @ViewBuilder
+    private var fullScreenContent: some View {
+        switch sidebarSelection {
+        case .home:
+            HomeView()
+        case .settings:
+            SettingsView()
+        default:
+            EmptyView()
+        }
+    }
+
+    // MARK: - List Content (for three-column layout)
+
+    @ViewBuilder
+    private var listContent: some View {
+        switch sidebarSelection {
+        case .meetings:
+            iPadMeetingsListView(selectedMeeting: $selectedMeeting)
+        case .actionItems:
+            iPadActionItemsListView(selectedActionItem: $selectedActionItem)
+        case .career:
+            iPadCareerView(selectedGoal: $selectedGoal)
+        case .home, .settings, .none:
+            ContentUnavailableView(
+                "Select a Section",
+                systemImage: "sidebar.left",
+                description: Text("Choose a section from the sidebar")
+            )
+        }
+    }
+
+    // MARK: - Detail Content (for three-column layout)
+
+    @ViewBuilder
+    private var detailContent: some View {
+        switch sidebarSelection {
+        case .meetings:
+            if let meeting = selectedMeeting {
+                MeetingDetailView(meeting: meeting)
+            } else {
+                ContentUnavailableView(
+                    "Select a Meeting",
+                    systemImage: "person.2",
+                    description: Text("Choose a meeting from the list")
+                )
+            }
+        case .actionItems:
+            if let actionItem = selectedActionItem {
+                ActionItemDetailView(item: actionItem)
+            } else {
+                ContentUnavailableView(
+                    "Select an Action Item",
+                    systemImage: "checklist",
+                    description: Text("Choose an action item from the list")
+                )
+            }
+        case .career:
+            if let goal = selectedGoal {
+                GoalDetailView(goal: goal)
+            } else {
+                ContentUnavailableView(
+                    "Select a Goal",
+                    systemImage: "star",
+                    description: Text("Choose a goal from the list")
+                )
+            }
+        default:
+            ContentUnavailableView(
+                "No Detail View",
+                systemImage: "doc.text",
+                description: Text("Select an item to view details")
+            )
+        }
     }
 }
 

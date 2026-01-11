@@ -55,6 +55,7 @@ struct DemoModeSheet: View {
         .padding()
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
+        .presentationSizing(.fitted)
     }
 }
 

@@ -1,146 +1,132 @@
 import SwiftUI
 
 struct WatchHomeView: View {
-    @StateObject private var viewModel = WatchHomeViewModel()
+    @ObservedObject private var sessionManager = WatchSessionManager.shared
 
     var body: some View {
         NavigationStack {
-            List {
-                // Next Meeting Section
-                Section {
-                    if let meeting = viewModel.nextMeeting {
-                        NavigationLink(destination: WatchMeetingDetailView(meeting: meeting, managerName: viewModel.managerName(for: meeting))) {
-                            NextMeetingRow(meeting: meeting, managerName: viewModel.managerName(for: meeting))
-                        }
-                    } else {
-                        Text("No upcoming meetings")
-                            .foregroundStyle(.secondary)
-                    }
-                } header: {
-                    Label("Next 1:1", systemImage: "calendar")
-                }
-
-                // Action Items Section
-                Section {
-                    if viewModel.openActionItems.isEmpty {
-                        Text("All caught up!")
-                            .foregroundStyle(.secondary)
-                    } else {
-                        ForEach(viewModel.openActionItems.prefix(3)) { item in
-                            ActionItemRow(item: item, onComplete: {
-                                Task {
-                                    await viewModel.completeActionItem(item)
-                                }
-                            })
-                        }
-
-                        if viewModel.openActionItems.count > 3 {
-                            NavigationLink(destination: WatchActionItemsView(viewModel: viewModel)) {
-                                Text("See all (\(viewModel.openActionItems.count))")
-                                    .foregroundStyle(.blue)
-                            }
-                        }
-                    }
-                } header: {
-                    Label("Action Items", systemImage: "checklist")
-                }
-
-                // Quick Log Section
-                Section {
-                    NavigationLink(destination: WatchQuickLogView(viewModel: viewModel)) {
-                        Label("Log Sentiment", systemImage: "face.smiling")
-                    }
-                } header: {
-                    Label("Quick Actions", systemImage: "bolt.fill")
+            Group {
+                if sessionManager.hasActiveMeeting, let meeting = sessionManager.activeMeeting {
+                    ActiveMeetingWatchView(meeting: meeting)
+                } else {
+                    NoMeetingView()
                 }
             }
             .navigationTitle("1:1 Tracker")
-            .task {
-                await viewModel.loadData()
-            }
-            .refreshable {
-                await viewModel.loadData()
-            }
+        }
+        .onAppear {
+            sessionManager.startSession()
         }
     }
 }
 
-// MARK: - Next Meeting Row
+// MARK: - No Meeting View
 
-private struct NextMeetingRow: View {
-    let meeting: Meeting
-    let managerName: String
-
+private struct NoMeetingView: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(managerName)
-                .font(.headline)
-
-            Text(meeting.date.formatted(date: .abbreviated, time: .shortened))
-                .font(.caption)
+        VStack(spacing: 16) {
+            Image(systemName: "iphone")
+                .font(.system(size: 40))
                 .foregroundStyle(.secondary)
 
-            if let countdown = countdownText {
-                Text(countdown)
-                    .font(.caption2)
-                    .foregroundStyle(.blue)
-            }
-        }
-        .padding(.vertical, 4)
-    }
+            Text("Start a meeting on iPhone")
+                .font(.headline)
+                .multilineTextAlignment(.center)
 
-    private var countdownText: String? {
-        let now = Date()
-        let components = Calendar.current.dateComponents([.day, .hour, .minute], from: now, to: meeting.date)
-
-        if let days = components.day, days > 0 {
-            return "in \(days) day\(days == 1 ? "" : "s")"
-        } else if let hours = components.hour, hours > 0 {
-            return "in \(hours) hour\(hours == 1 ? "" : "s")"
-        } else if let minutes = components.minute, minutes > 0 {
-            return "in \(minutes) min"
+            Text("Your active meeting will appear here")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
         }
-        return nil
+        .padding()
     }
 }
 
-// MARK: - Action Item Row
+// MARK: - Active Meeting View
 
-private struct ActionItemRow: View {
-    let item: ActionItem
-    let onComplete: () -> Void
+private struct ActiveMeetingWatchView: View {
+    let meeting: WatchMeetingData
+    @ObservedObject var sessionManager = WatchSessionManager.shared
 
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(item.title)
-                    .font(.footnote)
-                    .lineLimit(2)
+        List {
+            // Meeting Header
+            Section {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(meeting.managerName)
+                        .font(.headline)
 
-                if item.isOverdue {
-                    Text("Overdue")
-                        .font(.caption2)
-                        .foregroundStyle(.red)
-                } else if let dueDate = item.formattedDueDate {
-                    Text(dueDate)
-                        .font(.caption2)
+                    Text(meeting.date.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption)
                         .foregroundStyle(.secondary)
+
+                    HStack {
+                        Circle()
+                            .fill(.green)
+                            .frame(width: 8, height: 8)
+                        Text("In Progress")
+                            .font(.caption)
+                            .foregroundStyle(.green)
+                    }
                 }
             }
 
-            Spacer()
-
-            Button(action: onComplete) {
-                Image(systemName: "checkmark.circle")
-                    .foregroundStyle(.green)
+            // Agenda Section
+            if !meeting.agenda.isEmpty {
+                Section("Agenda") {
+                    ForEach(meeting.agenda, id: \.self) { item in
+                        Text("• \(item)")
+                            .font(.caption)
+                    }
+                }
             }
-            .buttonStyle(.plain)
+
+            // Blockers Section
+            if !meeting.blockers.isEmpty {
+                Section("Blockers") {
+                    ForEach(meeting.blockers, id: \.self) { blocker in
+                        Text("• \(blocker)")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+                }
+            }
+
+            // Action Items Section
+            if !meeting.actionItems.isEmpty {
+                Section("Action Items") {
+                    ForEach(meeting.actionItems) { item in
+                        HStack {
+                            Image(systemName: item.completed ? "checkmark.circle.fill" : "circle")
+                                .foregroundStyle(item.completed ? .green : .secondary)
+                            Text(item.title)
+                                .font(.caption)
+                                .strikethrough(item.completed)
+                                .foregroundStyle(item.completed ? .secondary : .primary)
+                        }
+                    }
+                }
+            }
+
+            // Complete Meeting Button
+            Section {
+                Button(action: {
+                    sessionManager.completeMeeting(meeting.id)
+                }) {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                        Text("Complete Meeting")
+                    }
+                    .foregroundStyle(.green)
+                    .frame(maxWidth: .infinity)
+                }
+            }
         }
     }
 }
 
 // MARK: - Preview
 
-#Preview {
+#Preview("No Meeting") {
     WatchHomeView()
 }

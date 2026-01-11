@@ -279,6 +279,27 @@ final class MeetingsViewModel: ObservableObject {
         var updated = meeting
         updated.status = .inProgress
         await updateMeeting(updated)
+
+        // Send meeting to Watch
+        let managerName = self.managerName(for: meeting.managerID)
+        let actionItems = await fetchRelevantActionItems(for: meeting.managerID)
+        WatchSessionManager.shared.sendActiveMeeting(updated, managerName: managerName, actionItems: actionItems)
+    }
+
+    /// Fetches open action items associated with a manager/person
+    private func fetchRelevantActionItems(for managerID: UUID) async -> [ActionItem] {
+        if AppSettings.shared.isDemoMode {
+            return DemoDataProvider.actionItems.filter { $0.status != .completed }
+        }
+
+        do {
+            let fetchedItems = try DataManager.shared.fetchActionItems()
+            return fetchedItems
+                .filter { $0.status != .completed }
+                .map { $0.toActionItem() }
+        } catch {
+            return []
+        }
     }
 
     func completeMeeting(_ meeting: Meeting) async {
@@ -286,6 +307,9 @@ final class MeetingsViewModel: ObservableObject {
         updated.status = .completed
         updated.updatedAt = Date()
         await updateMeeting(updated)
+
+        // Clear Watch
+        WatchSessionManager.shared.clearActiveMeeting()
 
         // Auto-schedule next meeting if this is a recurring meeting
         await scheduleNextRecurringMeeting(from: meeting)

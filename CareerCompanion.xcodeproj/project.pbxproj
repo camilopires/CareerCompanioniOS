@@ -69,6 +69,7 @@
 		A100011006 /* AppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011006 /* AppIntents.swift */; };
 		A100011007 /* ShortcutsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011007 /* ShortcutsManager.swift */; };
 		A100011008 /* ManageTypesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011008 /* ManageTypesView.swift */; };
+		A100011009 /* WatchSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200011009 /* WatchSessionManager.swift */; };
 		A100012001 /* PremiumFeatures.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200012001 /* PremiumFeatures.swift */; };
 		A100012002 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200012002 /* SubscriptionManager.swift */; };
 		A100012003 /* UpgradeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200012003 /* UpgradeView.swift */; };
@@ -106,10 +107,8 @@
 		B1000009001 /* CareerCompanionWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B3000001001 /* CareerCompanionWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		W1000001001 /* CareerCompanionWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001001 /* CareerCompanionWatchApp.swift */; };
 		W1000001002 /* WatchHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001002 /* WatchHomeView.swift */; };
-		W1000001003 /* WatchHomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001003 /* WatchHomeViewModel.swift */; };
 		W1000001004 /* WatchMeetingDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001004 /* WatchMeetingDetailView.swift */; };
-		W1000001005 /* WatchActionItemsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001005 /* WatchActionItemsView.swift */; };
-		W1000001006 /* WatchQuickLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001006 /* WatchQuickLogView.swift */; };
+		W1000001007 /* WatchSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = W2000001007 /* WatchSessionManager.swift */; };
 		W1000002001 /* CloudKitRecordable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002001 /* CloudKitRecordable.swift */; };
 		W1000002002 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002002 /* CloudKitManager.swift */; };
 		W1000003001 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003001 /* Enums.swift */; };
@@ -211,6 +210,7 @@
 		A200011006 /* AppIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIntents.swift; sourceTree = "<group>"; };
 		A200011007 /* ShortcutsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutsManager.swift; sourceTree = "<group>"; };
 		A200011008 /* ManageTypesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTypesView.swift; sourceTree = "<group>"; };
+		A200011009 /* WatchSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSessionManager.swift; sourceTree = "<group>"; };
 		A200012001 /* PremiumFeatures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumFeatures.swift; sourceTree = "<group>"; };
 		A200012002 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
 		A200012003 /* UpgradeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeView.swift; sourceTree = "<group>"; };
@@ -243,10 +243,8 @@
 		B3000001001 /* CareerCompanionWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CareerCompanionWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		W2000001001 /* CareerCompanionWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerCompanionWatchApp.swift; sourceTree = "<group>"; };
 		W2000001002 /* WatchHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchHomeView.swift; sourceTree = "<group>"; };
-		W2000001003 /* WatchHomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchHomeViewModel.swift; sourceTree = "<group>"; };
 		W2000001004 /* WatchMeetingDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchMeetingDetailView.swift; sourceTree = "<group>"; };
-		W2000001005 /* WatchActionItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchActionItemsView.swift; sourceTree = "<group>"; };
-		W2000001006 /* WatchQuickLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchQuickLogView.swift; sourceTree = "<group>"; };
+		W2000001007 /* WatchSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSessionManager.swift; sourceTree = "<group>"; };
 		W200000A001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		W200000B001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		W3000001001 /* CareerCompanionWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CareerCompanionWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -514,6 +512,7 @@
 				A200011001 /* ExportImportService.swift */,
 				A200011004 /* CalendarManager.swift */,
 				A200011005 /* AIManager.swift */,
+				A200011009 /* WatchSessionManager.swift */,
 				A200012002 /* SubscriptionManager.swift */,
 				A200013004 /* MeetingExportService.swift */,
 			);
@@ -576,10 +575,8 @@
 			children = (
 				W2000001001 /* CareerCompanionWatchApp.swift */,
 				W2000001002 /* WatchHomeView.swift */,
-				W2000001003 /* WatchHomeViewModel.swift */,
 				W2000001004 /* WatchMeetingDetailView.swift */,
-				W2000001005 /* WatchActionItemsView.swift */,
-				W2000001006 /* WatchQuickLogView.swift */,
+				W2000001007 /* WatchSessionManager.swift */,
 				W200000A001 /* Assets.xcassets */,
 				W200000B001 /* Info.plist */,
 			);
@@ -775,6 +772,7 @@
 				A100011006 /* AppIntents.swift in Sources */,
 				A100011007 /* ShortcutsManager.swift in Sources */,
 				A100011008 /* ManageTypesView.swift in Sources */,
+				A100011009 /* WatchSessionManager.swift in Sources */,
 				A100012001 /* PremiumFeatures.swift in Sources */,
 				A100012002 /* SubscriptionManager.swift in Sources */,
 				A100012003 /* UpgradeView.swift in Sources */,
@@ -825,10 +823,8 @@
 			files = (
 				W1000001001 /* CareerCompanionWatchApp.swift in Sources */,
 				W1000001002 /* WatchHomeView.swift in Sources */,
-				W1000001003 /* WatchHomeViewModel.swift in Sources */,
 				W1000001004 /* WatchMeetingDetailView.swift in Sources */,
-				W1000001005 /* WatchActionItemsView.swift in Sources */,
-				W1000001006 /* WatchQuickLogView.swift in Sources */,
+				W1000001007 /* WatchSessionManager.swift in Sources */,
 				W1000002001 /* CloudKitRecordable.swift in Sources */,
 				W1000002002 /* CloudKitManager.swift in Sources */,
 				W1000003001 /* Enums.swift in Sources */,

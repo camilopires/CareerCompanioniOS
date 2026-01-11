@@ -11,6 +11,11 @@ struct CareerCompanionApp: App {
     @State private var showSplash = true
     @State private var refreshID = UUID()
 
+    init() {
+        // Initialize WatchConnectivity session
+        WatchSessionManager.shared.startSession()
+    }
+
     var body: some Scene {
         WindowGroup {
             ZStack {

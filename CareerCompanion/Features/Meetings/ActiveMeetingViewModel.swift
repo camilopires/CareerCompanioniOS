@@ -198,6 +198,7 @@ final class ActiveMeetingViewModel: ObservableObject {
 
         // In demo mode, just show success (data is in-memory only)
         if AppSettings.shared.isDemoMode {
+            WatchSessionManager.shared.clearActiveMeeting()
             Theme.successHaptic()
             isLoading = false
             return
@@ -263,6 +264,9 @@ final class ActiveMeetingViewModel: ObservableObject {
 
             // Auto-schedule next meeting if this is a recurring meeting
             await scheduleNextRecurringMeeting(from: sdMeeting.toMeeting())
+
+            // Clear Watch
+            WatchSessionManager.shared.clearActiveMeeting()
 
             Theme.successHaptic()
 

@@ -19,6 +19,28 @@ struct WatchMeetingDetailView: View {
                 }
             }
 
+            // Agenda / This Week's Goals
+            if !meeting.thisWeekGoals.isEmpty {
+                Section("Agenda") {
+                    ForEach(meeting.thisWeekGoals, id: \.self) { item in
+                        Text("• \(item)")
+                            .font(.caption)
+                    }
+                }
+            }
+
+            // Blockers to discuss
+            if !meeting.blockers.isEmpty {
+                Section("Blockers") {
+                    ForEach(meeting.blockers, id: \.self) { blocker in
+                        Text("• \(blocker)")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+                }
+            }
+
+            // Notes from meeting
             if !meeting.notes.isEmpty {
                 Section("Notes") {
                     Text(meeting.notes)
@@ -26,21 +48,13 @@ struct WatchMeetingDetailView: View {
                 }
             }
 
+            // What went well
             if !meeting.wentWell.isEmpty {
                 Section("Went Well") {
                     ForEach(meeting.wentWell, id: \.self) { item in
                         Text("• \(item)")
                             .font(.caption)
-                    }
-                }
-            }
-
-            if !meeting.blockers.isEmpty {
-                Section("Blockers") {
-                    ForEach(meeting.blockers, id: \.self) { blocker in
-                        Text("• \(blocker)")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.green)
                     }
                 }
             }

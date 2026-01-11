@@ -24,9 +24,9 @@ struct CareerCompanionApp: App {
                         .sheet(isPresented: $showSetupView) {
                             SetupView(hasCompletedOnboarding: $hasCompletedOnboarding)
                         }
-                        .onAppear {
-                            // Show demo sheet if just completed onboarding and in demo mode
-                            if isDemoMode && AppSettings.shared.hasExploredDemo {
+                        .onChange(of: showSplash) { _, isSplashVisible in
+                            // Show demo sheet after splash dismisses (not during)
+                            if !isSplashVisible && isDemoMode && AppSettings.shared.hasExploredDemo {
                                 showDemoSheet = true
                             }
                         }

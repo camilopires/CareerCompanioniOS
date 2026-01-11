@@ -16,6 +16,10 @@ struct WatchHomeView: View {
         }
         .onAppear {
             sessionManager.startSession()
+            // Poll immediately on appear
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                sessionManager.requestMeetingStatus()
+            }
         }
     }
 }
@@ -24,7 +28,7 @@ struct WatchHomeView: View {
 
 private struct NoMeetingView: View {
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             Image(systemName: "iphone")
                 .font(.system(size: 40))
                 .foregroundStyle(.secondary)
@@ -37,6 +41,7 @@ private struct NoMeetingView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+
         }
         .padding()
     }

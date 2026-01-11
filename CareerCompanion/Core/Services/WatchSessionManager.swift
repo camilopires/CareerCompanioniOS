@@ -8,16 +8,14 @@ class WatchSessionManager: NSObject, ObservableObject {
 
     @Published var isReachable = false
     private var session: WCSession?
+    private var currentMeetingData: [String: Any]?
 
     private override init() {
         super.init()
     }
 
     func startSession() {
-        guard WCSession.isSupported() else {
-            print("WatchConnectivity not supported on this device")
-            return
-        }
+        guard WCSession.isSupported() else { return }
         session = WCSession.default
         session?.delegate = self
         session?.activate()
@@ -27,10 +25,8 @@ class WatchSessionManager: NSObject, ObservableObject {
 
     /// Send active meeting data to Watch
     func sendActiveMeeting(_ meeting: Meeting?, managerName: String, actionItems: [ActionItem]) {
-        guard let session, session.activationState == .activated else {
-            print("Watch session not activated")
-            return
-        }
+        guard let session else { return }
+        guard session.activationState == .activated else { return }
 
         let data: [String: Any] = [
             "type": "activeMeeting",
@@ -49,14 +45,18 @@ class WatchSessionManager: NSObject, ObservableObject {
             }
         ]
 
-        // Use transferUserInfo for background delivery, sendMessage for immediate
+        // Store for re-sending on reachability change and polling
+        currentMeetingData = data
+
+        // Use applicationContext for state sync (survives app restarts)
+        try? session.updateApplicationContext(data)
+
+        // Also use transferUserInfo as backup
+        session.transferUserInfo(data)
+
+        // Also try sendMessage if reachable for immediate delivery
         if session.isReachable {
-            session.sendMessage(data, replyHandler: nil) { error in
-                print("Failed to send message to Watch: \(error)")
-            }
-        } else {
-            // Queue for when Watch becomes reachable
-            session.transferUserInfo(data)
+            session.sendMessage(data, replyHandler: nil) { _ in }
         }
     }
 
@@ -79,7 +79,7 @@ class WatchSessionManager: NSObject, ObservableObject {
                 }
             }
         default:
-            print("Unknown message type from Watch: \(type)")
+            break
         }
     }
 
@@ -103,7 +103,7 @@ class WatchSessionManager: NSObject, ObservableObject {
                 NotificationCenter.default.post(name: .meetingCompletedFromWatch, object: meetingID)
             }
         } catch {
-            print("Failed to complete meeting from Watch: \(error)")
+            // Silent failure
         }
     }
 }
@@ -114,16 +114,12 @@ extension WatchSessionManager: WCSessionDelegate {
     nonisolated func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         Task { @MainActor in
             self.isReachable = session.isReachable
-            print("Watch session activated: \(activationState.rawValue), reachable: \(session.isReachable)")
         }
     }
 
-    nonisolated func sessionDidBecomeInactive(_ session: WCSession) {
-        print("Watch session became inactive")
-    }
+    nonisolated func sessionDidBecomeInactive(_ session: WCSession) {}
 
     nonisolated func sessionDidDeactivate(_ session: WCSession) {
-        print("Watch session deactivated")
         // Reactivate for switching watches
         session.activate()
     }
@@ -131,7 +127,11 @@ extension WatchSessionManager: WCSessionDelegate {
     nonisolated func sessionReachabilityDidChange(_ session: WCSession) {
         Task { @MainActor in
             self.isReachable = session.isReachable
-            print("Watch reachability changed: \(session.isReachable)")
+
+            // Re-send current meeting data when Watch becomes reachable
+            if session.isReachable, let data = self.currentMeetingData {
+                session.sendMessage(data, replyHandler: nil) { _ in }
+            }
         }
     }
 
@@ -143,6 +143,23 @@ extension WatchSessionManager: WCSessionDelegate {
 
     nonisolated func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
         Task { @MainActor in
+            // Handle polling request from Watch
+            if message["type"] as? String == "requestMeetingStatus" {
+                let responseData: [String: Any]
+                if let data = self.currentMeetingData {
+                    responseData = data
+                } else {
+                    responseData = ["type": "activeMeeting", "hasActiveMeeting": false]
+                }
+                replyHandler(responseData)
+
+                // Also send via sendMessage as backup
+                if session.isReachable {
+                    session.sendMessage(responseData, replyHandler: nil) { _ in }
+                }
+                return
+            }
+
             self.handleWatchMessage(message)
             replyHandler(["status": "received"])
         }

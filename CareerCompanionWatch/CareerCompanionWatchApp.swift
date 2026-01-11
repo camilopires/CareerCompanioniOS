@@ -4,8 +4,10 @@ import SwiftUI
 struct CareerCompanionWatchApp: App {
 
     init() {
-        // Initialize WatchConnectivity session
-        WatchSessionManager.shared.startSession()
+        // Initialize WatchConnectivity session on main actor
+        Task { @MainActor in
+            WatchSessionManager.shared.startSession()
+        }
     }
 
     var body: some Scene {

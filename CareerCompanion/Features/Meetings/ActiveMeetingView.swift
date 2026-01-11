@@ -260,6 +260,17 @@ struct ActiveMeetingView: View {
         .task {
             await viewModel.loadData()
         }
+        .onAppear {
+            // Initialize Watch session and send meeting
+            WatchSessionManager.shared.startSession()
+
+            // Delay then send
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                Task {
+                    await sendMeetingToWatch()
+                }
+            }
+        }
         .sheet(isPresented: $showingUpgrade) {
             UpgradeView()
         }
@@ -279,6 +290,39 @@ struct ActiveMeetingView: View {
                 )
             }
         }
+    }
+
+    // MARK: - Watch Connectivity
+
+    private func sendMeetingToWatch() async {
+        // Get manager name
+        let meeting = viewModel.meeting
+        var resolvedManagerName = managerName
+
+        if resolvedManagerName.isEmpty {
+            // Try to fetch manager name
+            if !AppSettings.shared.isDemoMode {
+                if let managers = try? DataManager.shared.fetchManagers(),
+                   let manager = managers.first(where: { $0.id == meeting.managerID }) {
+                    resolvedManagerName = manager.name
+                }
+            } else {
+                // In demo mode, look up from demo data
+                resolvedManagerName = DemoDataProvider.managers.first { $0.id == meeting.managerID }?.name ?? "Manager"
+            }
+        }
+
+        // Get open action items
+        let actionItems: [ActionItem]
+        if AppSettings.shared.isDemoMode {
+            actionItems = DemoDataProvider.actionItems.filter { $0.status != .completed }
+        } else {
+            let fetched = (try? DataManager.shared.fetchActionItems()) ?? []
+            actionItems = fetched.filter { $0.status != .completed }.map { $0.toActionItem() }
+        }
+
+        // Send to Watch
+        WatchSessionManager.shared.sendActiveMeeting(meeting, managerName: resolvedManagerName, actionItems: actionItems)
     }
 
     // MARK: - AI Helper Functions

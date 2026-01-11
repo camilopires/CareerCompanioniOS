@@ -12,8 +12,10 @@ struct CareerCompanionApp: App {
     @State private var refreshID = UUID()
 
     init() {
-        // Initialize WatchConnectivity session
-        WatchSessionManager.shared.startSession()
+        // Initialize WatchConnectivity session on main actor
+        Task { @MainActor in
+            WatchSessionManager.shared.startSession()
+        }
     }
 
     var body: some Scene {

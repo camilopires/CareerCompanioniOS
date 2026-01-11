@@ -242,7 +242,8 @@ struct MeetingRowView: View {
 
                     Label(meeting.status.displayName, systemImage: meeting.status.icon)
                         .font(Typography.caption1)
-                        .foregroundStyle(meeting.status.color)
+                        .foregroundStyle(meeting.status == .scheduled ? .primary : meeting.status.color)
+                        .fixedSize(horizontal: true, vertical: false)
 
                     if let sentiment = meeting.meetingSentimentValue {
                         Text(sentiment.emoji)
@@ -253,7 +254,7 @@ struct MeetingRowView: View {
                     if meeting.isRecurring {
                         Image(systemName: "repeat")
                             .font(.caption2)
-                            .foregroundStyle(Colors.textTertiary)
+                            .foregroundStyle(.secondary)
                             .accessibilityLabel("Recurring")
                     }
                 }

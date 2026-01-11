@@ -327,7 +327,7 @@ private struct MeetingHeaderCard: View {
                     if let recurrenceText {
                         Label(recurrenceText, systemImage: "repeat")
                             .font(Typography.caption1)
-                            .foregroundStyle(Colors.textTertiary)
+                            .foregroundStyle(Colors.textSecondary)
                     }
 
                     Spacer()

@@ -100,6 +100,7 @@ struct ActionItemRow: View {
                         Label(formattedDate, systemImage: "calendar")
                             .font(Typography.caption1)
                             .foregroundStyle(item.isOverdue ? Colors.error : Colors.textSecondary)
+                            .fixedSize(horizontal: true, vertical: false)
                     }
 
                     // Priority indicator
@@ -107,6 +108,7 @@ struct ActionItemRow: View {
                         Label("High", systemImage: item.priority.icon)
                             .font(Typography.caption1)
                             .foregroundStyle(item.priority.color)
+                            .fixedSize(horizontal: true, vertical: false)
                     }
 
                     // Owner
@@ -114,6 +116,7 @@ struct ActionItemRow: View {
                         Label("Manager", systemImage: "person.badge.shield.checkmark")
                             .font(Typography.caption1)
                             .foregroundStyle(Colors.textSecondary)
+                            .fixedSize(horizontal: true, vertical: false)
                     }
                 }
                 .labelStyle(CompactLabelStyle())

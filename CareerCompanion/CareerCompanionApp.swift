@@ -92,12 +92,10 @@ struct iPadSidebarView: View {
     @State private var sidebarSelection: SidebarItem? = .home
     @State private var selectedMeeting: Meeting?
     @State private var selectedGoal: CareerGoal?
-    @State private var selectedActionItem: ActionItem?
 
     enum SidebarItem: String, CaseIterable, Identifiable {
         case home = "Home"
         case meetings = "1:1s"
-        case actionItems = "Action Items"
         case career = "Career"
         case settings = "Settings"
 
@@ -107,7 +105,6 @@ struct iPadSidebarView: View {
             switch self {
             case .home: return "house.fill"
             case .meetings: return "person.2.fill"
-            case .actionItems: return "checklist"
             case .career: return "star.fill"
             case .settings: return "gearshape.fill"
             }
@@ -118,7 +115,7 @@ struct iPadSidebarView: View {
             switch self {
             case .home, .settings:
                 return true
-            case .meetings, .actionItems, .career:
+            case .meetings, .career:
                 return false
             }
         }
@@ -179,8 +176,6 @@ struct iPadSidebarView: View {
         switch sidebarSelection {
         case .meetings:
             iPadMeetingsListView(selectedMeeting: $selectedMeeting)
-        case .actionItems:
-            iPadActionItemsListView(selectedActionItem: $selectedActionItem)
         case .career:
             iPadCareerView(selectedGoal: $selectedGoal)
         case .home, .settings, .none:
@@ -205,16 +200,6 @@ struct iPadSidebarView: View {
                     "Select a Meeting",
                     systemImage: "person.2",
                     description: Text("Choose a meeting from the list")
-                )
-            }
-        case .actionItems:
-            if let actionItem = selectedActionItem {
-                ActionItemDetailView(item: actionItem)
-            } else {
-                ContentUnavailableView(
-                    "Select an Action Item",
-                    systemImage: "checklist",
-                    description: Text("Choose an action item from the list")
                 )
             }
         case .career:
@@ -364,6 +349,11 @@ struct iPadCareerView: View {
                     ForEach(filteredGoals) { goal in
                         GoalRowView(goal: goal)
                             .tag(goal)
+                            .listRowBackground(
+                                selectedGoal == goal
+                                    ? Colors.primaryLight
+                                    : Color.clear
+                            )
                     }
                 }
             }
@@ -384,112 +374,6 @@ struct iPadCareerView: View {
         case .all:
             return viewModel.goals
         }
-    }
-}
-
-// MARK: - iPad Action Items List (for split view)
-
-struct iPadActionItemsListView: View {
-    @StateObject private var viewModel = ActionItemsViewModel()
-    @Binding var selectedActionItem: ActionItem?
-    @State private var selectedFilter: ActionItemFilter = .open
-    @State private var showingAddItem = false
-
-    var body: some View {
-        VStack(spacing: 0) {
-            // Filter picker
-            Picker("Filter", selection: $selectedFilter) {
-                ForEach(ActionItemFilter.allCases) { filter in
-                    Text(filter.displayName).tag(filter)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding()
-
-            // List
-            if viewModel.filteredItems(for: selectedFilter).isEmpty {
-                Spacer()
-                EmptyState(
-                    icon: selectedFilter == .overdue ? "clock.badge.checkmark" : "checklist",
-                    title: selectedFilter == .overdue ? "Nothing Overdue" : "No Action Items",
-                    message: selectedFilter == .overdue
-                        ? "Great job staying on top of your tasks!"
-                        : "Add action items from your 1:1 meetings."
-                )
-                Spacer()
-            } else {
-                List(selection: $selectedActionItem) {
-                    ForEach(viewModel.filteredItems(for: selectedFilter)) { item in
-                        ActionItemRowView(item: item)
-                            .tag(item)
-                    }
-                }
-                .listStyle(.plain)
-            }
-        }
-        .navigationTitle("Action Items")
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(action: { showingAddItem = true }) {
-                    Image(systemName: "plus")
-                        .accessibilityLabel("Add action item")
-                }
-            }
-        }
-        .sheet(isPresented: $showingAddItem) {
-            AddActionItemView { item in
-                Task {
-                    await viewModel.addItem(item)
-                }
-            }
-        }
-        .refreshable {
-            await viewModel.loadItems()
-        }
-        .task {
-            await viewModel.loadItems()
-        }
-    }
-}
-
-// MARK: - Action Item Row View (for iPad list)
-
-private struct ActionItemRowView: View {
-    let item: ActionItem
-
-    var body: some View {
-        HStack(spacing: Spacing.md) {
-            // Status indicator
-            Image(systemName: item.status == .completed ? "checkmark.circle.fill" : "circle")
-                .foregroundStyle(item.status == .completed ? Colors.success : (item.isOverdue ? Colors.error : Colors.textTertiary))
-                .font(.title3)
-
-            // Content
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
-                Text(item.title)
-                    .font(Typography.body)
-                    .strikethrough(item.status == .completed)
-                    .foregroundStyle(item.status == .completed ? Colors.textSecondary : Colors.textPrimary)
-
-                HStack(spacing: Spacing.sm) {
-                    if item.priority == .high {
-                        Label("High", systemImage: item.priority.icon)
-                            .foregroundStyle(item.priority.color)
-                    }
-
-                    if let date = item.formattedDueDate {
-                        Label(date, systemImage: "calendar")
-                            .foregroundStyle(item.isOverdue ? Colors.error : Colors.textSecondary)
-                    }
-
-                    Label(item.owner.displayName, systemImage: item.owner.icon)
-                        .foregroundStyle(Colors.textSecondary)
-                }
-                .font(Typography.caption1)
-                .labelStyle(CompactLabelStyle())
-            }
-        }
-        .padding(.vertical, Spacing.xxs)
     }
 }
 

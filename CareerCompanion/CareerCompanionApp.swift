@@ -279,6 +279,11 @@ struct iPadMeetingsListView: View {
                                     managerName: viewModel.managerName(for: meeting.managerID)
                                 )
                                 .tag(meeting)
+                                .listRowBackground(
+                                    selectedMeeting == meeting
+                                        ? Colors.primaryLight
+                                        : Color.clear
+                                )
                             }
                         }
                     }
@@ -292,6 +297,11 @@ struct iPadMeetingsListView: View {
                                     managerName: viewModel.managerName(for: meeting.managerID)
                                 )
                                 .tag(meeting)
+                                .listRowBackground(
+                                    selectedMeeting == meeting
+                                        ? Colors.primaryLight
+                                        : Color.clear
+                                )
                             }
                         }
                     }

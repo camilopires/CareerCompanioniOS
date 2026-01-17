@@ -20,7 +20,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.onetoonetracker.premium.lifetime",
+      "productID" : "com.careercompanion.app.premium.lifetime",
       "referenceName" : "Premium Lifetime",
       "type" : "NonConsumable"
     }

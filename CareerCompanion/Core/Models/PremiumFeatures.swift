@@ -13,7 +13,7 @@ enum PremiumFeatures {
     static let trialDurationDays = 30
 
     // MARK: - Product IDs
-    static let premiumLifetimeProductID = "com.onetoonetracker.premium.lifetime"
+    static let premiumLifetimeProductID = "com.careercompanion.app.premium.lifetime"
 }
 
 /// Features that require premium

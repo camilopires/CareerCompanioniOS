@@ -105,22 +105,52 @@ struct UpgradeView: View {
     // MARK: - Purchase Button
 
     private var purchaseButton: some View {
-        Button {
-            Task { await purchase() }
-        } label: {
-            HStack(spacing: Spacing.sm) {
-                if isPurchasing {
-                    ProgressView()
-                        .tint(.white)
-                } else {
-                    Image(systemName: "crown.fill")
-                    Text("Purchase Premium")
+        VStack(spacing: Spacing.sm) {
+            if subscriptionManager.premiumProduct == nil && !subscriptionManager.isLoading {
+                // Product failed to load - show error state
+                HStack(spacing: Spacing.sm) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                    Text("Unable to load purchase options")
+                        .font(Typography.caption1)
+                        .foregroundStyle(Colors.textSecondary)
                 }
+
+                Button {
+                    Task { await retryLoadProducts() }
+                } label: {
+                    HStack(spacing: Spacing.sm) {
+                        if isPurchasing {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Image(systemName: "arrow.clockwise")
+                            Text("Try Again")
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .disabled(isPurchasing)
+            } else {
+                Button {
+                    Task { await purchase() }
+                } label: {
+                    HStack(spacing: Spacing.sm) {
+                        if isPurchasing {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Image(systemName: "crown.fill")
+                            Text("Purchase Premium")
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .disabled(isPurchasing || subscriptionManager.isPremium || subscriptionManager.premiumProduct == nil)
             }
-            .frame(maxWidth: .infinity)
         }
-        .buttonStyle(PrimaryButtonStyle())
-        .disabled(isPurchasing || subscriptionManager.isPremium)
     }
 
     // MARK: - Restore Link
@@ -174,6 +204,18 @@ struct UpgradeView: View {
             }
         } catch {
             errorMessage = error.localizedDescription
+            showError = true
+        }
+    }
+
+    private func retryLoadProducts() async {
+        isPurchasing = true
+        defer { isPurchasing = false }
+
+        await subscriptionManager.retryLoadProducts()
+
+        if subscriptionManager.premiumProduct == nil {
+            errorMessage = "Could not connect to the App Store. Please check your internet connection and try again."
             showError = true
         }
     }

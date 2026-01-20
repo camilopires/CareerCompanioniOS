@@ -84,9 +84,18 @@ final class SubscriptionManager: ObservableObject {
         updateTrialStatus()
     }
 
+    /// Retry loading products (for error recovery)
+    func retryLoadProducts() async {
+        error = nil
+        await loadProducts()
+    }
+
     // MARK: - Private Methods
 
     private func loadProducts() async {
+        isLoading = true
+        defer { isLoading = false }
+
         do {
             let products = try await Product.products(for: [PremiumFeatures.premiumLifetimeProductID])
             premiumProduct = products.first

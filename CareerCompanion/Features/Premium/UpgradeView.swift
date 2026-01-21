@@ -106,7 +106,15 @@ struct UpgradeView: View {
 
     private var purchaseButton: some View {
         VStack(spacing: Spacing.sm) {
-            if subscriptionManager.premiumProduct == nil && !subscriptionManager.isLoading {
+            if subscriptionManager.isPremium {
+                // Already purchased - show confirmation
+                HStack(spacing: Spacing.sm) {
+                    Image(systemName: "checkmark.circle.fill")
+                    Text("Purchased")
+                }
+                .frame(maxWidth: .infinity)
+                .buttonStyle(PrimaryButtonStyle())
+            } else if subscriptionManager.premiumProduct == nil && !subscriptionManager.isLoading {
                 // Product failed to load - show error state
                 HStack(spacing: Spacing.sm) {
                     Image(systemName: "exclamationmark.triangle.fill")
@@ -148,19 +156,22 @@ struct UpgradeView: View {
                     .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(PrimaryButtonStyle())
-                .disabled(isPurchasing || subscriptionManager.isPremium || subscriptionManager.premiumProduct == nil)
+                .disabled(isPurchasing || subscriptionManager.premiumProduct == nil)
             }
         }
     }
 
     // MARK: - Restore Link
 
+    @ViewBuilder
     private var restoreLink: some View {
-        Button("Restore Purchase") {
-            Task { await restore() }
+        if !subscriptionManager.isPremium {
+            Button("Restore Purchase") {
+                Task { await restore() }
+            }
+            .font(Typography.body)
+            .disabled(isPurchasing)
         }
-        .font(Typography.body)
-        .disabled(isPurchasing)
     }
 
     // MARK: - Terms Section

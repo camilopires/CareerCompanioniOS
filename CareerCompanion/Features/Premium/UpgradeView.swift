@@ -3,7 +3,7 @@ import SwiftUI
 /// Full-screen upgrade view showing premium benefits and purchase option
 struct UpgradeView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @ObservedObject private var subscriptionManager = SubscriptionManager.shared
     @State private var isPurchasing = false
     @State private var showError = false
     @State private var errorMessage = ""

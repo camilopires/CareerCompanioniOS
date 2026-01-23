@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Settings section showing premium status and upgrade options
 struct PremiumSettingsSection: View {
-    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @ObservedObject private var subscriptionManager = SubscriptionManager.shared
     @State private var showingUpgrade = false
 
     var body: some View {

@@ -66,8 +66,73 @@ final class HomeViewModel: ObservableObject {
     }
 
     var meetingStreak: Int {
-        // TODO: Calculate actual streak from meeting history
-        3
+        Self.calculateAppVisitStreak()
+    }
+
+    // MARK: - App Visit Streak
+
+    private static let visitedDatesKey = "appVisitedDates"
+
+    /// Records today's visit and returns the updated streak
+    static func recordAppVisit() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        var visitedDates = getVisitedDates()
+
+        // Add today if not already recorded
+        if !visitedDates.contains(today) {
+            visitedDates.append(today)
+            // Keep only last 365 days to prevent unbounded growth
+            let cutoff = calendar.date(byAdding: .day, value: -365, to: today)!
+            visitedDates = visitedDates.filter { $0 >= cutoff }
+            visitedDates.sort()
+            saveVisitedDates(visitedDates)
+        }
+    }
+
+    /// Calculates consecutive days visiting the app (including today)
+    static func calculateAppVisitStreak() -> Int {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let visitedDates = Set(getVisitedDates())
+
+        // If user hasn't visited today, check if they visited yesterday to continue streak
+        // Otherwise streak is 0
+        var checkDate = today
+        if !visitedDates.contains(today) {
+            let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+            if !visitedDates.contains(yesterday) {
+                return 0
+            }
+            checkDate = yesterday
+        }
+
+        // Count consecutive days backwards from checkDate
+        var streak = 0
+        while visitedDates.contains(checkDate) {
+            streak += 1
+            guard let previousDay = calendar.date(byAdding: .day, value: -1, to: checkDate) else {
+                break
+            }
+            checkDate = previousDay
+        }
+
+        return streak
+    }
+
+    private static func getVisitedDates() -> [Date] {
+        guard let data = UserDefaults.standard.data(forKey: visitedDatesKey),
+              let dates = try? JSONDecoder().decode([Date].self, from: data) else {
+            return []
+        }
+        return dates
+    }
+
+    private static func saveVisitedDates(_ dates: [Date]) {
+        if let data = try? JSONEncoder().encode(dates) {
+            UserDefaults.standard.set(data, forKey: visitedDatesKey)
+        }
     }
 
     var activeGoalsCount: Int {
@@ -91,6 +156,9 @@ final class HomeViewModel: ObservableObject {
     func loadData() async {
         isLoading = true
         error = nil
+
+        // Record app visit for streak tracking
+        Self.recordAppVisit()
 
         // Use demo data if in demo mode
         if AppSettings.shared.isDemoMode {
